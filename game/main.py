@@ -3,6 +3,7 @@ This file contains the main game loop.
 
 I tried to keep it as simple as possible.
 """
+import random, time
 import asyncio
 from collections import deque
 from typing import Awaitable
@@ -23,6 +24,7 @@ class Game(GameInterface):
         # rightmost = top of stack
         self.state_stack: deque[GameStateInterface] = deque()
         self.render_delay: int = env.CAN_CAP_FPS * 1 / const.RENDER_FPS
+        self.target_render_delay: float = self.render_delay
         self.physics_delay: int = 1 / const.PHYSICS_FPS
         self.last_physics_update: int = 0
         self.tg: asyncio.TaskGroup = None
@@ -55,9 +57,14 @@ class Game(GameInterface):
 
     async def render_loop(self):
         while self.running:
-            surface = self.state_stack[-1].render((pygame.time.get_ticks() - self.last_physics_update) / 1000)
+            dt_since_physics = (pygame.time.get_ticks() - self.last_physics_update) / 1000
+            surface = self.state_stack[-1].render(dt_since_physics)
             self.window.get_surface().blit(surface, (0, 0))
             self.window.flip()
+            if dt_since_physics > self.physics_delay:
+                self.render_delay = min(self.render_delay + 0.05, 1 / 15)
+            elif self.render_delay > self.target_render_delay:
+                self.render_delay = max(self.target_render_delay, self.render_delay - 0.05)
             await asyncio.sleep(self.render_delay)
 
     async def run(self) -> None:
