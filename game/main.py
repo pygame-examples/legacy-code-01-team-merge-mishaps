@@ -61,7 +61,8 @@ class Game(GameInterface):
             surface = self.state_stack[-1].render(dt_since_physics)
             self.window.get_surface().blit(surface, (0, 0))
             self.window.flip()
-            if dt_since_physics > self.physics_delay:
+            if dt_since_physics > self.physics_delay * 1.1:
+                print("lag detected")
                 self.render_delay = min(self.render_delay + 0.05, 1 / 15)
             elif self.render_delay > self.target_render_delay:
                 self.render_delay = max(self.target_render_delay, self.render_delay - 0.05)
@@ -78,7 +79,6 @@ class Game(GameInterface):
         self.window.get_surface()
 
         self.state_stack.append(level.Level(self))
-
 
         async with asyncio.TaskGroup() as self.tg:
             self.state_stack[-1].init()

@@ -58,9 +58,7 @@ class PhysicsSprite(Sprite):
         self.just_went_buffer["right"] = True
 
     def jump(self, lost_time: float) -> None:
-        print("jump")
         if self.on_ground:
-            print("boing")
             self.velocity.y = -self.jump_speed
 
     def duck(self, lost_time: float) -> None:

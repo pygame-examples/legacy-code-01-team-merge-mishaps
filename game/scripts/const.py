@@ -16,6 +16,6 @@ WINDOW_RESOLUTION: tuple[int, int] = (640, 480)
 
 PHYSICS_FPS: int = 120
 RENDER_FPS: int = 60
-INPUT_FPS: int = 1000
+INPUT_FPS: int = 500
 
 GRAVITY: tuple[int, int] = (0, 1000)
