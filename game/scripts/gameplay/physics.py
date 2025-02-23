@@ -234,12 +234,15 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         Called internally.
         """
+        # If I've gone through the enter portal, switch to the exit one
         if is_through_portal(self.collision_rect, self.current_portal.collision_rect, self.current_portal.orientation):
             self.exit_portal()
             return True
+        # If I've turned around when inside the exit portal, swap the enter and exit portals
         elif self.portal_state == self.PortalState.EXIT and is_entering_portal(self.twin_portal.orientation, self.velocity):
             self.enter_portal(self.twin_portal, self.current_portal)
             return True
+        # If I'm not touching any portal, normalize state
         elif (not is_inside_portal(self.collision_rect, self.current_portal.collision_rect, self.current_portal.orientation) and not 
                 is_inside_portal(self.collision_rect, self.twin_portal.collision_rect, self.twin_portal.orientation)):
             self.abort_portal()
@@ -254,8 +257,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Called internally
         """
         def must_move():
+            # Part of me that is inside a portal does not collide
             collision_rect = self.clipped_collision_rect()
             for sprite in self.level.get_group("static-physics"):
+                # only collide with one_way when going down or ducking
                 if sprite.one_way and (self.velocity.y < 0 or self.ducking):
                     continue
                 if sprite.collision_rect.colliderect(collision_rect):
@@ -265,21 +270,26 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.current_portal:
             self.handle_dynamic_collision_inside_portal(axis, dt)
 
+        # looped portals can make you go FAST
         self.velocity.clamp_magnitude_ip(MAX_SPEED)
 
+        # semi-implicit Euler integration + latency compenstation
         self.velocity[axis] += self.acceleration[axis] * dt
         center = pygame.Vector2(self.rect.center)
         center[axis] += self.velocity[axis] * dt + self.missed[axis]
         self.missed[axis] = 0
         self.rect.center = center
 
+        # which way I need to move if I'm colliding based on velocity
         offset: int = 1
         if self.velocity[axis] > 0:
             offset = -1
         
+        # move me out of collision
         moved: bool = False
         while must_move():
             self.rect[axis] += offset
+            # Don't collide with stuff overlapping with portals when moving into or out of the portal
             if (self.engaged_portal is not None and get_axis_of_direction(self.engaged_portal.orientation) == axis):
                 moved = False
             else:
@@ -329,6 +339,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         Called internally.
         """
+        # move the sprite to behind the exit portal
         if self.twin_portal.orientation == Direction.NORTH:
             self.velocity = pygame.Vector2(0, -self.velocity.length())
             self.rect.top = self.twin_portal.rect.bottom - 1
@@ -404,6 +415,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Except all of the above is interpolated
         """
         new_rect: pygame.FRect = self.rect.copy()
+        # only draw the part of the sprite that is not in a portal
         clip_rect = self.interpolated_cliprect(dt_since_physics)
         new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft)
         surface.blit(self.image.subsurface(clip_rect), new_rect)
