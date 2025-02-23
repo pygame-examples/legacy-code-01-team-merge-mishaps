@@ -48,30 +48,36 @@ class Game(GameInterface):
     async def input_loop(self) -> None:
         """Loop that handles window-related input"""
         while self.running:
+            start = pygame.time.get_ticks()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit()
-            await asyncio.sleep(1 / const.INPUT_FPS)
+            end = pygame.time.get_ticks()
+            await asyncio.sleep(max((1 / const.INPUT_FPS) - (end - start), 0))
 
     async def physics_loop(self) -> None:
         """Loop that runs physics"""
         while self.running:
+            start = pygame.time.get_ticks()
             self.update_physics()
-            await asyncio.sleep(self.physics_delay)
+            end = pygame.time.get_ticks()
+            await asyncio.sleep(max(self.physics_delay - (end - start), 0))
 
     async def render_loop(self):
         """Loop that renders the game"""
         while self.running:
-            dt_since_physics = (pygame.time.get_ticks() - self.last_physics_update) / 1000
+            start = pygame.time.get_ticks()
+            dt_since_physics = (start - self.last_physics_update) / 1000
             surface = self.state_stack[-1].render(dt_since_physics)
             self.window.get_surface().blit(surface, (0, 0))
             self.window.flip()
-            if dt_since_physics > self.physics_delay * 1.25:
+            if dt_since_physics > self.physics_delay * 2:
                 print("lag detected")
                 self.render_delay = min(self.render_delay + 0.05, 1 / 15)
             elif self.render_delay > self.target_render_delay:
                 self.render_delay = max(self.target_render_delay, self.render_delay - 0.05)
-            await asyncio.sleep(self.render_delay)
+            end = pygame.time.get_ticks()
+            await asyncio.sleep(max(self.render_delay - (end - start), 0))
 
     async def run(self) -> None:
         """Initializes Game Window and runs all loops"""
