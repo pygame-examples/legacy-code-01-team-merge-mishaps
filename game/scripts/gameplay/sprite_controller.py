@@ -1,3 +1,10 @@
+"""
+These actually control sprites!
+
+You can make ones that control with keyboard input (player) or AI (replays, enemies, etc)
+"""
+
+
 import asyncio
 import pygame
 from queue import Queue
@@ -7,6 +14,7 @@ from ..interfaces import SpriteControllerInterface, SpriteCommand
 from ..const import INPUT_FPS
 
 class InputController(SpriteControllerInterface):
+    """Uses WASD or Arrow Keys to move a sprite"""
     KEYBINDS: dict[str, list[int]] = {
         "jump": (pygame.K_UP, pygame.K_w),
         "left": (pygame.K_LEFT, pygame.K_a),
@@ -30,3 +38,17 @@ class InputController(SpriteControllerInterface):
                     if keys[button]:
                         self.command_queue.put(SpriteCommand(command, pygame.time.get_ticks()))
             await asyncio.sleep(1 / INPUT_FPS)
+
+
+class GoLeftController(SpriteControllerInterface):
+    """Goes Left always"""
+
+    def get_commands(self) -> Iterator[SpriteCommand]:
+        # uses multiple and back a little bc that's needed for portals for some reason
+        # <shrug>
+        yield SpriteCommand("left", pygame.time.get_ticks() - 2)
+        yield SpriteCommand("left", pygame.time.get_ticks() - 2)
+
+    async def run(self):
+        # doesn't need any logic
+        return 0

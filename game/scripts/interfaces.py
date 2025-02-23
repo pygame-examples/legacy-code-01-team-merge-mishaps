@@ -126,6 +126,7 @@ class SpriteInterface:
 
     @property
     def pos(self) -> tuple[int, int]:
+        """Center position of Sprite"""
         pass
 
     @pos.setter
@@ -144,4 +145,20 @@ class SpriteInterface:
 
 class PhysicsSpriteInterface(SpriteInterface):
     def trigger(self, other: SpriteInterface) -> None:
+        pass
+
+    @property
+    def collision_rect(self) -> pygame.FRect:
+        pass
+
+    def left(self) -> None:
+        pass
+
+    def right(self) -> None:
+        pass
+
+    def jump(self) -> None:
+        pass
+
+    def duck(self) -> None:
         pass

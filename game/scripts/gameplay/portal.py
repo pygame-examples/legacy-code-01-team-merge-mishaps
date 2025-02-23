@@ -5,6 +5,15 @@ from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, Directi
 from .physics import PhysicsSprite
 
 class Portal(PhysicsSprite):
+    """
+    Dynamic sprites can teleport through these
+
+    Must be instantiated in pairs with the same "tunnel_id" data property.
+    Necessary data properties:
+     - tunnel_id: must be same value as twin portal.  I recommend strings.
+     - orientation: a Direction enum value.  Which directions sprites are going when they EXIT this portal.
+        they exit the other direction
+    """
     def __init__(self, data: SpriteInitData):
         data.groups.extend(["render", "physics", "portal-physics", data.properties["tunnel_id"]])
         physics_data = SpritePhysicsData(

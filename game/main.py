@@ -1,9 +1,8 @@
 """
-This file contains the main game loop.
+Run this file to run the game, in the same directory as this file
 
 I tried to keep it as simple as possible.
 """
-import random, time
 import asyncio
 from collections import deque
 from typing import Awaitable
@@ -17,18 +16,19 @@ from scripts.gameplay import level, menu
 
 
 class Game(GameInterface):
+    """Main Game.  Gets passed to Game states"""
     def __init__(self):
         super().__init__()
-        self.running: bool = False
-        self.window: pygame.Window = None
+        self.running: bool = False  # whether the game is running the main loop
+        self.window: pygame.Window = None  # game window
         # rightmost = top of stack
-        self.state_stack: deque[GameStateInterface] = deque()
+        self.state_stack: deque[GameStateInterface] = deque()  # index -1 is top of stack
         self.render_delay: int = env.CAN_CAP_FPS * 1 / const.RENDER_FPS
         self.target_render_delay: float = self.render_delay
         self.physics_delay: int = 1 / const.PHYSICS_FPS
-        self.last_physics_update: int = 0
-        self.tg: asyncio.TaskGroup = None
-        self.needs_canceled: list[asyncio.Task] = []
+        self.last_physics_update: int = 0  # time (in milliseconds of the last physics update)
+        self.tg: asyncio.TaskGroup = None  # task group for all game loops
+        self.needs_canceled: list[asyncio.Task] = []  # list of tasks that need canceled when the game is closed
 
     def quit(self) -> None:
         """Close the game window and exit"""
@@ -37,13 +37,16 @@ class Game(GameInterface):
             task.cancel()
 
     def add_task(self, task: Awaitable) -> None:
+        """Add task async task to the main loop"""
         self.needs_canceled.append(self.tg.create_task(task))
 
     def update_physics(self) -> None:
+        """Update game physics.  Called interally."""
         self.state_stack[-1].update_physics(self.physics_delay)
         self.last_physics_update = pygame.time.get_ticks()
 
     async def input_loop(self) -> None:
+        """Loop that handles window-related input"""
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -51,11 +54,13 @@ class Game(GameInterface):
             await asyncio.sleep(1 / const.INPUT_FPS)
 
     async def physics_loop(self) -> None:
+        """Loop that runs physics"""
         while self.running:
             self.update_physics()
             await asyncio.sleep(self.physics_delay)
 
     async def render_loop(self):
+        """Loop that renders the game"""
         while self.running:
             dt_since_physics = (pygame.time.get_ticks() - self.last_physics_update) / 1000
             surface = self.state_stack[-1].render(dt_since_physics)
@@ -69,6 +74,7 @@ class Game(GameInterface):
             await asyncio.sleep(self.render_delay)
 
     async def run(self) -> None:
+        """Initializes Game Window and runs all loops"""
         self.running = True
         self.window: pygame.Window = pygame.window.Window(
             const.TITLE,

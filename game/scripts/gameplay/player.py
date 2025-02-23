@@ -4,6 +4,7 @@ from .physics import PhysicsSprite
 from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType
 
 class Player(PhysicsSprite):
+    """Player sprite"""
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.DYNAMIC,

@@ -9,10 +9,16 @@ from ..const import WINDOW_RESOLUTION
 from .player import Player
 from .block import Block, OneWayBlock
 from .portal import Portal
-from .sprite_controller import InputController
+from .sprite_controller import InputController, GoLeftController
 
 
 class Level(GameLevelInterface):
+    """
+    Game state for gameplay
+    
+    This thing probably needs a camera as well as some map loading code.
+    I didn't want to decide nor spend the time on a map loading stack this early.
+    """
     def __init__(self, game: GameInterface):
         self.groups: dict[str, pygame.sprite.AbstractGroup] = {
             "render": pygame.sprite.LayeredUpdates(),
@@ -25,6 +31,11 @@ class Level(GameLevelInterface):
         self.game: GameInterface = game
 
     def init(self):
+        """
+        Spawn all sprites.  Also anything that needs to wait a frame or so before happening.
+        
+        I would put map loading here.
+        """
         self.spawn(Block, SpriteInitData(
             rect=(32, 256, 512, 32),
             level=self,
@@ -39,9 +50,9 @@ class Level(GameLevelInterface):
             controller=InputController(),
         ))
         self.spawn(Player, SpriteInitData(
-            rect=(128, 32, 32, 32),
+            rect=(325, 160, 32, 32),
             level=self,
-            controller=InputController(),
+            controller=GoLeftController(),
         ))
         self.spawn(Portal, SpriteInitData(
             rect=(128, 256, 96, 8),
@@ -78,19 +89,36 @@ class Level(GameLevelInterface):
 
 
     def add_task(self, task: Awaitable) -> None:
+        """Adds task to main game loop"""
         self.game.add_task(task)
 
     def spawn(self, cls: Callable[[SpriteInitData], SpriteInterface], data: SpriteInitData) -> SpriteInterface:
+        """Spawn a new sprite"""
         return cls(data)
 
     def get_group(self, group_name: str) -> pygame.sprite.AbstractGroup:
+        """
+        Get a sprite group from a string
+        
+        Returns None if group does not exist
+        """
         return self.groups.get(group_name)
     
     def add_to_groups(self, sprite: SpriteInterface, *groups: str) -> None:
+        """
+        Add a sprite to the given string groups
+        
+        Will create new ones if the groups do not exist
+        """
         for group in groups:
             self.groups.setdefault(group, pygame.sprite.Group()).add(sprite)
 
     def render(self, dt_since_physics: float) -> pygame.Surface:
+        """
+        Return a drawn surface.
+
+        dt_since_physics is how much time since the last physics update and is used for position interpolation
+        """
         surface: pygame.Surface = pygame.Surface(WINDOW_RESOLUTION).convert()
         surface.fill("black")
         for sprite in self.get_group("render"):
@@ -98,5 +126,8 @@ class Level(GameLevelInterface):
         return surface
 
     def update_physics(self, dt):
+        """
+        Update the physics in this level
+        """
         for sprite in self.get_group("physics"):
             sprite.update_physics(dt)

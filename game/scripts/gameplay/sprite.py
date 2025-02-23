@@ -5,6 +5,11 @@ from ..interfaces import SpriteInterface, SpriteInitData, SpriteControllerInterf
 
 
 class Sprite(pygame.sprite.Sprite, SpriteInterface):
+    """
+    Base sprite class.  
+    
+    Implements Sprite Interface on top of pygame.Sprite objects for group stuff
+    """
     def __init__(self, data: SpriteInitData):
         super().__init__()
         self.controller: SpriteControllerInterface = data.controller
