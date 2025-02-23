@@ -61,7 +61,7 @@ class Game(GameInterface):
             surface = self.state_stack[-1].render(dt_since_physics)
             self.window.get_surface().blit(surface, (0, 0))
             self.window.flip()
-            if dt_since_physics > self.physics_delay * 1.1:
+            if dt_since_physics > self.physics_delay * 1.25:
                 print("lag detected")
                 self.render_delay = min(self.render_delay + 0.05, 1 / 15)
             elif self.render_delay > self.target_render_delay:
@@ -73,8 +73,8 @@ class Game(GameInterface):
         self.window: pygame.Window = pygame.window.Window(
             const.TITLE,
             const.WINDOW_RESOLUTION,
-            resizable=True,
-            maximized=True,
+            # resizable=True,
+            # maximized=True,
         )
         self.window.get_surface()
 

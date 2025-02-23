@@ -19,3 +19,4 @@ RENDER_FPS: int = 60
 INPUT_FPS: int = 500
 
 GRAVITY: tuple[int, int] = (0, 1000)
+MAX_SPEED: float = 1000

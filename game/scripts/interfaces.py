@@ -24,9 +24,18 @@ class WindowScale(Enum):
 
 
 class PhysicsType(Enum):
-    STATIC = 1
-    DYNAMIC = 2
-    TRIGGER = 3
+    STATIC = 1  # Dynamic sprites collide with and stay off of
+    DYNAMIC = 2  # "character" sprite.  Walks, jumps, etc.
+    TRIGGER = 3  # Can message certain sprites when they collide with it
+    KINEMATIC = 4  # Not messed with by physics engine
+    PORTAL = 5  # PORTAL!!!!!
+
+
+class Direction(Enum):
+    NORTH = (0, -1)
+    SOUTH = (0, 1)
+    EAST = (1, 0)
+    WEST = (-1, 0)
 
 
 class GameInterface:
@@ -86,22 +95,29 @@ class SpriteControllerInterface:
 class SpriteInitData:
     # Object used to init sprites with
     # Add stuff here as necessary
-    rect: RectLike
-    level: GameLevelInterface
-    controller: SpriteControllerInterface = SpriteControllerInterface()
-    groups: list[str] = field(default_factory=list)
+    rect: RectLike  # initial position and size of sprite
+    level: GameLevelInterface  # level that holds sprite
+    controller: SpriteControllerInterface = SpriteControllerInterface()  # controller to pilot sprite
+    groups: list[str] = field(default_factory=list)  # level groups to add sprite to
+
+    # put any init data that is specific to a certain sprite type in here
+    # like orientation of a portal, for example
+    properties: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class SpritePhysicsData:
     # object used to init physics sprites with
     # add stuff here as necessary
-    physics_type: PhysicsType = PhysicsType.STATIC
-    weight: float = 10
-    horizontal_speed: float = 400
-    jump_speed: float = 128
-    duck_speed: float = 128
-    one_way: bool = False
+    # no need for every sprite to use every bit of data
+    physics_type: PhysicsType = PhysicsType.STATIC  # type of physics resolution to use
+    weight: float = 10  # weight (not used RN)
+    horizontal_speed: float = 400  # walking speed (for dynamic sprites)
+    jump_speed: float = 128  # jump speed (for dynamic sprites)
+    duck_speed: float = 128  # duck speed (for dynamic sprites)
+    one_way: bool = False  # whether a static sprite collides downward
+    orientation: Direction = Direction.NORTH  # which way a portal shoots / accepts sprites
+    tunnel_id: str = "default"  # portals with the same tunnel_id link to each other
 
 
 class SpriteInterface:
