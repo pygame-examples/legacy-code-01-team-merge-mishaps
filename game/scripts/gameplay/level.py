@@ -25,6 +25,7 @@ class Level(GameLevelInterface):
             "physics": pygame.sprite.Group(),
             "static-physics": pygame.sprite.Group(),
             "dynamic-physics": pygame.sprite.Group(),
+            "throwable-physics": pygame.sprite.Group(), # currently not in use
             "trigger-physics": pygame.sprite.Group(),
             "portal-physics": pygame.sprite.Group(),
         }
@@ -50,25 +51,8 @@ class Level(GameLevelInterface):
             controller=InputController(),
         ))
         self.spawn(Player, SpriteInitData(
-            rect=(325, 160, 32, 32),
+            rect=(32, 32, 32, 32),
             level=self,
-            controller=GoLeftController(),
-        ))
-        self.spawn(Portal, SpriteInitData(
-            rect=(128, 256, 96, 8),
-            level=self,
-            properties={
-                "orientation": Direction.NORTH,
-                "tunnel_id": "tunnel1"
-            }
-        ))
-        self.spawn(Portal, SpriteInitData(
-            rect=(150, 150, 96, 8),
-            level=self,
-            properties={
-                "orientation": Direction.SOUTH,
-                "tunnel_id": "tunnel1"
-            }
         ))
         self.spawn(Portal, SpriteInitData(
             rect=(280, 160, 8, 96),

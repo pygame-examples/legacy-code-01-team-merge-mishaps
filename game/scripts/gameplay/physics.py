@@ -45,7 +45,7 @@ def is_entering_portal(direction: Direction, velocity: pygame.Vector2) -> bool:
     if direction == Direction.WEST:
         return velocity.x > 0
 
-def clip_rect_to_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction) -> bool:
+def clip_rect_to_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction) -> pygame.FRect:
     """Clips a rect to only what you would see if the rect entered a portal"""
     collision_rect = collision_rect.copy()
     if direction == Direction.NORTH:
@@ -94,7 +94,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.one_way: bool = physics_data.one_way  # whether sprite only collides downward (if static)
         self.ducking: bool = False  # whether sprite is ducking (if dynamic)
 
-        # latency comensation
+        # latency compensation 
         # all inputs are polled faster than physics framerate and timestamped
         # then the physics engine can use that timestamp to correct for time difference
         # eg move the player just a wee bit more if he hit the left key a millisecond after the last frame
@@ -160,8 +160,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """Which portal sprite is currently "inside" (entering or exiting) or None"""
         if self.portal_state == self.PortalState.ENTER:
             return self.current_portal
-        if self.portal_state == self.PortalState.ENTER:
+        if self.portal_state == self.PortalState.EXIT:
             return self.twin_portal
+        # I'm assuming it was supposed to be PortalState.Exit and not PortalState.Enter??? - Aiden
         return None
         
     def trigger(self, other: SpriteInterface) -> None:
@@ -202,7 +203,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
     def interpolated_pos(self, dt_since_physics: float) -> pygame.Vector2:
         """Use this position during render calls"""
         return self.pos + self.velocity * dt_since_physics
-    
+
     def interpolated_cliprect(self, dt_since_physics: float) -> pygame.FRect:
         """Use this clip rect during render calls"""
         clipped = self.full_clip_rect
@@ -215,7 +216,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             clipped = clip_rect_to_portal(collision_rect, self.twin_portal.rect, self.twin_portal.orientation)
             clipped.center -= pygame.Vector2(collision_rect.topleft)
         return clipped
-    
+
     def clipped_collision_rect(self):
         """
         Collision rect used in actual collision checking.
@@ -227,7 +228,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if is_inside_portal(collision_rect, portal.collision_rect, portal.orientation):
                 collision_rect = clip_rect_to_portal(collision_rect, portal.collision_rect, portal.orientation)
         return collision_rect
-    
+
     def handle_dynamic_collision_inside_portal(self, axis: int, dt: float) -> bool:
         """
         Extra collision handling when inside a portal
@@ -297,6 +298,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 moved = True
 
         if moved:
+            # :sob: what does this even mean - Aiden
             self.rect.center = pygame.Rect(self.rect).center
 
         return moved
@@ -419,4 +421,3 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         clip_rect = self.interpolated_cliprect(dt_since_physics)
         new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft)
         surface.blit(self.image.subsurface(clip_rect), new_rect)
-        

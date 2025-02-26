@@ -18,4 +18,3 @@ class Player(PhysicsSprite):
         super().__init__(data, physics_data)
         self.image = pygame.Surface(self.rect.size, pygame.SRCALPHA).convert_alpha()
         pygame.draw.rect(self.image, "red", (0, 0, *self.rect.size), 2)
-    

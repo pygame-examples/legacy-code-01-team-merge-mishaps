@@ -23,10 +23,11 @@ class Game(GameInterface):
         self.window: pygame.Window = None  # game window
         # rightmost = top of stack
         self.state_stack: deque[GameStateInterface] = deque()  # index -1 is top of stack
-        self.render_delay: int = env.CAN_CAP_FPS * 1 / const.RENDER_FPS
+        self.render_delay: float = env.CAN_CAP_FPS * 1 / const.RENDER_FPS
         self.target_render_delay: float = self.render_delay
-        self.physics_delay: int = 1 / const.PHYSICS_FPS
+        self.physics_delay: float = 1 / const.PHYSICS_FPS
         self.last_physics_update: int = 0  # time (in milliseconds of the last physics update)
+        self.input_delay = 1 / const.INPUT_FPS
         self.tg: asyncio.TaskGroup = None  # task group for all game loops
         self.needs_canceled: list[asyncio.Task] = []  # list of tasks that need canceled when the game is closed
 
@@ -37,11 +38,11 @@ class Game(GameInterface):
             task.cancel()
 
     def add_task(self, task: Awaitable) -> None:
-        """Add task async task to the main loop"""
+        """Add async task to the main loop"""
         self.needs_canceled.append(self.tg.create_task(task))
 
     def update_physics(self) -> None:
-        """Update game physics.  Called interally."""
+        """Update game physics. Called interally."""
         self.state_stack[-1].update_physics(self.physics_delay)
         self.last_physics_update = pygame.time.get_ticks()
 
@@ -53,7 +54,7 @@ class Game(GameInterface):
                 if event.type == pygame.QUIT:
                     self.quit()
             end = pygame.time.get_ticks()
-            await asyncio.sleep(max((1 / const.INPUT_FPS) - (end - start), 0))
+            await asyncio.sleep(max(self.input_delay - (end - start), 0))
 
     async def physics_loop(self) -> None:
         """Loop that runs physics"""

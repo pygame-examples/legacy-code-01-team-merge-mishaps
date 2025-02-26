@@ -28,3 +28,16 @@ class OneWayBlock(PhysicsSprite):
 
     def draw(self, surface: pygame.Surface, dt_since_physics: float):
         pygame.draw.rect(surface, "yellow", self.rect)
+
+class ThrowableBlock(PhysicsSprite):
+    """Meant for being picked up and thrown"""
+    def __init__(self, data: SpriteInitData):
+        physics_data = SpritePhysicsData(
+            physics_type=PhysicsType.DYNAMIC,
+        )
+        data.groups.extend(["render", "physics", "dynamic-physics", "throwable-physics", "static-physics"])
+        super().__init__(data, physics_data)
+        self.picked_up = False
+
+    def draw(self, surface: pygame.Surface, dt_since_physics: float):
+        pygame.draw.rect(surface, "red", self.rect)

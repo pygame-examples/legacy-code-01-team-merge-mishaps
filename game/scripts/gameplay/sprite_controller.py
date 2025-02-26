@@ -16,10 +16,11 @@ from ..const import INPUT_FPS
 class InputController(SpriteControllerInterface):
     """Uses WASD or Arrow Keys to move a sprite"""
     KEYBINDS: dict[str, list[int]] = {
-        "jump": (pygame.K_UP, pygame.K_w),
-        "left": (pygame.K_LEFT, pygame.K_a),
-        "duck": (pygame.K_DOWN, pygame.K_s),
-        "right": (pygame.K_RIGHT, pygame.K_d)
+        "jump": [pygame.K_UP, pygame.K_w],
+        "left": [pygame.K_LEFT, pygame.K_a],
+        "duck": [pygame.K_DOWN, pygame.K_s],
+        "right": [pygame.K_RIGHT, pygame.K_d],
+        "pick_up_or_throw": [pygame.K_z]
     }
 
     def __init__(self):
