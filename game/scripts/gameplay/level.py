@@ -7,7 +7,7 @@ from ..interfaces import GameLevelInterface, SpriteInterface, SpriteInitData, Ga
 from ..const import WINDOW_RESOLUTION
 
 from .player import Player
-from .block import Block, OneWayBlock
+from .block import Block, OneWayBlock, ThrowableBlock
 from .portal import Portal
 from .sprite_controller import InputController, GoLeftController
 
@@ -50,15 +50,15 @@ class Level(GameLevelInterface):
             level=self,
             controller=InputController(),
         ))
-        self.spawn(Player, SpriteInitData(
-            rect=(32, 32, 32, 32),
+        self.spawn(ThrowableBlock, SpriteInitData(
+            rect=(132, 32, 8, 8),
             level=self,
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(280, 160, 8, 96),
+            rect=(280, 160, 96, 8),
             level=self,
             properties={
-                "orientation": Direction.EAST,
+                "orientation": Direction.SOUTH,
                 "tunnel_id": "tunnel2"
             }
         ))

@@ -72,6 +72,7 @@ def get_axis_of_direction(direction: Direction) -> int:
     """Returns integer axis of a direction (0 for x, 1 for y)"""
     return int(direction in {Direction.NORTH, Direction.SOUTH})
 
+
 class PhysicsSprite(Sprite, PhysicsSpriteInterface):
     class PortalState(Enum):
         """State of sprite regarding portals"""
@@ -84,6 +85,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.physics_type: PhysicsType = physics_data.physics_type
         self.velocity: pygame.Vector2 = pygame.Vector2()  # pixels/second
         self.acceleration: pygame.Vector2 = pygame.Vector2(GRAVITY)  # pixels/second squared (I think)
+        self.flight_speed: float = physics_data.flight_speed  # how fast the sprite flies when thrown (if dynamic)
         self.horizontal_speed: float = physics_data.horizontal_speed  # how fast the sprite walks right and left (if dynamic)
         self.weight: float = physics_data.weight  # unused atm
         self.jump_speed: float = physics_data.jump_speed  # initial jump velocity (if dynamic)
@@ -93,6 +95,13 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.on_ground: bool = False  # whether sprite is touching ground (if dynamic)
         self.one_way: bool = physics_data.one_way  # whether sprite only collides downward (if static)
         self.ducking: bool = False  # whether sprite is ducking (if dynamic)
+        self.facing: pygame.Vector2 = pygame.Vector2(1, 0) # the direction the sprite should be facing
+
+        self.min_distance: int = 40 # minimum ditance to pick up something
+        self.current_throwable: PhysicsSprite = None # the current think you're about to throw at someone
+        self.picker_upper: PhysicsSprite = None # the one picking up self
+        self.is_thrown: bool = False
+        self.is_picked_up: bool = False
 
         # latency compensation 
         # all inputs are polled faster than physics framerate and timestamped
@@ -209,6 +218,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         clipped = self.full_clip_rect
         collision_rect = self.rect.copy()
         collision_rect.center = self.interpolated_pos(dt_since_physics)
+        print(self.portal_state)
         if self.portal_state == self.PortalState.ENTER:
             clipped = clip_rect_to_portal(collision_rect, self.current_portal.rect, self.current_portal.orientation)
             clipped.center -= pygame.Vector2(collision_rect.topleft)
@@ -370,27 +380,80 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.twin_portal = None
         self.portal_state = self.PortalState.OUT
 
+    def pick_up(self) -> None:
+        """
+        Finds closest throwable object and sets it as the current object picked up
+        """
+        closest_throwable, distance = self.find_closest_throwable()
+        if distance <= self.min_distance and not self.current_throwable:
+            self.current_throwable = closest_throwable
+            self.current_throwable.picker_upper = self
+
+    def throw(self) -> None:
+        """
+        Throws the current object held
+        """
+        self.current_throwable.velocity = self.facing * self.current_throwable.flight_speed
+        self.current_throwable.picker_upper = None
+        self.current_throwable = None
+
+    def find_closest_throwable(self):
+        """
+        Finds the closest throwable object
+        """
+        throwables = self.level.get_group("throwable-physics").sprites()
+        if not len(throwables):
+            return None, 0
+        closest_throwable = throwables[0]
+        closest_distance = (pygame.Vector2(self.pos) - pygame.Vector2(closest_throwable.pos)).length()
+        for throwable in throwables:
+            current_distance = (pygame.Vector2(self.pos) - pygame.Vector2(throwable.pos)).length()
+            if current_distance < closest_distance:
+                closest_throwable = throwable
+                closest_distance = current_distance
+
+        return closest_throwable, closest_distance
+    
+    def update_throwable(self, dt: float) -> None:
+        """
+        makes the picked up object follow the one who picked up the object
+        """
+        if self.picker_upper:
+            distance_to = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
+            self.velocity = distance_to * 2000 * dt
+
     def handle_commands(self) -> None:
         """
         Accepts movement commands (left, right, jump, duck) from this sprite's Controller
         """
         self.velocity.x = 0
         self.just_went_buffer = {
+            "up": False,
             "left": False,
             "right": False,
             "jump": False,
-            "duck": False
+            "duck": False,
+            "pick_up_or_throw": False,
         }
         for command in self.controller.get_commands():
             name: str = command.command
+            if name == "up":
+                self.facing.y = -1
+                self.just_went["up"] = True
             if name == "left":
                 self.left((pygame.time.get_ticks() - command.timestamp) / 1000)
+                self.facing.x = -1
             if name == "right":
                 self.right((pygame.time.get_ticks() - command.timestamp) / 1000)
-            if name == "jump":
-                self.jump((pygame.time.get_ticks() - command.timestamp) / 1000)
+                self.facing.x = 1
             if name == "duck":
                 self.duck((pygame.time.get_ticks() - command.timestamp) / 1000)
+                self.facing.y = 1
+            if name == "jump":
+                self.jump((pygame.time.get_ticks() - command.timestamp) / 1000)
+            if name == "pick_up_or_throw":
+                self.pick_up()
+                self.just_went["pick_up_or_throw"] = True # Don't know the purpose of this one :P - Aiden
 
         self.just_went = self.just_went_buffer
 
@@ -400,6 +463,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.physics_type == PhysicsType.DYNAMIC:
             self.on_ground = False
             falling = self.velocity.y > 0 and not self.current_portal
+            self.update_throwable(dt) # Note: Make sure to do any velocity modifications before handle_dynamic_collision otherwise weird stuff happen - Aiden
             self.handle_dynamic_collision(0, dt)
             moved = self.handle_dynamic_collision(1, dt)
             if falling and moved:

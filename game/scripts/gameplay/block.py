@@ -34,8 +34,11 @@ class ThrowableBlock(PhysicsSprite):
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.DYNAMIC,
+            weight=30,
+            flight_speed=1000,
         )
-        data.groups.extend(["render", "physics", "dynamic-physics", "throwable-physics", "static-physics"])
+
+        data.groups.extend(["render", "physics", "dynamic-physics", "throwable-physics"])
         super().__init__(data, physics_data)
         self.picked_up = False
 

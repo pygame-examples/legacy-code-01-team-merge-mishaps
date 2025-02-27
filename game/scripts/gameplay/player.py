@@ -14,7 +14,8 @@ class Player(PhysicsSprite):
             duck_speed=200,
         )
         # sprite will be added to these groups later
-        data.groups.extend(["player", "physics", "render", "dynamic-physics"])
+        data.groups.extend(["physics", "render", "dynamic-physics"])
         super().__init__(data, physics_data)
         self.image = pygame.Surface(self.rect.size, pygame.SRCALPHA).convert_alpha()
         pygame.draw.rect(self.image, "red", (0, 0, *self.rect.size), 2)
+
