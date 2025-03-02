@@ -101,6 +101,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.min_distance: int = 40 # minimum ditance to pick up something
         self.current_throwable: PhysicsSprite = None # the current think you're about to throw at someone
         self.picker_upper: PhysicsSprite = None # the one picking up self
+        self.was_thrown: bool = False # bool for when the sprite is thrown (duuuuuuuuh)
 
         # latency compensation 
         # all inputs are polled faster than physics framerate and timestamped
@@ -311,6 +312,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if moved:
             # :sob: what does this even mean - Aiden
             self.rect.center = pygame.Rect(self.rect).center
+            # apply friction when sprite is touching the ground
             self.velocity[0] *= 1 / (1 + (self.friction * dt)) 
 
         return moved
@@ -359,7 +361,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                     self.rect.bottom = self.current_portal.rect.bottom - 1
                     self.velocity.y = 0
 
-    def enter_portal(self, portal: PhysicsSpriteInterface, twin: PhysicsSpriteInterface):
+    def enter_portal(self, portal: PhysicsSpriteInterface, twin: PhysicsSpriteInterface) -> None:
         """
         State changes when a sprite enters a portal
 
@@ -369,7 +371,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.twin_portal = twin
         self.portal_state = self.PortalState.ENTER
         
-    def exit_portal(self):
+    def exit_portal(self) -> None:
         """
         State changes when a sprite switches from entering a portal to exiting a different portal (Now it accounts for portals being of different orientations :D)
 
@@ -410,7 +412,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         self.portal_state = self.PortalState.EXIT
 
-    def abort_portal(self):
+    def abort_portal(self) -> None:
         """
         State changes when I leave the portal completely
 
@@ -434,10 +436,11 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Throws the current object held
         """
         self.current_throwable.velocity = self.facing * self.current_throwable.flight_speed
+        self.current_throwable.was_thrown = True
         self.current_throwable.picker_upper = None
         self.current_throwable = None
 
-    def find_closest_throwable(self):
+    def find_closest_throwable(self) -> None:
         """
         Finds the closest throwable object
         """
@@ -517,7 +520,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.physics_type == PhysicsType.PORTAL:
             self.handle_portal_collision()
 
-    def draw(self, surface: pygame.Surface, dt_since_physics: float) -> None:
+    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         """
         Draw sprite.image at sprite.rect, excluding area not in sprite.clip_rect
 
@@ -526,5 +529,5 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         new_rect: pygame.FRect = self.rect.copy()
         # only draw the part of the sprite that is not in a portal
         clip_rect = self.interpolated_cliprect(dt_since_physics)
-        new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft)
+        new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
         surface.blit(self.image.subsurface(clip_rect), new_rect)

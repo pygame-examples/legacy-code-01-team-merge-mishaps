@@ -29,5 +29,5 @@ class Sprite(pygame.sprite.Sprite, SpriteInterface):
     def interpolated_pos(self, dt_since_physics) -> tuple[int, int]:
         return self.pos
 
-    def draw(self, surface) -> None:
+    def draw(self, surface, offset) -> None:
         pass

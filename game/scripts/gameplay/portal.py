@@ -23,8 +23,10 @@ class Portal(PhysicsSprite):
         )
         super().__init__(data, physics_data)
 
-    def draw(self, surface: pygame.Surface, dt_since_physics: float) -> None:
-        pygame.draw.rect(surface, "green", self.rect)
+    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
+        new_rect = self.rect.copy()
+        new_rect.center = new_rect.center - offset
+        pygame.draw.rect(surface, "green", new_rect)
 
     def receive(self, sprite: PhysicsSprite):
         if self.orientation == Direction.NORTH:

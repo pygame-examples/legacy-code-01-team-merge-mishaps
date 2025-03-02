@@ -9,19 +9,20 @@ from ..const import WINDOW_RESOLUTION
 from .player import Player
 from .block import Block, OneWayBlock, ThrowableBlock
 from .portal import Portal
-from .sprite_controller import InputController, GoLeftController
+from .sprite_controller import InputController
+from .camera import Camera
 
 
 class Level(GameLevelInterface):
     """
     Game state for gameplay
     
-    This thing probably needs a camera as well as some map loading code.
+    This thing probably needs a camera as well as some map loading code. (camera implemented)
     I didn't want to decide nor spend the time on a map loading stack this early.
     """
     def __init__(self, game: GameInterface):
         self.groups: dict[str, pygame.sprite.AbstractGroup] = {
-            "render": pygame.sprite.LayeredUpdates(),
+            "render": Camera(),
             "physics": pygame.sprite.Group(),
             "static-physics": pygame.sprite.Group(),
             "dynamic-physics": pygame.sprite.Group(),
@@ -49,7 +50,9 @@ class Level(GameLevelInterface):
             rect=(32, 32, 32, 32),
             level=self,
             controller=InputController(),
-        ))
+        ),
+        True
+        )
         self.spawn(ThrowableBlock, SpriteInitData(
             rect=(132, 32, 32, 32),
             level=self,
@@ -76,9 +79,12 @@ class Level(GameLevelInterface):
         """Adds task to main game loop"""
         self.game.add_task(task)
 
-    def spawn(self, cls: Callable[[SpriteInitData], SpriteInterface], data: SpriteInitData) -> SpriteInterface:
+    def spawn(self, cls: Callable[[SpriteInitData], SpriteInterface], data: SpriteInitData, target: bool = False) -> SpriteInterface:
         """Spawn a new sprite"""
-        return cls(data)
+        sprite = cls(data)
+        if target:
+            self.get_group("render").set_target(sprite)
+        return sprite
 
     def get_group(self, group_name: str) -> pygame.sprite.AbstractGroup:
         """
@@ -105,8 +111,7 @@ class Level(GameLevelInterface):
         """
         surface: pygame.Surface = pygame.Surface(WINDOW_RESOLUTION).convert()
         surface.fill("black")
-        for sprite in self.get_group("render"):
-            sprite.draw(surface, dt_since_physics)
+        self.get_group("render").draw(surface, dt_since_physics)
         return surface
 
     def update_physics(self, dt):
