@@ -87,6 +87,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.acceleration: pygame.Vector2 = pygame.Vector2(GRAVITY)  # pixels/second squared (I think)
         self.flight_speed: float = physics_data.flight_speed  # how fast the sprite flies when thrown (if dynamic)
         self.horizontal_speed: float = physics_data.horizontal_speed  # how fast the sprite walks right and left (if dynamic)
+        self.friction: float = physics_data.friction # how quickly the sprite slows down (if dynamic)
         self.weight: float = physics_data.weight  # unused atm
         self.jump_speed: float = physics_data.jump_speed  # initial jump velocity (if dynamic)
         self.duck_speed: float = physics_data.duck_speed  # initial downward duck velocity (if dynamic)
@@ -100,8 +101,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.min_distance: int = 40 # minimum ditance to pick up something
         self.current_throwable: PhysicsSprite = None # the current think you're about to throw at someone
         self.picker_upper: PhysicsSprite = None # the one picking up self
-        self.is_thrown: bool = False
-        self.is_picked_up: bool = False
 
         # latency compensation 
         # all inputs are polled faster than physics framerate and timestamped
@@ -128,11 +127,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.current_portal: PhysicsSpriteInterface | None = None  # which portal I am entering
         self.twin_portal: PhysicsSpriteInterface | None = None  # which portal I am exiting
         self.portal_state: PhysicsSprite.PortalState = self.PortalState.OUT  # what portal state I am in
-
-        # self.states: dict[str, Callable] = {
-        #     "run": self.move,
-        #     "fly": self.fly,
-        # }
 
     @property
     def collision_rect(self):
@@ -291,6 +285,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         # semi-implicit Euler integration + latency compenstation
         self.velocity[axis] += self.acceleration[axis] * dt
+
+
         center = pygame.Vector2(self.rect.center)
         center[axis] += self.velocity[axis] * dt + self.missed[axis]
         self.missed[axis] = 0
@@ -315,6 +311,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if moved:
             # :sob: what does this even mean - Aiden
             self.rect.center = pygame.Rect(self.rect).center
+            self.velocity[0] *= 1 / (1 + (self.friction * dt)) 
 
         return moved
 
@@ -432,11 +429,11 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.current_throwable = closest_throwable
             self.current_throwable.picker_upper = self
 
-    def throw(self) -> None:
+    def throw(self, dt: float) -> None:
         """
         Throws the current object held
         """
-        self.current_throwable.velocity = self.facing * self.current_throwable.flight_speed * 500
+        self.current_throwable.velocity = self.facing * self.current_throwable.flight_speed
         self.current_throwable.picker_upper = None
         self.current_throwable = None
 
@@ -444,7 +441,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         Finds the closest throwable object
         """
-        # Forgive me for the atrocity I have commited
+        # Forgive me for the atrocity I have commited here
         throwables = self.level.get_group("throwable-physics").sprites()
         if not len(throwables):
             return None, 0
@@ -470,7 +467,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         Accepts movement commands (left, right, jump, duck) from this sprite's Controller
         """
-        self.velocity.x = 0
         self.just_went_buffer = {
             "up": False,
             "left": False,
@@ -482,24 +478,24 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         for command in self.controller.get_commands():
             name: str = command.command
             if name == "up":
-                self.facing.y = -1
+                self.facing.update(0, -1)
                 self.just_went["up"] = True
             if name == "left":
                 self.left((pygame.time.get_ticks() - command.timestamp) / 1000)
-                self.facing.x = -1
+                self.facing.update(-1, 0)
             if name == "right":
                 self.right((pygame.time.get_ticks() - command.timestamp) / 1000)
-                self.facing.x = 1
+                self.facing.update(1, 0)
             if name == "duck":
                 self.duck((pygame.time.get_ticks() - command.timestamp) / 1000)
-                self.facing.y = 1
+                self.facing.update(0, 1)
             if name == "jump":
                 self.jump((pygame.time.get_ticks() - command.timestamp) / 1000)
             if name == "pick_up_or_throw":
                 if not self.current_throwable:
                     self.pick_up()
                 else:
-                    self.throw()
+                    self.throw((pygame.time.get_ticks() - command.timestamp) / 1000)
                 self.just_went["pick_up_or_throw"] = True # Don't know the purpose of this one :P - Aiden
 
         self.just_went = self.just_went_buffer

@@ -38,7 +38,7 @@ class Level(GameLevelInterface):
         I would put map loading here.
         """
         self.spawn(Block, SpriteInitData(
-            rect=(32, 256, 512, 32),
+            rect=(32, 256, 1024, 32),
             level=self,
         ))
         self.spawn(OneWayBlock, SpriteInitData(
