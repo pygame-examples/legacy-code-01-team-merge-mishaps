@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Iterator, Callable
 from queue import Queue
 from enum import Enum
 
@@ -129,6 +129,11 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.twin_portal: PhysicsSpriteInterface | None = None  # which portal I am exiting
         self.portal_state: PhysicsSprite.PortalState = self.PortalState.OUT  # what portal state I am in
 
+        # self.states: dict[str, Callable] = {
+        #     "run": self.move,
+        #     "fly": self.fly,
+        # }
+
     @property
     def collision_rect(self):
         """
@@ -171,7 +176,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             return self.current_portal
         if self.portal_state == self.PortalState.EXIT:
             return self.twin_portal
-        # I'm assuming it was supposed to be PortalState.Exit and not PortalState.Enter??? - Aiden
+        # I'm assuming it was supposed to be PortalState.Exit in the second if statement and not PortalState.Enter??? - Aiden
         return None
         
     def trigger(self, other: SpriteInterface) -> None:
@@ -218,7 +223,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         clipped = self.full_clip_rect
         collision_rect = self.rect.copy()
         collision_rect.center = self.interpolated_pos(dt_since_physics)
-        print(self.portal_state)
         if self.portal_state == self.PortalState.ENTER:
             clipped = clip_rect_to_portal(collision_rect, self.current_portal.rect, self.current_portal.orientation)
             clipped.center -= pygame.Vector2(collision_rect.topleft)
@@ -246,7 +250,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Called internally.
         """
         # If I've gone through the enter portal, switch to the exit one
-        if is_through_portal(self.collision_rect, self.current_portal.collision_rect, self.current_portal.orientation):
+        if is_through_portal(self.collision_rect, self.current_portal.collision_rect, self.current_portal.orientation) and self.portal_state != self.PortalState.EXIT:
             self.exit_portal()
             return True
         # If I've turned around when inside the exit portal, swap the enter and exit portals
@@ -279,6 +283,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             return False
         
         if self.current_portal:
+            self.handle_position_in_portal()
             self.handle_dynamic_collision_inside_portal(axis, dt)
 
         # looped portals can make you go FAST
@@ -295,7 +300,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         offset: int = 1
         if self.velocity[axis] > 0:
             offset = -1
-        
+
         # move me out of collision
         moved: bool = False
         while must_move():
@@ -335,6 +340,28 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                     if portal is not self:
                         sprite.enter_portal(self, portal)
 
+    def handle_position_in_portal(self) -> None:
+        """
+        If the sprite is inside the portal, it can't leave it, except through the way it entered
+        """
+        # PS - sorry all the collision based names for functions were taken :|
+        # TODO: get this to restrict the sprite tries to leave the portal in a direction perpendicular to it's orientation
+        if self.rect.colliderect(self.current_portal.rect) and self.portal_state in {self.PortalState.EXIT, self.PortalState.ENTER}:
+            if get_axis_of_direction(self.current_portal.orientation):
+                if self.rect.right > self.current_portal.rect.right:
+                    self.rect.right = self.current_portal.rect.right - 1
+                    self.velocity.x = 0
+                elif self.rect.left < self.current_portal.rect.left:
+                    self.rect.left = self.current_portal.rect.left + 1
+                    self.velocity.x = 0
+            else:
+                if self.rect.top < self.current_portal.rect.top:
+                    self.rect.top = self.current_portal.rect.top + 1
+                    self.velocity.y = 0
+                elif self.rect.bottom > self.current_portal.rect.bottom:
+                    self.rect.bottom = self.current_portal.rect.bottom - 1
+                    self.velocity.y = 0
+
     def enter_portal(self, portal: PhysicsSpriteInterface, twin: PhysicsSpriteInterface):
         """
         State changes when a sprite enters a portal
@@ -347,27 +374,43 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         
     def exit_portal(self):
         """
-        State changes when a sprite switches from entering a portal to exiting a different portal
+        State changes when a sprite switches from entering a portal to exiting a different portal (Now it accounts for portals being of different orientations :D)
 
         Called internally.
         """
         # move the sprite to behind the exit portal
         if self.twin_portal.orientation == Direction.NORTH:
             self.velocity = pygame.Vector2(0, -self.velocity.length())
+            if get_axis_of_direction(self.current_portal.orientation):
+                self.rect.left = self.twin_portal.rect.left + self.rect.left - self.current_portal.rect.left
+            else:
+                self.rect.left = self.twin_portal.rect.left + self.current_portal.rect.bottom - self.rect.bottom
             self.rect.top = self.twin_portal.rect.bottom - 1
-            self.rect.left = self.twin_portal.rect.left + self.rect.left - self.current_portal.rect.left
+
         if self.twin_portal.orientation == Direction.SOUTH:
             self.velocity = pygame.Vector2(0, self.velocity.length())
+            if get_axis_of_direction(self.current_portal.orientation):
+                self.rect.left = self.twin_portal.rect.left + self.rect.left - self.current_portal.rect.left
+            else:
+                self.rect.left = self.twin_portal.rect.left + self.current_portal.rect.bottom - self.rect.bottom
             self.rect.bottom = self.twin_portal.rect.top + 1
-            self.rect.left = self.twin_portal.rect.left + self.rect.left - self.current_portal.rect.left
+
         if self.twin_portal.orientation == Direction.EAST:
-            self.velocity = pygame.Vector2(-self.velocity.length(), 0)
-            self.rect.right = self.twin_portal.rect.left + 1
-            self.rect.top = self.twin_portal.rect.top + self.rect.top - self.current_portal.rect.top
-        if self.twin_portal.orientation == Direction.WEST:
             self.velocity = pygame.Vector2(self.velocity.length(), 0)
+            if get_axis_of_direction(self.current_portal.orientation):
+                self.rect.top = self.twin_portal.rect.top + self.current_portal.rect.right - self.rect.right
+            else:
+                self.rect.top = self.twin_portal.rect.top + self.rect.top - self.current_portal.rect.top
+            self.rect.right = self.twin_portal.rect.left + 1
+
+        if self.twin_portal.orientation == Direction.WEST:
+            self.velocity = pygame.Vector2(-self.velocity.length(), 0)
+            if get_axis_of_direction(self.current_portal.orientation):
+                self.rect.top = self.twin_portal.rect.top + self.current_portal.rect.right - self.rect.right
+            else:
+                self.rect.top = self.twin_portal.rect.top + self.rect.top - self.current_portal.rect.top
             self.rect.left = self.twin_portal.rect.right - 1
-            self.rect.top = self.twin_portal.rect.top + self.rect.top - self.current_portal.rect.top
+
         self.portal_state = self.PortalState.EXIT
 
     def abort_portal(self):
@@ -393,7 +436,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         Throws the current object held
         """
-        self.current_throwable.velocity = self.facing * self.current_throwable.flight_speed
+        self.current_throwable.velocity = self.facing * self.current_throwable.flight_speed * 500
         self.current_throwable.picker_upper = None
         self.current_throwable = None
 
@@ -401,6 +444,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         Finds the closest throwable object
         """
+        # Forgive me for the atrocity I have commited
         throwables = self.level.get_group("throwable-physics").sprites()
         if not len(throwables):
             return None, 0
@@ -452,7 +496,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if name == "jump":
                 self.jump((pygame.time.get_ticks() - command.timestamp) / 1000)
             if name == "pick_up_or_throw":
-                self.pick_up()
+                if not self.current_throwable:
+                    self.pick_up()
+                else:
+                    self.throw()
                 self.just_went["pick_up_or_throw"] = True # Don't know the purpose of this one :P - Aiden
 
         self.just_went = self.just_went_buffer

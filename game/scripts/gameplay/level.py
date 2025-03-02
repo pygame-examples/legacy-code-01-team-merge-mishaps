@@ -51,14 +51,14 @@ class Level(GameLevelInterface):
             controller=InputController(),
         ))
         self.spawn(ThrowableBlock, SpriteInitData(
-            rect=(132, 32, 8, 8),
+            rect=(132, 32, 32, 32),
             level=self,
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(280, 160, 96, 8),
+            rect=(180, 160, 96, 8),
             level=self,
             properties={
-                "orientation": Direction.SOUTH,
+                "orientation": Direction.NORTH,
                 "tunnel_id": "tunnel2"
             }
         ))

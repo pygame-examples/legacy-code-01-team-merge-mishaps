@@ -23,10 +23,17 @@ class InputController(SpriteControllerInterface):
         "jump": [pygame.K_SPACE],
         "pick_up_or_throw": [pygame.K_z]
     }
+    # Cooldowns are measured in miliseconds
+    KEYBIND_COOLDOWNS: dict[str, float] = {
+        "pick_up_or_throw": 500,
+    }
 
     def __init__(self):
         self.command_queue: Queue[tuple[str, int]] = Queue()
         self.live = True
+        self.last_called: dict[str, int] = {
+            "pick_up_or_throw": 0,
+        }
 
     def get_commands(self) -> Iterator[SpriteCommand]:
         while not self.command_queue.empty():
@@ -38,7 +45,12 @@ class InputController(SpriteControllerInterface):
             for command, buttons in self.KEYBINDS.items():
                 for button in buttons:
                     if keys[button]:
-                        self.command_queue.put(SpriteCommand(command, pygame.time.get_ticks()))
+                        if command in self.KEYBIND_COOLDOWNS:
+                            if pygame.time.get_ticks() - self.last_called[command] >= self.KEYBIND_COOLDOWNS[command]:
+                                self.command_queue.put(SpriteCommand(command, pygame.time.get_ticks()))
+                                self.last_called[command] = pygame.time.get_ticks()
+                        else:
+                            self.command_queue.put(SpriteCommand(command, pygame.time.get_ticks()))
             await asyncio.sleep(1 / INPUT_FPS)
 
 
