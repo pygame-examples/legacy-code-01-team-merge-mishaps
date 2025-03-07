@@ -9,9 +9,12 @@ Do not add any implementations here.
 
 Or suffer JiffyRob's wrath
 """
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Iterator, Any, Awaitable
+from abc import ABC, abstractmethod
+from typing import Any, Awaitable
 
 import pygame
 from pygame.typing import RectLike, SequenceLike
@@ -62,10 +65,13 @@ class GameStateInterface:
     def on_exit(self) -> None:
         pass
 
-    def update_physics(self, dt: float) -> None:
+    async def update_actors(self, dt: float) -> None:
         pass
 
-    def render(self, dt_since_physics: float) -> pygame.Surface:
+    async def update_physics(self, dt: float) -> None:
+        pass
+
+    async def render(self, dt_since_physics: float) -> pygame.Surface:
         pass
 
 
@@ -78,27 +84,12 @@ class GameLevelInterface(GameStateInterface):
 
 
 @dataclass
-class SpriteCommand:
-    command: str
-    timestamp: int
-
-
-class SpriteControllerInterface:
-    async def run(self) -> None:
-        pass
-
-    def get_commands(self) -> Iterator[SpriteCommand]:
-        return []
-
-
-@dataclass
 class SpriteInitData:
     # Object used to init sprites with
     # Add stuff here as necessary
     rect: RectLike  # initial position and size of sprite
     level: GameLevelInterface  # level that holds sprite
     target: bool = False  # whether the camera should follow the sprite
-    controller: SpriteControllerInterface = SpriteControllerInterface()  # controller to pilot sprite
     groups: list[str] = field(default_factory=list)  # level groups to add sprite to
 
     # put any init data that is specific to a certain sprite type in here
@@ -114,26 +105,37 @@ class SpritePhysicsData:
     physics_type: PhysicsType = PhysicsType.STATIC  # type of physics resolution to use
     weight: float = 10  # weight (not used RN)
     flight_speed: float = 700  # flight speed (for dynamic sprites)
-    horizontal_speed: float = 400  # walking speed (for dynamic sprites)
-    friction: float = 100  # amount by which acceleration changes (for dynamic sprites)
-    jump_speed: float = 128  # jump speed (for dynamic sprites)
-    duck_speed: float = 128  # duck speed (for dynamic sprites)
+    horizontal_speed: float = 30  # walking speed (for dynamic sprites)
+    horizontal_air_speed: float = 25  # movement speed for dynamic sprites that are in the air
+    friction: float = 20  # amount by which acceleration changes (for dynamic sprites)
+    air_friction: float = 0.1 # amount by which acceleration changes (for dynamic sprites) when in the air
+    jump_speed: float = 55  # jump speed (for dynamic sprites)
+    duck_speed: float = 100  # duck speed (for dynamic sprites)
     one_way: bool = False  # whether a static sprite collides downward
     orientation: Direction = Direction.NORTH  # which way a portal shoots / accepts sprites
     tunnel_id: str = "default"  # portals with the same tunnel_id link to each other
 
 
-class SpriteInterface:
+class SpriteInterface(ABC):
+    rect: pygame.FRect
+
     def __init__(self, data: SpriteInitData):
         pass
 
     @property
+    @abstractmethod
     def pos(self) -> tuple[int, int]:
         """Center position of Sprite"""
         pass
 
     @pos.setter
+    @abstractmethod
     def pos(self, value: str | float | SequenceLike[float] | pygame.Vector2) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def collision_rect(self) -> pygame.FRect:
         pass
 
     def update_physics(self, dt) -> None:
@@ -146,12 +148,8 @@ class SpriteInterface:
         pass
 
 
-class PhysicsSpriteInterface(SpriteInterface):
+class PhysicsSpriteInterface(SpriteInterface, ABC):
     def trigger(self, other: SpriteInterface) -> None:
-        pass
-
-    @property
-    def collision_rect(self) -> pygame.FRect:
         pass
 
     def left(self) -> None:
@@ -164,4 +162,7 @@ class PhysicsSpriteInterface(SpriteInterface):
         pass
 
     def duck(self) -> None:
+        pass
+
+    def act(self, dt: float) -> None:
         pass

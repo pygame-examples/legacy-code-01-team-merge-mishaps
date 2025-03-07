@@ -9,7 +9,6 @@ from ..const import WINDOW_RESOLUTION
 from .player import Player
 from .block import Block, OneWayBlock, ThrowableBlock
 from .portal import Portal
-from .sprite_controller import InputController
 from .camera import Camera
 
 
@@ -29,12 +28,14 @@ class Level(GameLevelInterface):
             "throwable-physics": pygame.sprite.Group(), # currently not in use
             "trigger-physics": pygame.sprite.Group(),
             "portal-physics": pygame.sprite.Group(),
+            "actors": pygame.sprite.Group(),
         }
         self.game: GameInterface = game
 
+
     def init(self):
         """
-        Spawn all sprites.  Also anything that needs to wait a frame or so before happening.
+        Spawn all sprites. Also, anything that needs to wait a frame or so before happening.
         
         I would put map loading here.
         """
@@ -49,7 +50,6 @@ class Level(GameLevelInterface):
         self.spawn(Player, SpriteInitData(
             rect=(32, 32, 32, 32),
             level=self,
-            controller=InputController(),
         ),
         True
         )
@@ -103,7 +103,7 @@ class Level(GameLevelInterface):
         for group in groups:
             self.groups.setdefault(group, pygame.sprite.Group()).add(sprite)
 
-    def render(self, dt_since_physics: float) -> pygame.Surface:
+    async def render(self, dt_since_physics: float) -> pygame.Surface:
         """
         Return a drawn surface.
 
@@ -114,7 +114,11 @@ class Level(GameLevelInterface):
         self.get_group("render").draw(surface, dt_since_physics)
         return surface
 
-    def update_physics(self, dt):
+    async def update_actors(self, dt):
+        for sprite in self.get_group("actors"):
+            sprite.act(dt)
+
+    async def update_physics(self, dt):
         """
         Update the physics in this level
         """

@@ -9,18 +9,20 @@ from typing import Awaitable
 
 import pygame
 
-from scripts import env, const
+from scripts import env, const, game_input
 from scripts.interfaces import GameInterface, GameStateInterface
 
 from scripts.gameplay import level, menu
 
 
 class Game(GameInterface):
+    window: pygame.Window  # game window
+    tg: asyncio.TaskGroup  # task group for all game loops
+
     """Main Game.  Gets passed to Game states"""
     def __init__(self):
         super().__init__()
         self.running: bool = False  # whether the game is running the main loop
-        self.window: pygame.Window = None  # game window
         # rightmost = top of stack
         self.state_stack: deque[GameStateInterface] = deque()  # index -1 is top of stack
         self.render_delay: float = env.CAN_CAP_FPS * 1 / const.RENDER_FPS
@@ -28,7 +30,6 @@ class Game(GameInterface):
         self.physics_delay: float = 1 / const.PHYSICS_FPS
         self.last_physics_update: int = 0  # time (in milliseconds of the last physics update)
         self.input_delay = 1 / const.INPUT_FPS
-        self.tg: asyncio.TaskGroup = None  # task group for all game loops
         self.needs_canceled: list[asyncio.Task] = []  # list of tasks that need canceled when the game is closed
 
     def quit(self) -> None:
@@ -41,11 +42,6 @@ class Game(GameInterface):
         """Add async task to the main loop"""
         self.needs_canceled.append(self.tg.create_task(task))
 
-    def update_physics(self) -> None:
-        """Update game physics. Called interally."""
-        self.state_stack[-1].update_physics(self.physics_delay)
-        self.last_physics_update = pygame.time.get_ticks()
-
     async def input_loop(self) -> None:
         """Loop that handles window-related input"""
         while self.running:
@@ -53,14 +49,24 @@ class Game(GameInterface):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit()
+            await game_input.input_state.update()
             end = pygame.time.get_ticks()
             await asyncio.sleep(max(self.input_delay - (end - start), 0))
+
+    async def update_physics(self, half_steps: int = 1) -> None:
+        """Update game physics. Called interally."""
+        semi_step = self.physics_delay / half_steps
+        async with game_input.input_state:  # Hold lock for input to avoid interference with input_loop
+            for _ in range(half_steps):
+                await self.state_stack[-1].update_actors(self.physics_delay)
+                await self.state_stack[-1].update_physics(semi_step)
+        self.last_physics_update = pygame.time.get_ticks()
 
     async def physics_loop(self) -> None:
         """Loop that runs physics"""
         while self.running:
             start = pygame.time.get_ticks()
-            self.update_physics()
+            await self.update_physics(1)
             end = pygame.time.get_ticks()
             await asyncio.sleep(max(self.physics_delay - (end - start), 0))
 
@@ -69,8 +75,11 @@ class Game(GameInterface):
         while self.running:
             start = pygame.time.get_ticks()
             dt_since_physics = (start - self.last_physics_update) / 1000
-            surface = self.state_stack[-1].render(dt_since_physics)
-            self.window.get_surface().blit(surface, (0, 0))
+            surface = await self.state_stack[-1].render(dt_since_physics)
+            disp = self.window.get_surface()
+            disp.fill((0, 0, 0))
+            output = const.fit_surface(surface, self.window.size)
+            disp.blit(output, output.get_rect(center=disp.get_rect().center))
             self.window.flip()
             if dt_since_physics > self.physics_delay * 2:
                 print("lag detected")
@@ -86,7 +95,7 @@ class Game(GameInterface):
         self.window: pygame.Window = pygame.window.Window(
             const.TITLE,
             const.WINDOW_RESOLUTION,
-            # resizable=True,
+            resizable=True,
             # maximized=True,
         )
         self.window.get_surface()
@@ -95,7 +104,7 @@ class Game(GameInterface):
 
         async with asyncio.TaskGroup() as self.tg:
             self.state_stack[-1].init()
-            self.update_physics()  # to ensure this happens before 1st render
+            await self.update_physics()  # to ensure this happens before 1st render
             self.tg.create_task(self.input_loop())
             self.tg.create_task(self.physics_loop())
             self.tg.create_task(self.render_loop())
