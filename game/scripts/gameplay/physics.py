@@ -118,6 +118,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.duck_speed: float = physics_data.duck_speed  # initial downward duck velocity (if dynamic)
         self.orientation: Direction = physics_data.orientation  # orientation (if portal)
         self.tunnel_id: str = physics_data.tunnel_id  # used to get twin portal (if portal)
+        self.coyote_time: float = physics_data.coyote_time  # time-frame of allowed jumping when disconnected from the ground (if dynamic)
+        self.coyote_time_left: float = 0  # see above
         self.on_ground: bool = False  # whether sprite is touching ground (if dynamic)
         self.one_way: bool = physics_data.one_way  # whether sprite only collides downward (if static)
         self.ducking: bool = False  # whether sprite is ducking (if dynamic)
@@ -220,8 +222,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
     def jump(self, dt: float = 1) -> None:
         """If I am dynamic, try to jump"""
-        if self.on_ground:
+        if self.on_ground or self.coyote_time_left > 0:
             self.velocity.y = -self.jump_speed * TO_SECONDS * dt
+            self.coyote_time_left = 0
         # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
 
     def duck(self, dt: float = 1) -> None:
@@ -511,10 +514,12 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 self.ducking = False
                 self.velocity[1] = 0
                 apply_friction(self.velocity, self.friction, dt)
+                self.coyote_time_left = self.coyote_time
             else:
                 self.on_ground = False
                 # A bit unrealistic, that there's no horizontal friction.
                 self.velocity[0] = apply_friction(self.velocity[0], self.air_friction, dt)
+                self.coyote_time_left -= dt
         if self.physics_type == PhysicsType.TRIGGER:
             self.handle_trigger_collision()
         if self.physics_type == PhysicsType.PORTAL:

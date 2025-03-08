@@ -111,6 +111,7 @@ class SpritePhysicsData:
     air_friction: float = 0.1 # amount by which acceleration changes (for dynamic sprites) when in the air
     jump_speed: float = 55  # jump speed (for dynamic sprites)
     duck_speed: float = 100  # duck speed (for dynamic sprites)
+    coyote_time: float = 0.25  # time within witch, you can jump after walking of the ground (in seconds)
     one_way: bool = False  # whether a static sprite collides downward
     orientation: Direction = Direction.NORTH  # which way a portal shoots / accepts sprites
     tunnel_id: str = "default"  # portals with the same tunnel_id link to each other
