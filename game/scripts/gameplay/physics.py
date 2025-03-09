@@ -316,6 +316,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         Called internally
         """
+        # TODO: we should be able to skip by more one pixel (max of all offsets pushing out of the collision)
         def must_move():
             # Part of me that is inside a portal does not collide
             collision_rect = self.clipped_collision_rect()
@@ -574,3 +575,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         clip_rect = self.interpolated_cliprect(dt_since_physics)
         new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
         surface.blit(self.image.subsurface(clip_rect), new_rect)
+
+
+# TODO: Tilemap static object (probably in a separate file)

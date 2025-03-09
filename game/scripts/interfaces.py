@@ -11,10 +11,11 @@ Or suffer JiffyRob's wrath
 """
 from __future__ import annotations
 
+import pathlib
 from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod
-from typing import Any, Awaitable
+from typing import Any, Awaitable, Callable
 
 import pygame
 from pygame.typing import RectLike, SequenceLike
@@ -71,16 +72,63 @@ class GameStateInterface:
     async def update_physics(self, dt: float) -> None:
         pass
 
-    async def render(self, dt_since_physics: float) -> pygame.Surface:
+    async def render(self, size: tuple[int, int], dt_since_physics: float) -> pygame.Surface:
         pass
 
 
-class GameLevelInterface(GameStateInterface):
+class GameLevelInterface(GameStateInterface, ABC):
+    groups: dict[str, pygame.sprite.AbstractGroup]
+
+    def spawn(self, cls: Callable[[SpriteInitData], SpriteInterface], data: SpriteInitData,
+              target: bool = False) -> SpriteInterface:
+        """Spawn a new sprite"""
+        sprite = cls(data)
+        if target:
+            self.get_group("render").set_target(sprite)
+        return sprite
+
     def get_group(self, group_name: str) -> pygame.sprite.AbstractGroup:
+        """
+        Get a sprite group from a string
+
+        Returns None if group does not exist
+        """
+        return self.groups.get(group_name)
+
+    def add_to_groups(self, sprite: SpriteInterface, *groups: str) -> None:
+        """
+        Add a sprite to the given string groups
+
+        Will create new ones if the groups do not exist
+        """
+        for group in groups:
+            self.groups.setdefault(group, pygame.sprite.Group()).add(sprite)
+
+    @abstractmethod
+    def set_camera_view(self, view: RectLike):
         pass
 
-    def add_to_groups(self, sprite: Any, *groups: str) -> None:  # TODO: get rid of Any here?
-        pass
+    async def render(self, size: tuple[int, int], dt_since_physics: float) -> pygame.Surface:
+        """
+        Return a drawn surface.
+
+        dt_since_physics is how much time since the last physics update and is used for position interpolation
+        """
+        surface: pygame.Surface = pygame.Surface(size).convert()
+        surface.fill("black")
+        self.get_group("render").draw(surface, dt_since_physics)
+        return surface
+
+    async def update_actors(self, dt):
+        for sprite in self.get_group("actors"):
+            sprite.act(dt)
+
+    async def update_physics(self, dt):
+        """
+        Update the physics in this level
+        """
+        for sprite in self.get_group("physics"):
+            sprite.update_physics(dt)
 
 
 @dataclass

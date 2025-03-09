@@ -9,10 +9,10 @@ from typing import Awaitable
 
 import pygame
 
-from scripts import env, const, game_input
-from scripts.interfaces import GameInterface, GameStateInterface
+from .scripts import env, const, game_input
+from .scripts.interfaces import GameInterface, GameStateInterface
 
-from scripts.gameplay import level, menu
+from .scripts.gameplay import level, menu
 
 
 class Game(GameInterface):
@@ -75,7 +75,7 @@ class Game(GameInterface):
         while self.running:
             start = pygame.time.get_ticks()
             dt_since_physics = (start - self.last_physics_update) / 1000
-            surface = await self.state_stack[-1].render(dt_since_physics)
+            surface = await self.state_stack[-1].render(const.WINDOW_RESOLUTION, dt_since_physics)
             disp = self.window.get_surface()
             disp.fill((0, 0, 0))
             output = const.fit_surface(surface, self.window.size)
@@ -110,8 +110,7 @@ class Game(GameInterface):
             self.tg.create_task(self.render_loop())
 
 
-
-if __name__ == "__main__":
+def main():
     pygame.init()
     game = Game()
     asyncio.run(game.run())

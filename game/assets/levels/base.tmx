@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.1" orientation="orthogonal" renderorder="right-down" width="20" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="9">
+ <objectgroup id="4" name="Config" locked="1">
+  <object id="6" name="WindowSize" x="0" y="0" width="640" height="480">
+   <properties>
+    <property name="note" value="This doesn't serve any particular purpose, just informational."/>
+   </properties>
+  </object>
+  <object id="4" name="CameraViewRange" x="0" y="0" width="1088" height="320">
+   <properties>
+    <property name="note" value="Area to which camera is bound"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="1" name="TiledStatic" width="20" height="15">
+  <properties>
+   <property name="note" value="Tiled static objects."/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="2" name="Dynamic">
+  <properties>
+   <property name="note" value="Dynamic objects."/>
+  </properties>
+  <object id="8" name="Player" type="Player" x="128" y="256" width="32" height="32">
+   <properties>
+    <property name="note" value="Player object."/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="3" name="Static">
+  <properties>
+   <property name="note" value="Static objects."/>
+  </properties>
+ </objectgroup>
+</map>

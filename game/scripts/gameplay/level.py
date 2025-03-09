@@ -2,9 +2,11 @@ from collections.abc import Callable
 from typing import Awaitable
 
 import pygame
+from pygame.typing import RectLike
 
 from ..interfaces import GameLevelInterface, SpriteInterface, SpriteInitData, GameInterface, Direction
-from ..const import WINDOW_RESOLUTION
+from ..assets import LEVELS
+from ..loaders import LevelLoader
 
 from .player import Player
 from .block import Block, OneWayBlock, ThrowableBlock
@@ -31,7 +33,11 @@ class Level(GameLevelInterface):
             "actors": pygame.sprite.Group(),
         }
         self.game: GameInterface = game
+
+        # Currently the only thing overwritten by the level loader
         self.groups["render"].view_range = pygame.FRect(0, 0, 1088, 320)
+
+        self.loader = LevelLoader(self, LEVELS, "base")
 
 
     def init(self):
@@ -75,53 +81,9 @@ class Level(GameLevelInterface):
             }
         ))
 
+    def set_camera_view(self, view: RectLike):
+        self.groups["render"].view_range = pygame.FRect(view)
 
     def add_task(self, task: Awaitable) -> None:
         """Adds task to main game loop"""
         self.game.add_task(task)
-
-    def spawn(self, cls: Callable[[SpriteInitData], SpriteInterface], data: SpriteInitData, target: bool = False) -> SpriteInterface:
-        """Spawn a new sprite"""
-        sprite = cls(data)
-        if target:
-            self.get_group("render").set_target(sprite)
-        return sprite
-
-    def get_group(self, group_name: str) -> pygame.sprite.AbstractGroup:
-        """
-        Get a sprite group from a string
-        
-        Returns None if group does not exist
-        """
-        return self.groups.get(group_name)
-    
-    def add_to_groups(self, sprite: SpriteInterface, *groups: str) -> None:
-        """
-        Add a sprite to the given string groups
-        
-        Will create new ones if the groups do not exist
-        """
-        for group in groups:
-            self.groups.setdefault(group, pygame.sprite.Group()).add(sprite)
-
-    async def render(self, dt_since_physics: float) -> pygame.Surface:
-        """
-        Return a drawn surface.
-
-        dt_since_physics is how much time since the last physics update and is used for position interpolation
-        """
-        surface: pygame.Surface = pygame.Surface(WINDOW_RESOLUTION).convert()
-        surface.fill("black")
-        self.get_group("render").draw(surface, dt_since_physics)
-        return surface
-
-    async def update_actors(self, dt):
-        for sprite in self.get_group("actors"):
-            sprite.act(dt)
-
-    async def update_physics(self, dt):
-        """
-        Update the physics in this level
-        """
-        for sprite in self.get_group("physics"):
-            sprite.update_physics(dt)
