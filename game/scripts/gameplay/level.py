@@ -31,6 +31,7 @@ class Level(GameLevelInterface):
             "actors": pygame.sprite.Group(),
         }
         self.game: GameInterface = game
+        self.groups["render"].view_range = pygame.FRect(0, 0, 1088, 320)
 
 
     def init(self):
