@@ -18,6 +18,7 @@ class Player(PhysicsSprite):
             air_friction=0.1,
             jump_speed=55,
             duck_speed=100,
+            yeet_force=1000,
         )
         # sprite will be added to these groups later
         data.groups.extend(["physics", "render", "dynamic-physics", "actors"])
@@ -37,5 +38,5 @@ class Player(PhysicsSprite):
         if input_state.get(Actions.DOWN):
             self.duck(dt)
 
-        if input_state.get(Actions.INTERACT):
+        if input_state.get_just(Actions.INTERACT):
             self.interact(dt)

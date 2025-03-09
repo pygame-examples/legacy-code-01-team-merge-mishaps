@@ -12,7 +12,7 @@ class Camera(pygame.sprite.LayeredUpdates):
     TODO:
         1) fix the jitteryness of the camera - DONE!
         2) add a screen shake for when objects collide >:]
-        3) add constraining rect for camera
+        3) add constraining rect for camera - DONE!
     """
     def __init__(self) -> None:
         super().__init__()

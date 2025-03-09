@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
+from functools import wraps
+
+if TYPE_CHECKING:
+    from types import FunctionType
 
 import pygame
 
 from ..interfaces import SpriteInitData, PhysicsType, SpritePhysicsData, SpriteInterface, Direction, PhysicsSpriteInterface
 from ..const import GRAVITY
 from .sprite import Sprite
-from ..const import MAX_SPEED, TO_SECONDS, AIR_CONTROLS_REDUCTION
+from ..const import MAX_SPEED, TO_SECONDS, AIR_CONTROLS_REDUCTION, YEET_UP_PERCENTAGE
 
 
 def apply_friction(velocity: pygame.Vector2 | float, friction: float, dt: float):
@@ -95,6 +100,23 @@ def get_axis_of_direction(direction: Direction) -> int:
     return int(direction in {Direction.NORTH, Direction.SOUTH})
 
 
+def protect(fn: FunctionType):
+    """
+    Simple wrapper for control command functions to avoid calling them multiple times a physics frame.
+    """
+    @wraps(fn)
+    def inner(self, dt: float = 1):
+        if not self.commands_used.get(fn.__name__, False):
+            self.commands_used[fn.__name__] = True
+            fn(self, dt)
+    return inner
+
+
+def sign(num):
+    # return -1 if num < 0 else int(num > 0)
+    return (0, -1, 1)[(num != 0) + (num > 0)]
+
+
 class PhysicsSprite(Sprite, PhysicsSpriteInterface):
     class PortalState(Enum):
         """State of sprite regarding portals"""
@@ -108,7 +130,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.velocity: pygame.Vector2 = pygame.Vector2()  # pixels/second
         self.acceleration: pygame.Vector2 = pygame.Vector2(0)  # Separated from gravity, to not apply gravity when on ground.
         self.gravity: pygame.Vector2 = pygame.Vector2(GRAVITY)  # pixels/second squared (I think)
-        self.flight_speed: float = physics_data.flight_speed  # how fast the sprite flies when thrown (if dynamic)
+        self.yeet_force: float = physics_data.yeet_force  # how hard the sprite is thrown (if dynamic)
         self.horizontal_speed: float = physics_data.horizontal_speed * TO_SECONDS  # how fast the sprite walks right and left (if dynamic)
         self.horizontal_air_speed: float = physics_data.horizontal_air_speed * TO_SECONDS  # how fast the sprite walks in the air (while jumping)
         self.friction: float = physics_data.friction # how quickly the sprite slows down (if dynamic)
@@ -128,7 +150,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.min_distance: int = 40 # minimum distance to pick up something
         self.current_throwable: PhysicsSprite | None = None # the current think you're about to throw at someone
         self.picker_upper: PhysicsSprite | None = None # the one picking up self
-        self.was_thrown: bool = False # bool for when the sprite is thrown (duuuuuuuuh)
 
         # latency compensation 
         # all inputs are polled faster than physics framerate and timestamped
@@ -137,19 +158,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.missed: pygame.Vector2 = pygame.Vector2()  # missed motion that needs to be caught up with (if dynamic)
         self.missed_accel: pygame.Vector2 = pygame.Vector2()  # missed acceleration that needs to be caught up with (if dynamic)
 
-        # which commands were called last frame (if dynamic)
-        self.just_went: dict[str, bool] = {
-            "jump": False,
-            "left": False,
-            "right": False,
-            "duck": False,
-        }
-        self.just_went_buffer: dict[str, bool] = {
-            "jump": False,
-            "left": False,
-            "right": False,
-            "duck": False,
-        }
+        # Used to limit control command per physics frame.
+        self.commands_used: dict[str, bool] = {}
 
         # portal handling
         self.current_portal: PhysicsSpriteInterface | None = None  # which portal I am entering
@@ -200,6 +210,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         pass
 
+    @protect
     def left(self, dt: float = 1) -> None:
         """If I am dynamic, try to move left until the next frame"""
         if not dt: return
@@ -210,6 +221,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if target_vel_d < self.velocity.x:  # Do not slow down when moving faster than walking speed in the air
                 self.velocity.x += target_vel_d * AIR_CONTROLS_REDUCTION
 
+    @protect
     def right(self, dt: float = 1) -> None:
         """If I am dynamic, try to move right until the next frame"""
         if not dt: return
@@ -220,6 +232,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if target_vel_d > self.velocity.x:  # Do not slow down when moving faster than walking speed in the air
                 self.velocity.x += target_vel_d * AIR_CONTROLS_REDUCTION
 
+    @protect
     def jump(self, dt: float = 1) -> None:
         """If I am dynamic, try to jump"""
         if self.on_ground or self.coyote_time_left > 0:
@@ -227,6 +240,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.coyote_time_left = 0
         # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
 
+    @protect
     def duck(self, dt: float = 1) -> None:
         """If I am dynamic, try to duck until the next frame"""
         # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
@@ -234,10 +248,16 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if not self.on_ground:
             self.velocity.y = max(self.duck_speed * TO_SECONDS * dt, self.velocity.y)
 
+    @protect
     def interact(self, dt: float = 1):
         """Interact with different objects"""
         # TODO: implement: picking up (use self.pick_up), throwing (use self.throw), interacting with other things (TODO)
-        pass
+        if self.throw(dt):
+            return
+        elif self.pick_up():
+            return
+        elif self.interact_with():
+            return
 
     def interpolated_pos(self, dt_since_physics: float) -> pygame.Vector2:
         """Use this position during render calls"""
@@ -446,7 +466,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.twin_portal = None
         self.portal_state = self.PortalState.OUT
 
-    def pick_up(self) -> None:
+    def pick_up(self):
         """
         Finds closest throwable object and sets it as the current object picked up
         """
@@ -454,15 +474,28 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if distance <= self.min_distance and not self.current_throwable:
             self.current_throwable = closest_throwable
             self.current_throwable.picker_upper = self
+            return True
+        return False
 
-    def throw(self, dt: float) -> None:
+    def throw(self, dt: float):
         """
         Throws the current object held
         """
-        self.current_throwable.velocity = self.facing * self.current_throwable.flight_speed
-        self.current_throwable.was_thrown = True
-        self.current_throwable.picker_upper = None
-        self.current_throwable = None
+        if self.current_throwable:
+            yeet_force = self.yeet_force / self.current_throwable.weight if self.current_throwable.weight else 0
+            up_part = yeet_force * YEET_UP_PERCENTAGE
+            self.current_throwable.velocity = self.velocity + pygame.Vector2(self.facing.x * (yeet_force - up_part), -up_part) * TO_SECONDS * dt
+            self.current_throwable.picker_upper = None
+            self.current_throwable = None
+            return True
+        return False
+
+    def interact_with(self):
+        """
+        Interact with objects that support interactions
+        """
+        # TODO: implement
+        return False
 
     def find_closest_throwable(self):
         """
@@ -490,8 +523,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             distance_to = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
             self.velocity = distance_to * 2000 * dt
 
-        self.just_went = self.just_went_buffer
-
     def _test_if_on_ground(self):
         collision_rect = self.clipped_collision_rect()
         collision_rect.y += 1
@@ -505,6 +536,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
     def update_physics(self, dt) -> None:
         """Update this sprite's physics"""
+        # Restore previous commands
+        self.commands_used.clear()
+
         if self.physics_type == PhysicsType.DYNAMIC:
             self.update_throwable(dt) # Note: Make sure to do any velocity modifications before handle_dynamic_collision otherwise weird stuff happen - Aiden
             self.handle_dynamic_collision(1, dt)
@@ -520,6 +554,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 # A bit unrealistic, that there's no horizontal friction.
                 self.velocity[0] = apply_friction(self.velocity[0], self.air_friction, dt)
                 self.coyote_time_left -= dt
+
+            self.facing.x = sign(self.velocity.x)
+            self.facing.y = sign(self.velocity.y)
+
         if self.physics_type == PhysicsType.TRIGGER:
             self.handle_trigger_collision()
         if self.physics_type == PhysicsType.PORTAL:
