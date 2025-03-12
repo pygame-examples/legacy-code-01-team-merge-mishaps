@@ -41,6 +41,13 @@ class Direction(Enum):
     EAST = (1, 0)
     WEST = (-1, 0)
 
+DIRECTION_TO_ANGLE = {
+    Direction.NORTH: 90,
+    Direction.SOUTH: 270,
+    Direction.EAST: 0,
+    Direction.WEST: 180
+}
+
 
 class GameInterface:
     def quit(self) -> None:

@@ -47,45 +47,48 @@ class Level(GameLevelInterface):
         I would put map loading here.
         """
 
+        # NOTE: !!!!!! rect position, width and height are measured in tiles of 16px
+
         self.spawn(Block, SpriteInitData(
-            rect=(32, 256, 1024, 32),
+            rect=(2*16, 16*16, 64*16, 2*16),
             level=self,
         ))
 
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(48, 150, 64, 8),
+            rect=(3*16, 10*16, 4*16, 1*16),
             level=self
         ))
 
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(48, 150, 64, 8),
+            rect=(5*16, 5*16, 4*16, 1*16),
             level=self
         ))
 
         self.spawn(Player, SpriteInitData(
-            rect=(32, 32, 32, 32),
+            rect=(2*16, 2*16, 2*16, 2*16),
             level=self,
         ),
         True
         )
         self.spawn(ThrowableBlock, SpriteInitData(
-            rect=(132, 32, 32, 32),
+            rect=(11*16, 2*16, 2*16, 2*16),
             level=self,
         ))
+
         self.spawn(Portal, SpriteInitData(
-            rect=(180, 160, 96, 8),
+            rect=(25*16, 11*16, 6*16, 1*16),
             level=self,
             properties={
-                "orientation": Direction.NORTH,
-                "tunnel_id": "tunnel2"
+                "orientation": Direction.SOUTH,
+                "tunnel_id": "3"
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(400, 160, 96, 8),
+            rect=(11*16, 11*16, 6*16, 1*16),
             level=self,
             properties={
-                "orientation": Direction.NORTH,
-                "tunnel_id": "tunnel2"
+                "orientation": Direction.SOUTH,
+                "tunnel_id": "3"
             }
         ))
 
