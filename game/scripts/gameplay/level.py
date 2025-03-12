@@ -54,40 +54,85 @@ class Level(GameLevelInterface):
             level=self,
         ))
 
+        self.spawn(Block, SpriteInitData(
+            rect=(2*16, -16*16, 2*16, 32*16),
+            level=self,
+        ))
+
+        self.spawn(Block, SpriteInitData(
+            rect=(2*16, 1*16, 64*16, 2*16),
+            level=self,
+        ))
+
+        self.spawn(Portal, SpriteInitData(
+            rect=(15*16, -1*16, 6*16, 1*16),
+            level=self,
+            properties={
+                "orientation": Direction.NORTH,
+                "tunnel_id": "5"
+            }
+        ))
+        self.spawn(Portal, SpriteInitData(
+            rect=(15*16, 3*16, 6*16, 1*16),
+            level=self,
+            properties={
+                "orientation": Direction.SOUTH,
+                "tunnel_id": "5"
+            }
+        ))
+
+        self.spawn(Portal, SpriteInitData(
+            rect=(4*16, 9*16, 1*16, 6*16),
+            level=self,
+            properties={
+                "orientation": Direction.EAST,
+                "tunnel_id": "1"
+            }
+        ))
+        self.spawn(Portal, SpriteInitData(
+            rect=(60*16, 9*16, 1*16, 6*16),
+            level=self,
+            properties={
+                "orientation": Direction.WEST,
+                "tunnel_id": "1"
+            }
+        ))
+
+
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(3*16, 10*16, 4*16, 1*16),
+            rect=(5*16, 10*16, 6*16, 1*16),
             level=self
         ))
 
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(5*16, 5*16, 4*16, 1*16),
+            rect=(7*16, 5*16, 4*16, 1*16),
             level=self
         ))
 
         self.spawn(Player, SpriteInitData(
-            rect=(2*16, 2*16, 2*16, 2*16),
+            rect=(7*16, 2*16, 2*16, 2*16),
             level=self,
         ),
         True
         )
         self.spawn(ThrowableBlock, SpriteInitData(
-            rect=(11*16, 2*16, 2*16, 2*16),
+            rect=(13*16, 2*16, 2*16, 2*16),
             level=self,
         ))
 
         self.spawn(Portal, SpriteInitData(
-            rect=(25*16, 11*16, 6*16, 1*16),
+            rect=(28*16, 14*16, 6*16, 1*16),
             level=self,
             properties={
-                "orientation": Direction.SOUTH,
+                "orientation": Direction.NORTH,
                 "tunnel_id": "3"
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(11*16, 11*16, 6*16, 1*16),
+            rect=(14*16, 14*16, 6*16, 1*16),
             level=self,
             properties={
-                "orientation": Direction.SOUTH,
+                "orientation": Direction.NORTH,
                 "tunnel_id": "3"
             }
         ))

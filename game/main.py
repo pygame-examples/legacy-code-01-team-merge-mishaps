@@ -82,7 +82,7 @@ class Game(GameInterface):
             disp.blit(output, output.get_rect(center=disp.get_rect().center))
             self.window.flip()
             if dt_since_physics > self.physics_delay * 2:
-                print("YES I KNOW LAG DETECTED")
+                # print("YES I KNOW LAG DETECTED")
                 self.render_delay = min(self.render_delay + 0.05, 1 / 15)
             elif self.render_delay > self.target_render_delay:
                 self.render_delay = max(self.target_render_delay, self.render_delay - 0.05)

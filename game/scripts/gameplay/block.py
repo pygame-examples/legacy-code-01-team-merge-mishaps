@@ -1,4 +1,7 @@
+from hmac import new
 import pygame
+
+from game.scripts.gameplay import sprite
 
 from ..interfaces import PhysicsType
 from .physics import PhysicsSprite, SpriteInitData, SpritePhysicsData
@@ -29,10 +32,27 @@ class OneWayBlock(PhysicsSprite):
         data.groups.extend(["render", "physics", "static-physics"])
         super().__init__(data, physics_data)
 
+        spritesheet = pygame.image.load("game/assets/sprites/one-way-platform.png").convert_alpha()
+        width = data.rect[2] // (2*16)
+        self.image = pygame.Surface((width*16, 16))
+        if width == 1:
+            self.image.blit(spritesheet.subsurface((48, 0, 16, 16)), (0, 0))
+        else:
+            for i in range(width):
+                if i == 0:
+                    self.image.blit(spritesheet.subsurface((0, 0, 16, 16)), (16*i, 0))
+                elif i == (width-1):
+                    self.image.blit(spritesheet.subsurface((32, 0, 16, 16)), (16*i, 0))
+                else:
+                    self.image.blit(spritesheet.subsurface((16, 0, 16, 16)), (16*i, 0))
+        scale_factor = data.rect[2] // self.image.width
+        self.image = pygame.transform.scale_by(self.image, scale_factor)
+
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float):
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
-        pygame.draw.rect(surface, "yellow", new_rect)
+        # pygame.draw.rect(surface, "yellow", new_rect)
+        surface.blit(self.image, new_rect)
 
 class ThrowableBlock(PhysicsSprite):
     """Meant for being picked up and thrown"""
@@ -47,6 +67,5 @@ class ThrowableBlock(PhysicsSprite):
         self.image = pygame.image.load("game/assets/sprites/cube.png").convert_alpha()
         scale_factor = self.rect.width // 16
         self.image = pygame.transform.scale_by(self.image, scale_factor)
-        print(self.rect)
         # pygame.draw.rect(self.image, "red", (0, 0, *self.rect.size))
 

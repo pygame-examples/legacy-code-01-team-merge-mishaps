@@ -76,23 +76,24 @@ def clip_rect_to_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect,
     collision_rect = collision_rect.copy()
     if direction == Direction.NORTH:
         # only show rect above top
-        overlap = min(abs(collision_rect.bottom - portal_rect.top), collision_rect.height)
+        overlap = min(abs(collision_rect.bottom - portal_rect.bottom), collision_rect.height)
         collision_rect.height -= overlap
     if direction == Direction.SOUTH:
         # only show rect below bottom
-        overlap = min(abs(collision_rect.top - portal_rect.bottom), collision_rect.height)
+        overlap = min(abs(collision_rect.top - portal_rect.top), collision_rect.height)
         collision_rect.top += overlap
         collision_rect.height -= overlap
     if direction == Direction.EAST:
         # only show rect right of right
-        overlap = min(abs(collision_rect.left - portal_rect.right), collision_rect.width)
+        overlap = min(abs(collision_rect.left - portal_rect.left), collision_rect.width)
         collision_rect.width -= overlap
         collision_rect.left += overlap
     if direction == Direction.WEST:
         # only show rect left of left
-        overlap = min(abs(collision_rect.right - portal_rect.left), collision_rect.width)
+        overlap = min(abs(collision_rect.right - portal_rect.right), collision_rect.width)
         collision_rect.width -= overlap
     return collision_rect
+
 
 
 def get_axis_of_direction(direction: Direction) -> int:
@@ -571,7 +572,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Except all of the above is interpolated
         """
         new_rect = self.rect.copy()
-        # only draw the part of the sprite that is not in a portal
+        # only draw the part of the sprite that is above the 'bottom' of the portal
         clip_rect = self.interpolated_cliprect(dt_since_physics)
         new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
         surface.blit(self.image.subsurface(clip_rect), new_rect)
