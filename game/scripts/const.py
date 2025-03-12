@@ -14,7 +14,7 @@ from enum import Enum, auto
 import pygame
 
 
-TITLE = "Untiteled mess`"  # title of the window
+TITLE = "Untiteled mess"  # title of the window
 
 WINDOW_RESOLUTION: tuple[int, int] = (640, 480)  # game resolution (might be different from the actual resolution of the window if resized)
 
@@ -35,6 +35,7 @@ class Actions(Enum):
     RIGHT = auto()
     UP = auto()
     DOWN = auto()
+    JUMP = auto()
     INTERACT = auto()
 
 
@@ -43,7 +44,8 @@ DEFAULT_KEYBINDINGS = {
     Actions.LEFT: [pygame.K_LEFT, pygame.K_a],
     Actions.RIGHT: [pygame.K_RIGHT, pygame.K_d],
     Actions.DOWN: [pygame.K_DOWN, pygame.K_s],
-    Actions.INTERACT: [pygame.K_SPACE]
+    Actions.JUMP: [pygame.K_SPACE],
+    Actions.INTERACT: [pygame.K_e]
 }
 
 

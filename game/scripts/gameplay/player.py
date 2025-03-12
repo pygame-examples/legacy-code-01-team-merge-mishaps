@@ -32,11 +32,11 @@ class Player(PhysicsSprite):
         if input_state.get(Actions.RIGHT):
             self.right(dt)
 
-        if input_state.get(Actions.UP):
-            self.jump(dt)
-
         if input_state.get(Actions.DOWN):
             self.duck(dt)
+
+        if input_state.get(Actions.JUMP):
+            self.jump(dt)
 
         if input_state.get_just(Actions.INTERACT):
             self.interact(dt)

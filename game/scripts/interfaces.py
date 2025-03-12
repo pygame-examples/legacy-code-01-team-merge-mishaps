@@ -102,7 +102,7 @@ class GameLevelInterface(GameStateInterface, ABC):
         Will create new ones if the groups do not exist
         """
         for group in groups:
-            self.groups.setdefault(group, pygame.sprite.Group()).add(sprite)
+            self.groups.setdefault(group, pygame.sprite.Group()).add(sprite)  # somehow creates a new group ????
 
     @abstractmethod
     def set_camera_view(self, view: RectLike):
@@ -129,6 +129,7 @@ class GameLevelInterface(GameStateInterface, ABC):
         """
         for sprite in self.get_group("physics"):
             sprite.update_physics(dt)
+
 
 
 @dataclass

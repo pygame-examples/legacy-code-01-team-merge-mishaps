@@ -148,7 +148,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.facing: pygame.Vector2 = pygame.Vector2(1, 0) # the direction the sprite should be facing
 
         self.min_distance: int = 40 # minimum distance to pick up something
-        self.current_throwable: PhysicsSprite | None = None # the current think you're about to throw at someone
+        self.current_throwable: PhysicsSprite | None = None # the current think you're about to throw at someone        # bro made a gramatikal mistak
         self.picker_upper: PhysicsSprite | None = None # the one picking up self
 
         # latency compensation 

@@ -7,7 +7,7 @@ class Block(PhysicsSprite):
     """Static block that you run into"""
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(
-            physics_type=PhysicsType.STATIC,
+            physics_type=PhysicsType.STATIC
         )
         data.groups.extend(["render", "physics", "static-physics"])
         super().__init__(data, physics_data)

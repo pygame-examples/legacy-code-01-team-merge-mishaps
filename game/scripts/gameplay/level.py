@@ -46,14 +46,22 @@ class Level(GameLevelInterface):
         
         I would put map loading here.
         """
+
         self.spawn(Block, SpriteInitData(
             rect=(32, 256, 1024, 32),
             level=self,
         ))
+
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(48, 150, 32, 32),
+            rect=(48, 150, 64, 8),
             level=self
         ))
+
+        self.spawn(OneWayBlock, SpriteInitData(
+            rect=(48, 150, 64, 8),
+            level=self
+        ))
+
         self.spawn(Player, SpriteInitData(
             rect=(32, 32, 32, 32),
             level=self,
@@ -73,10 +81,10 @@ class Level(GameLevelInterface):
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(400, 160, 8, 96),
+            rect=(400, 160, 96, 8),
             level=self,
             properties={
-                "orientation": Direction.WEST,
+                "orientation": Direction.NORTH,
                 "tunnel_id": "tunnel2"
             }
         ))
