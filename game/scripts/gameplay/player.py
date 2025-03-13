@@ -23,8 +23,10 @@ class Player(PhysicsSprite):
         # sprite will be added to these groups later
         data.groups.extend(["physics", "render", "dynamic-physics", "actors"])
         super().__init__(data, physics_data)
-        self.image = pygame.Surface(self.rect.size, pygame.SRCALPHA).convert_alpha()
-        pygame.draw.rect(self.image, "red", (0, 0, *self.rect.size), 2)
+
+        self.image = pygame.image.load("game/assets/sprites/player.png").convert_alpha()
+        scale_factor = data.rect[2] // 16
+        self.image = pygame.transform.scale_by(self.image, scale_factor)
 
         self.last_down_press = 0
         self.timer = 0

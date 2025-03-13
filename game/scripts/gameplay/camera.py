@@ -10,9 +10,7 @@ class Camera(pygame.sprite.LayeredUpdates):
     Camera group, meant for following a specific sprite while rendering
 
     TODO:
-        1) fix the jitteryness of the camera - DONE!
-        2) add a screen shake for when objects collide >:]
-        3) add constraining rect for camera - DONE!
+        add a screen shake for when objects collide >:]   - ??
     """
     def __init__(self) -> None:
         super().__init__()

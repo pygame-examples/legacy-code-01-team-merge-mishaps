@@ -65,6 +65,7 @@ class ThrowableBlock(PhysicsSprite):
         data.groups.extend(["render", "physics", "dynamic-physics", "throwable-physics"])
         super().__init__(data, physics_data)
         self.image = pygame.image.load("game/assets/sprites/cube.png").convert_alpha()
+        self.image = self.image.subsurface((data.properties["id"]*16, 0, 16, 16))
         scale_factor = self.rect.width // 16
         self.image = pygame.transform.scale_by(self.image, scale_factor)
         # pygame.draw.rect(self.image, "red", (0, 0, *self.rect.size))

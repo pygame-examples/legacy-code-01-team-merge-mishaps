@@ -74,18 +74,20 @@ def is_entering_portal(direction: Direction, velocity: pygame.Vector2) -> bool:
 def clip_rect_to_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction) -> pygame.FRect:
     """Clips a rect to only what you would see if the rect entered a portal"""
     collision_rect = collision_rect.copy()
+    collision_offset = 4  # to avoid accidental colision with the floor below the protal because I HAVE NO CLUE WHERE THAT ISSUE EVEN STEMS FROM
+
     if direction == Direction.NORTH:
         # only show rect above top
         overlap = 0
         if collision_rect.bottom > portal_rect.bottom:
-            overlap = min(collision_rect.bottom - portal_rect.bottom + 1, collision_rect.height)
+            overlap = min(collision_rect.bottom - portal_rect.bottom + collision_offset, collision_rect.height)
         collision_rect.height -= overlap
 
     if direction == Direction.SOUTH:
         # only show rect below bottom
         overlap = 0
         if collision_rect.top < portal_rect.top:
-            overlap = min(portal_rect.top - collision_rect.top + 1, collision_rect.height)
+            overlap = min(portal_rect.top - collision_rect.top + collision_offset, collision_rect.height)
         collision_rect.top += overlap
         collision_rect.height -= overlap
 
@@ -93,7 +95,7 @@ def clip_rect_to_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect,
         # only show rect right of right
         overlap = 0
         if collision_rect.left < portal_rect.left:
-            overlap = min(portal_rect.left - collision_rect.left + 1, collision_rect.height)
+            overlap = min(portal_rect.left - collision_rect.left + collision_offset, collision_rect.height)
 
         collision_rect.width -= overlap
         collision_rect.left += overlap
@@ -102,7 +104,7 @@ def clip_rect_to_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect,
         # only show rect left of left
         overlap = 0
         if collision_rect.right > portal_rect.right:
-            overlap = min(collision_rect.right - portal_rect.right + 1, collision_rect.height)
+            overlap = min(collision_rect.right - portal_rect.right + 2, collision_rect.height)
         collision_rect.width -= overlap
     return collision_rect
 
@@ -258,12 +260,15 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
         self.ducking = True
         if not self.on_ground:
-            self.velocity.y = max(self.duck_speed * TO_SECONDS * dt, self.velocity.y)
+            self.velocity.y = max(self.duck_speed * TO_SECONDS * dt, self.velocity.y, 1)
+            if self.current_throwable:
+                self.current_throwable.duck()
+
 
     @protect
     def interact(self, dt: float = 1):
         """Interact with different objects"""
-        # TODO: implement: picking up (use self.pick_up), throwing (use self.throw), interacting with other things (TODO)
+        # TODO: implement interacting with other things (prob buttons or sum like that, you know the drill)
         if self.throw(dt):
             return
         elif self.pick_up():
@@ -322,13 +327,13 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         return False
     
-    def handle_dynamic_collision(self, axis: int, dt: float) -> bool: 
+    def handle_dynamic_collision(self, axis: int, dt: float) -> bool:
         """
         Collision handling for dynamic sprites
 
         Called internally
         """
-        # TODO: we should be able to skip by more one pixel (max of all offsets pushing out of the collision)
+        # TODO: we should be able to skip by more one pixel (max of all offsets pushing out of the collision)   -- WHAT DOES THAT EVEN MEAN, THAT IS NOT A COMPREHENSABLE MESSAGE
         def must_move():
             # Part of me that is inside a portal does not collide
             collision_rect = self.clipped_collision_rect()
@@ -401,22 +406,26 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         If the sprite is inside the portal, it can't leave it, except through the way it entered
         """
         # PS - sorry all the collision based names for functions were taken :|
-        # TODO: get this to restrict the sprite tries to leave the portal in a direction perpendicular to it's orientation
         if self.rect.colliderect(self.current_portal.rect) and self.portal_state in {self.PortalState.EXIT, self.PortalState.ENTER}:
+            fade_scale = 1.1
             if get_axis_of_direction(self.current_portal.orientation):
                 if self.rect.right > self.current_portal.rect.right:
                     self.rect.right = self.current_portal.rect.right - 1
                     self.velocity.x = 0
+                    self.velocity.y /= fade_scale
                 elif self.rect.left < self.current_portal.rect.left:
                     self.rect.left = self.current_portal.rect.left + 1
                     self.velocity.x = 0
+                    self.velocity.y /= fade_scale
             else:
                 if self.rect.top < self.current_portal.rect.top:
                     self.rect.top = self.current_portal.rect.top + 1
                     self.velocity.y = 0
+                    self.velocity.x /= fade_scale
                 elif self.rect.bottom > self.current_portal.rect.bottom:
                     self.rect.bottom = self.current_portal.rect.bottom - 1
                     self.velocity.y = 0
+                    self.velocity.x /= fade_scale
 
     def enter_portal(self, portal: PhysicsSpriteInterface, twin: PhysicsSpriteInterface) -> None:
         """
@@ -436,12 +445,12 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         # move the sprite to behind the exit portal
         if self.twin_portal.orientation == Direction.NORTH:
-            self.velocity = pygame.Vector2(0, -self.velocity.length())
+            self.velocity = pygame.Vector2(0, min(-self.velocity.length(), -350))
             if get_axis_of_direction(self.current_portal.orientation):
                 self.rect.left = self.twin_portal.rect.left + self.rect.left - self.current_portal.rect.left
             else:
                 self.rect.left = self.twin_portal.rect.left + self.current_portal.rect.bottom - self.rect.bottom
-            self.rect.top = self.twin_portal.rect.bottom - 1
+            self.rect.top = self.twin_portal.rect.bottom - 2
 
         if self.twin_portal.orientation == Direction.SOUTH:
             self.velocity = pygame.Vector2(0, self.velocity.length())
@@ -507,7 +516,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         Interact with objects that support interactions
         """
-        # TODO: implement
+        # TODO: implement     -- already implemented
         return False
 
     def find_closest_throwable(self):
@@ -534,17 +543,23 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         if self.picker_upper:
             distance_to = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
-            self.velocity = distance_to * 2000 * dt
+            if distance_to.length() > 32*2:  # if the picker upper is too far away (went through the portal for example), teleport to the picker upper
+                self.pos = self.picker_upper.pos
+            else:
+                self.velocity = distance_to * 2000 * dt  # otherwise make this cool magnet effect
 
     def _test_if_on_ground(self):
         collision_rect = self.clipped_collision_rect()
-        collision_rect.y += 1
+        collision_rect.y += 0.5
+
         for sprite in self.level.get_group("static-physics"):
             # only collide with one_way when going down or ducking
             if sprite.one_way and (self.velocity.y < 0 or self.ducking):
                 continue
-            if sprite.collision_rect.colliderect(collision_rect):
+
+            if sprite.collision_rect.colliderect(collision_rect) and self.portal_state == self.PortalState.OUT:
                 return True
+
         return False
 
     def update_physics(self, dt) -> None:
@@ -556,14 +571,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.update_throwable(dt) # Note: Make sure to do any velocity modifications before handle_dynamic_collision otherwise weird stuff happen - Aiden
             self.handle_dynamic_collision(1, dt)
             self.handle_dynamic_collision(0, dt)
-            if self._test_if_on_ground():
-                self.on_ground = True
+            self.on_ground = self._test_if_on_ground()
+            # print(on_ground)
+            if self.on_ground:
                 self.ducking = False
                 self.velocity[1] = 0
                 apply_friction(self.velocity, self.friction, dt)
                 self.coyote_time_left = self.coyote_time
             else:
-                self.on_ground = False
                 # A bit unrealistic, that there's no horizontal friction.
                 self.velocity[0] = apply_friction(self.velocity[0], self.air_friction, dt)
                 self.coyote_time_left -= dt

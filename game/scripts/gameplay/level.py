@@ -100,19 +100,30 @@ class Level(GameLevelInterface):
 
 
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(20*32, 5*32, 2*32, 32),
+            rect=(25*32, 5*32, 2*32, 32),
             level=self
         ))
 
         self.spawn(Player, SpriteInitData(
-            rect=(3*32, 32, 32, 32),
+            rect=(3*32, 5*32, 32, 32),
             level=self,
         ),
         True
         )
         self.spawn(ThrowableBlock, SpriteInitData(
-            rect=(7*32, 32, 32, 32),
+            rect=(9*32, 5*32, 32, 32),
             level=self,
+            properties={
+                "id": 0
+            }
+        ))
+
+        self.spawn(ThrowableBlock, SpriteInitData(
+            rect=(7*32, 5*32, 32, 32),
+            level=self,
+            properties={
+                "id": 1
+            }
         ))
 
         self.spawn(Portal, SpriteInitData(
@@ -129,6 +140,24 @@ class Level(GameLevelInterface):
             properties={
                 "orientation": Direction.NORTH,
                 "tunnel_id": "3"
+            }
+        ))
+
+        self.spawn(Portal, SpriteInitData(
+            rect=(19*32, 2*32, 3*32, 32),
+            level=self,
+            properties={
+                "orientation": Direction.SOUTH,
+                "tunnel_id": "4"
+            }
+        ))
+
+        self.spawn(Portal, SpriteInitData(
+            rect=(19*32, 7*32, 3*32, 32),
+            level=self,
+            properties={
+                "orientation": Direction.NORTH,
+                "tunnel_id": "4"
             }
         ))
 

@@ -1,8 +1,8 @@
 ## Guide to source code:
 
 ```
-pytmx/  - copied source code of a library pytmx used for loading Tiled files with intention of easier tampering/implementing mising features.
-    project_loader.py  – example if this "tampering"
+pytmx/  - copied source code of a library pytmx used for loading Tiled files with intention of easier tampering/implementing mising features.    
+    project_loader.py  – example of this "tampering"
 game/  - main directory... not a lot to say here
     assets/  - ...
         levels/  - tiled levels go here
@@ -14,7 +14,7 @@ game/  - main directory... not a lot to say here
             sprite.py  - semi-abstract class
             menu.py  - empty :(
             level.py  - what you see on the screen currently
-            physics.py  - a mess
+            physics.py  - a mess    (another teamate: can confirm)
         intefaces.py  - most of the abstract classes, also partially constants
         const.py  - hopefully the rest of constants
         game_input.py  - simplified interface for getting input
@@ -22,3 +22,14 @@ game/  - main directory... not a lot to say here
 ```
 
 To see what to do, might be useful reading the TODO-s.
+
+======= GAMEPLAY =======
+To move press either WASD or arrow keys
+To jump press SPACE
+To interact (pick up or throw) press E
+To slam down double press DOWN (S or down arrow)
+
+------- plan -------
+make this README more beautiful
+implement some cool levels, most probably puzzles (definatelly not a ripoff of portal 2, noooooo)
+learn how to use TODOs inside code, because someone probably left something important there
