@@ -1,5 +1,5 @@
 """
-This file is full of interfaces, dataclasses, and enums for type hinting.
+This file is full of interfaces, dataclasses, and enums for type hinting.                        
 I put in type hints for methods intended to be called by external code.
 
 Classes implementing these interfaces should be subclasses of them.
@@ -12,6 +12,7 @@ Or suffer JiffyRob's wrath
 from __future__ import annotations
 
 import pathlib
+import pytmx.project_loader
 from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod
@@ -21,6 +22,7 @@ import pygame
 from pygame.typing import RectLike, SequenceLike
 
 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 class WindowScale(Enum):
     INTEGER = 1
     STRETCH = 2
@@ -47,7 +49,6 @@ DIRECTION_TO_ANGLE = {
     Direction.EAST: 0,
     Direction.WEST: 180
 }
-
 
 class GameInterface:
     def quit(self) -> None:

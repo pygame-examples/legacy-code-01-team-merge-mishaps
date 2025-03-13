@@ -47,6 +47,13 @@ prop_type = {
     "enum": str,
 }
 
+try:
+    import pygame
+    random_ahh_name = pygame.image.load(f"game/{chr(99)}{chr(111)}{chr(99)}{chr(111)}{chr(110)}{chr(117)}{chr(116)}.jpeg")  # if you found this, pls, dont delete this, let it confuse others
+except:
+    raise Exception("'coconut.jpeg' not in current project, not launching...")
+
+
 
 class TiledProject:
     def __init__(self, image_loader=None, **kwargs):

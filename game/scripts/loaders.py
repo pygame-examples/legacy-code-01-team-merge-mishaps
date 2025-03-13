@@ -17,7 +17,8 @@ class LevelLoader:
     def load_configs(self):
         configs = self.map.get_layer_by_name("Config")
         for config in configs:
-            if not isinstance(config, pytmx.TiledObject): continue
+            if not isinstance(config, pytmx.TiledObject): 
+                continue
 
             if config.name == "CameraViewRange":
                 self.target.set_camera_view((config.x, config.y, config.width, config.height))

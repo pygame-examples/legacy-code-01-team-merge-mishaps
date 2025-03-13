@@ -26,7 +26,7 @@ class Portal(PhysicsSprite):
         super().__init__(data, physics_data)
 
         rotation = DIRECTION_TO_ANGLE[self.orientation] - 90 # - 90 because the portal is FACING in that direciton
-        self.animation = ANIMATIONMYWAY(f"game/assets/sprites/portals/portal"+data.properties["tunnel_id"]+".png", 5, frame_count=7, scale_factor=2, rotation=rotation)
+        self.animation = ANIMATIONMYWAY(f"game/assets/sprites/portals/portal{data.properties["tunnel_id"]}.png", 5, frame_count=7, scale_factor=2, rotation=rotation)
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         new_rect = self.rect.copy()

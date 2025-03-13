@@ -47,33 +47,33 @@ class Level(GameLevelInterface):
         I would put map loading here.
         """
 
-        # NOTE: !!!!!! rect position, width and height are measured in tiles of 16px
+        # NOTE: !!!!!! rect position, width and height are measured in tiles of 32px
 
         self.spawn(Block, SpriteInitData(
-            rect=(2*16, 16*16, 64*16, 2*16),
+            rect=(32, 8*32, 32*32, 32),
             level=self,
         ))
 
         self.spawn(Block, SpriteInitData(
-            rect=(2*16, -16*16, 2*16, 32*16),
+            rect=(32, -8*32, 32, 16*32),
             level=self,
         ))
 
         self.spawn(Block, SpriteInitData(
-            rect=(2*16, 1*16, 64*16, 2*16),
+            rect=(32, 32, 32*32, 32),
             level=self,
         ))
 
         self.spawn(Portal, SpriteInitData(
-            rect=(15*16, -1*16, 6*16, 2*16),
+            rect=(8*32, 0*32, 3*32, 32),
             level=self,
             properties={
                 "orientation": Direction.NORTH,
-                "tunnel_id": "5"
+                "tunnel_id": "5"  # yellow portal
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(15*16, 3*16, 6*16, 2*16),
+            rect=(8*32, 2*32, 3*32, 32),
             level=self,
             properties={
                 "orientation": Direction.SOUTH,
@@ -82,15 +82,15 @@ class Level(GameLevelInterface):
         ))
 
         self.spawn(Portal, SpriteInitData(
-            rect=(4*16, 9*16, 2*16, 6*16),
+            rect=(2*32, 5*32, 32, 3*32),
             level=self,
             properties={
                 "orientation": Direction.EAST,
-                "tunnel_id": "1"
+                "tunnel_id": "1"  # green portal
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(60*16, 9*16, 2*16, 6*16),
+            rect=(30*32, 5*32, 32, 3*32),
             level=self,
             properties={
                 "orientation": Direction.WEST,
@@ -100,31 +100,31 @@ class Level(GameLevelInterface):
 
 
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(40*16, 10*16, 4*16, 1*16),
+            rect=(20*32, 5*32, 2*32, 32),
             level=self
         ))
 
         self.spawn(Player, SpriteInitData(
-            rect=(7*16, 2*16, 2*16, 2*16),
+            rect=(3*32, 32, 32, 32),
             level=self,
         ),
         True
         )
         self.spawn(ThrowableBlock, SpriteInitData(
-            rect=(13*16, 2*16, 2*16, 2*16),
+            rect=(7*32, 32, 32, 32),
             level=self,
         ))
 
         self.spawn(Portal, SpriteInitData(
-            rect=(28*16, 14*16, 6*16, 2*16),
+            rect=(14*32, 7*32, 3*32, 32),
             level=self,
             properties={
                 "orientation": Direction.NORTH,
-                "tunnel_id": "3"
+                "tunnel_id": "3"  # red portal
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(14*16, 14*16, 6*16, 2*16),
+            rect=(7*32, 7*32, 3*32, 32),
             level=self,
             properties={
                 "orientation": Direction.NORTH,

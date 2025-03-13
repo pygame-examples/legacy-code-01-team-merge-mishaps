@@ -112,7 +112,6 @@ def get_axis_of_direction(direction: Direction) -> int:
     """Returns integer axis of a direction (0 for x, 1 for y)"""
     return int(direction in {Direction.NORTH, Direction.SOUTH})
 
-
 def protect(fn: FunctionType):
     """
     Simple wrapper for control command functions to avoid calling them multiple times a physics frame.
