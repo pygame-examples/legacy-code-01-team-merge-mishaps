@@ -26,17 +26,30 @@ class Player(PhysicsSprite):
         self.image = pygame.Surface(self.rect.size, pygame.SRCALPHA).convert_alpha()
         pygame.draw.rect(self.image, "red", (0, 0, *self.rect.size), 2)
 
+        self.last_down_press = 0
+        self.timer = 0
+        self.double_press_time = 0.2  # 200 milliseconds
+
+    def get_facing(self):
+        self.facing.x = input_state.get(Actions.RIGHT) - input_state.get(Actions.LEFT)
+        self.facing.y = input_state.get(Actions.DOWN) - (input_state.get(Actions.UP) or input_state.get(Actions.JUMP))
+
     def act(self, dt: float):
         if input_state.get(Actions.LEFT):
             self.left(dt)
+
         if input_state.get(Actions.RIGHT):
             self.right(dt)
-
-        if input_state.get(Actions.DOWN):
-            self.duck(dt)
 
         if input_state.get(Actions.JUMP):
             self.jump(dt)
 
         if input_state.get_just(Actions.INTERACT):
             self.interact(dt)
+
+
+        self.timer += dt
+        if input_state.get_just(Actions.DOWN):
+            if self.timer - self.last_down_press <= self.double_press_time:
+                self.duck(dt)
+            self.last_down_press = self.timer

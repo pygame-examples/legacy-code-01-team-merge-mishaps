@@ -497,7 +497,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.current_throwable:
             yeet_force = self.yeet_force / self.current_throwable.weight if self.current_throwable.weight else 0
             up_part = yeet_force * YEET_UP_PERCENTAGE
-            self.current_throwable.velocity = self.velocity + pygame.Vector2(self.facing.x * (yeet_force - up_part), -up_part) * TO_SECONDS * dt
+            self.current_throwable.velocity = self.velocity + pygame.Vector2(self.facing.x * (yeet_force - up_part), up_part * (self.facing.y - 1)) * TO_SECONDS * dt
             self.current_throwable.picker_upper = None
             self.current_throwable = None
             return True
@@ -568,13 +568,16 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 self.velocity[0] = apply_friction(self.velocity[0], self.air_friction, dt)
                 self.coyote_time_left -= dt
 
-            self.facing.x = sign(self.velocity.x)
-            self.facing.y = sign(self.velocity.y)
+            self.get_facing()  # get the direction the object is facing
 
         if self.physics_type == PhysicsType.TRIGGER:
             self.handle_trigger_collision()
         if self.physics_type == PhysicsType.PORTAL:
             self.handle_portal_collision()
+    
+    def get_facing(self):
+        self.facing.x = sign(self.velocity.x)
+        self.facing.y = sign(self.velocity.y)
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float = 0) -> None:
         """
