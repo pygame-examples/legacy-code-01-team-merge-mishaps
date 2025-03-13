@@ -65,7 +65,7 @@ class Level(GameLevelInterface):
         ))
 
         self.spawn(Portal, SpriteInitData(
-            rect=(15*16, -1*16, 6*16, 1*16),
+            rect=(15*16, -1*16, 6*16, 2*16),
             level=self,
             properties={
                 "orientation": Direction.NORTH,
@@ -73,7 +73,7 @@ class Level(GameLevelInterface):
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(15*16, 3*16, 6*16, 1*16),
+            rect=(15*16, 3*16, 6*16, 2*16),
             level=self,
             properties={
                 "orientation": Direction.SOUTH,
@@ -82,7 +82,7 @@ class Level(GameLevelInterface):
         ))
 
         self.spawn(Portal, SpriteInitData(
-            rect=(4*16, 9*16, 1*16, 6*16),
+            rect=(4*16, 9*16, 2*16, 6*16),
             level=self,
             properties={
                 "orientation": Direction.EAST,
@@ -90,7 +90,7 @@ class Level(GameLevelInterface):
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(60*16, 9*16, 1*16, 6*16),
+            rect=(60*16, 9*16, 2*16, 6*16),
             level=self,
             properties={
                 "orientation": Direction.WEST,
@@ -100,12 +100,7 @@ class Level(GameLevelInterface):
 
 
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(5*16, 10*16, 6*16, 1*16),
-            level=self
-        ))
-
-        self.spawn(OneWayBlock, SpriteInitData(
-            rect=(7*16, 5*16, 4*16, 1*16),
+            rect=(40*16, 10*16, 4*16, 1*16),
             level=self
         ))
 
@@ -121,7 +116,7 @@ class Level(GameLevelInterface):
         ))
 
         self.spawn(Portal, SpriteInitData(
-            rect=(28*16, 14*16, 6*16, 1*16),
+            rect=(28*16, 14*16, 6*16, 2*16),
             level=self,
             properties={
                 "orientation": Direction.NORTH,
@@ -129,7 +124,7 @@ class Level(GameLevelInterface):
             }
         ))
         self.spawn(Portal, SpriteInitData(
-            rect=(14*16, 14*16, 6*16, 1*16),
+            rect=(14*16, 14*16, 6*16, 2*16),
             level=self,
             properties={
                 "orientation": Direction.NORTH,

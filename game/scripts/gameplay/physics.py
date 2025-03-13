@@ -76,21 +76,33 @@ def clip_rect_to_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect,
     collision_rect = collision_rect.copy()
     if direction == Direction.NORTH:
         # only show rect above top
-        overlap = min(abs(collision_rect.bottom - portal_rect.bottom), collision_rect.height)
+        overlap = 0
+        if collision_rect.bottom > portal_rect.bottom:
+            overlap = min(collision_rect.bottom - portal_rect.bottom + 1, collision_rect.height)
         collision_rect.height -= overlap
+
     if direction == Direction.SOUTH:
         # only show rect below bottom
-        overlap = min(abs(collision_rect.top - portal_rect.top), collision_rect.height)
+        overlap = 0
+        if collision_rect.top < portal_rect.top:
+            overlap = min(portal_rect.top - collision_rect.top + 1, collision_rect.height)
         collision_rect.top += overlap
         collision_rect.height -= overlap
+
     if direction == Direction.EAST:
         # only show rect right of right
-        overlap = min(abs(collision_rect.left - portal_rect.left), collision_rect.width)
+        overlap = 0
+        if collision_rect.left < portal_rect.left:
+            overlap = min(portal_rect.left - collision_rect.left + 1, collision_rect.height)
+
         collision_rect.width -= overlap
         collision_rect.left += overlap
+
     if direction == Direction.WEST:
         # only show rect left of left
-        overlap = min(abs(collision_rect.right - portal_rect.right), collision_rect.width)
+        overlap = 0
+        if collision_rect.right > portal_rect.right:
+            overlap = min(collision_rect.right - portal_rect.right + 1, collision_rect.height)
         collision_rect.width -= overlap
     return collision_rect
 
