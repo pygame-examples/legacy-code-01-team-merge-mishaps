@@ -31,7 +31,6 @@ class Portal(PhysicsSprite):
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
-        # pygame.draw.rect(surface, "green", new_rect)
         self.animation.update(dt_since_physics)
         surface.blit(self.animation.get_frame(), new_rect)
 

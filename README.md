@@ -32,7 +32,7 @@ To slam down double press DOWN (S or down arrow)
 ------- plan -------
 make this README more beautiful
 implement some cool levels, most probably puzzles (definatelly not a ripoff of portal 2, noooooo)
-learn how to use TODOs inside code, because someone probably left something important there
+learn how to read TODOs inside code, because someone probably left something important there
 
 Add buttons to the game
 Add something buttons can activate (portals, doors, one-way-platforms, whatever)

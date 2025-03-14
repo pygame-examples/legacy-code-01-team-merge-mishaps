@@ -11,6 +11,7 @@ from ..loaders import LevelLoader
 from .player import Player
 from .block import Block, OneWayBlock, ThrowableBlock
 from .portal import Portal
+from .button import Button
 from .camera import Camera
 
 
@@ -49,6 +50,13 @@ class Level(GameLevelInterface):
 
         # NOTE: !!!!!! rect position, width and height are measured in tiles of 32px
 
+        # ---------------------- player ----------------------
+        self.spawn(Player, SpriteInitData(
+            rect=(3*32, 5*32, 32, 32),
+            level=self,
+        ), True)
+
+        # ---------------------- walls/floors ----------------------
         self.spawn(Block, SpriteInitData(
             rect=(32, 8*32, 32*32, 32),
             level=self,
@@ -64,52 +72,13 @@ class Level(GameLevelInterface):
             level=self,
         ))
 
-        self.spawn(Portal, SpriteInitData(
-            rect=(8*32, 0*32, 3*32, 32),
-            level=self,
-            properties={
-                "orientation": Direction.NORTH,
-                "tunnel_id": "5"  # yellow portal
-            }
-        ))
-        self.spawn(Portal, SpriteInitData(
-            rect=(8*32, 2*32, 3*32, 32),
-            level=self,
-            properties={
-                "orientation": Direction.SOUTH,
-                "tunnel_id": "5"
-            }
-        ))
-
-        self.spawn(Portal, SpriteInitData(
-            rect=(2*32, 5*32, 32, 3*32),
-            level=self,
-            properties={
-                "orientation": Direction.EAST,
-                "tunnel_id": "1"  # green portal
-            }
-        ))
-        self.spawn(Portal, SpriteInitData(
-            rect=(30*32, 5*32, 32, 3*32),
-            level=self,
-            properties={
-                "orientation": Direction.WEST,
-                "tunnel_id": "1"
-            }
-        ))
-
-
+        # ---------------------- platforms ----------------------
         self.spawn(OneWayBlock, SpriteInitData(
             rect=(25*32, 5*32, 2*32, 32),
             level=self
         ))
 
-        self.spawn(Player, SpriteInitData(
-            rect=(3*32, 5*32, 32, 32),
-            level=self,
-        ),
-        True
-        )
+        # ---------------------- blocks ----------------------
         self.spawn(ThrowableBlock, SpriteInitData(
             rect=(9*32, 5*32, 32, 32),
             level=self,
@@ -126,6 +95,49 @@ class Level(GameLevelInterface):
             }
         ))
 
+        # ---------------------- triggerable ----------------------
+        self.spawn(Button, SpriteInitData(
+            rect=(27*32, 7*32, 2*32, 32),
+            level=self
+        ))
+
+        # ---------------------- portals -----------------------
+
+        self.spawn(Portal, SpriteInitData(
+            rect=(8*32, 0*32, 3*32, 32),
+            level=self,
+            properties={
+                "orientation": Direction.NORTH,
+                "tunnel_id": "5"  # yellow portal
+            }
+        ))
+        self.spawn(Portal, SpriteInitData(
+            rect=(8*32, 2*32, 3*32, 32),
+            level=self,
+            properties={
+                "orientation": Direction.SOUTH,
+                "tunnel_id": "5"  # yellow portal
+            }
+        ))
+
+        self.spawn(Portal, SpriteInitData(
+            rect=(2*32, 5*32, 32, 3*32),
+            level=self,
+            properties={
+                "orientation": Direction.EAST,
+                "tunnel_id": "1"  # green portal
+            }
+        ))
+        self.spawn(Portal, SpriteInitData(
+            rect=(30*32, 5*32, 32, 3*32),
+            level=self,
+            properties={
+                "orientation": Direction.WEST,
+                "tunnel_id": "1"  # green portal
+            }
+        ))
+
+
         self.spawn(Portal, SpriteInitData(
             rect=(14*32, 7*32, 3*32, 32),
             level=self,
@@ -139,7 +151,7 @@ class Level(GameLevelInterface):
             level=self,
             properties={
                 "orientation": Direction.NORTH,
-                "tunnel_id": "3"
+                "tunnel_id": "3"  # red portal
             }
         ))
 
@@ -148,7 +160,7 @@ class Level(GameLevelInterface):
             level=self,
             properties={
                 "orientation": Direction.SOUTH,
-                "tunnel_id": "4"
+                "tunnel_id": "4"  # cyan portal
             }
         ))
 
@@ -157,7 +169,7 @@ class Level(GameLevelInterface):
             level=self,
             properties={
                 "orientation": Direction.NORTH,
-                "tunnel_id": "4"
+                "tunnel_id": "4"  # cyan portal
             }
         ))
 

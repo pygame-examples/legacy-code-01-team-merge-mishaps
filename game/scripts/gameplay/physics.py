@@ -224,6 +224,12 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         pass
 
+    def untrigger(self):
+        """
+        Called when this sprite stops touching a Trigger physics object and is part of its trigger group.
+        """
+        pass
+
     @protect
     def left(self, dt: float = 1) -> None:
         """If I am dynamic, try to move left until the next frame"""
@@ -385,9 +391,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         Called internally.
         """
-        for sprite in self.level.get_group("triggerable").sprites():
-            if sprite.rect.collision_rect.colliderect(self.collision_rect):
-                sprite.trigger(self)
+        collision_rect = self.clipped_collision_rect()
+        for sprite in self.level.get_group("dynamic-physics"):
+            # print(collision_rect, sprite.collision_rect)
+            if sprite.collision_rect.colliderect(collision_rect):
+                self.trigger(sprite)
+                return
+        self.untrigger()
+
 
     def handle_portal_collision(self) -> None:
         """
@@ -572,7 +583,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.handle_dynamic_collision(1, dt)
             self.handle_dynamic_collision(0, dt)
             self.on_ground = self._test_if_on_ground()
-            # print(on_ground)
             if self.on_ground:
                 self.ducking = False
                 self.velocity[1] = 0
@@ -601,7 +611,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Except all of the above is interpolated
         """
         new_rect = self.rect.copy()
-        # only draw the part of the sprite that is above the 'bottom' of the portal
+        # only draw the part of the sprite that is above the 'bottom' of the portal (if we are inside one) (only applies to dynamic objects)
         clip_rect = self.interpolated_cliprect(dt_since_physics)
         new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
         surface.blit(self.image.subsurface(clip_rect), new_rect)
