@@ -218,15 +218,17 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         
     def trigger(self, other: SpriteInterface) -> None:
         """
-        Called when this sprite touches a Trigger physics object and is part of its trigger group.
+        Called when this sprite is being touched by a dynamic physics object.
         
-        Other is the sprite that triggered me.  Called every frame I am touching it.
+        Other is the sprite that triggered me. Called every frame I am touching it.
         """
         pass
 
     def untrigger(self):
         """
-        Called when this sprite stops touching a Trigger physics object and is part of its trigger group.
+        If i am a triggerable object.
+
+        Called when this sprite stops being touched by a dynamic physics object. Called every frame i am not touched
         """
         pass
 
