@@ -12,6 +12,8 @@ class Button(PhysicsSprite):
         data.groups.extend(["physics", "render", "triggerable"])
         super().__init__(data, physics_data)
 
+        self.linked_to: list[PhysicsSprite] = data.properties["linked-to"]
+
         image = pygame.image.load("game/assets/sprites/button.png").convert_alpha()
 
         scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
@@ -29,6 +31,8 @@ class Button(PhysicsSprite):
     
     def trigger(self, other: SpriteInterface):
         self.state = "triggered"
+        self.linked_to.trigger(self)
     
     def untrigger(self):
         self.state = "rest"
+        self.linked_to.untrigger(self)

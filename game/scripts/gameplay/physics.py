@@ -224,11 +224,13 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         pass
 
-    def untrigger(self):
+    def untrigger(self, other: SpriteInterface):
         """
         If i am a triggerable object.
 
         Called when this sprite stops being touched by a dynamic physics object. Called every frame i am not touched
+        
+        Other is the sprite that untriggered me. For activation objects: activated only when a button (or something else) activates it
         """
         pass
 
