@@ -35,6 +35,9 @@ class Level(GameLevelInterface):
         }
         self.game: GameInterface = game
 
+        # -1 for test map
+        self.level_count = -1 
+
         # Currently the only thing overwritten by the level loader
         self.groups["render"].view_range = pygame.FRect(0, 0, 1088, 320)
 
@@ -53,30 +56,31 @@ class Level(GameLevelInterface):
         # TODO: i left some spritesheets for tiles in sprites folder
 
 
-        self.spawn_player(pos=(3, 5))
-        # ---------------------- walls/floors ----------------------
-        self.spawn_wall((1, 8), (32, 1))
-        self.spawn_wall((1, 1), (1, 8))
-        self.spawn_wall((1, 1), (32, 1))
+        if self.level_count == -1:
+            self.spawn_player(pos=(3, 5))
+            # ---------------------- walls/floors ----------------------
+            self.spawn_wall((1, 8), (32, 1))
+            self.spawn_wall((1, 1), (1, 8))
+            self.spawn_wall((1, 1), (32, 1))
 
-        # ---------------------- platforms ----------------------
-        self.spawn_one_way_block((20, 5), 4)
+            # ---------------------- platforms ----------------------
+            self.spawn_one_way_block((20, 5), 4)
 
-        # ---------------------- blocks ----------------------
-        self.spawn_throwable((7, 5), ThrowableType.GOLD)
-        self.spawn_throwable((9, 5), ThrowableType.IRON)
+            # ---------------------- blocks ----------------------
+            self.spawn_throwable((7, 5), ThrowableType.GOLD)
+            self.spawn_throwable((9, 5), ThrowableType.IRON)
 
-        # ---------------------- activateable ----------------------
-        door1 = self.spawn_door((26, 2), 6, Axis.VERTICAL)
+            # ---------------------- activateable ----------------------
+            door1 = self.spawn_door((26, 2), 6, Axis.VERTICAL)
 
-        # ---------------------- triggerable ----------------------
-        self.spawn_button((23, 7), [door1])
+            # ---------------------- triggerable ----------------------
+            self.spawn_button((23, 7), [door1])
 
-        # ---------------------- portals -----------------------
-        self.spawn_portal_pair((8, 0), Direction.NORTH, (8, 2), Direction.SOUTH, PortalColor.YELLOW)
-        self.spawn_portal_pair((2, 5), Direction.EAST, (32, 5), Direction.WEST, PortalColor.GREEN)
-        self.spawn_portal_pair((14, 7), Direction.NORTH, (7, 7), Direction.NORTH, PortalColor.RED)
-        self.spawn_portal_pair((19, 2), Direction.SOUTH, (19, 7), Direction.NORTH, PortalColor.CYAN)
+            # ---------------------- portals -----------------------
+            self.spawn_portal_pair((8, 0), Direction.NORTH, (8, 2), Direction.SOUTH, PortalColor.YELLOW)
+            self.spawn_portal_pair((2, 5), Direction.EAST, (32, 5), Direction.WEST, PortalColor.GREEN)
+            self.spawn_portal_pair((14, 7), Direction.NORTH, (7, 7), Direction.NORTH, PortalColor.RED)
+            self.spawn_portal_pair((19, 2), Direction.SOUTH, (19, 7), Direction.NORTH, PortalColor.CYAN)
 
 
     def set_camera_view(self, view: RectLike):

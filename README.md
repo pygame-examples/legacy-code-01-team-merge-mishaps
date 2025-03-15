@@ -32,8 +32,5 @@ Aim your throws by pressing the keys in the direction of which you want to throw
 
 ------- plan -------
 make this README more beautiful
-implement some cool levels, most probably puzzles (definatelly not a ripoff of portal 2, noooooo). I left some ideas in the 'game/assets/ideas' folder
+implement some cool levels, most probably puzzles (definatelly not a ripoff of portal 2, noooooo).
 learn how to read TODOs inside code, because someone probably left something important there
-
-Make buttons more useful by, for example, being able to turn on/off some stuff (portals, one-way-platforms, whatever)
-Make easier level creation with Tiled (that's what polastyn(i think?) was hinting at using, but i personally dont know)

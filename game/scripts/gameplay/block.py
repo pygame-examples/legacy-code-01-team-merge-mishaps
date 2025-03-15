@@ -1,6 +1,6 @@
 import pygame
 
-from ..interfaces import PhysicsType
+from ..interfaces import PhysicsType, THROWABLE_TYPE_INTO_WEIGHT, ThrowableType
 from .physics import PhysicsSprite, SpriteInitData, SpritePhysicsData
 
 class Block(PhysicsSprite):
@@ -55,7 +55,7 @@ class ThrowableBlock(PhysicsSprite):
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.DYNAMIC,
-            weight=20,
+            weight=THROWABLE_TYPE_INTO_WEIGHT[data.properties["id"]],
         )
 
         data.groups.extend(["render", "physics", "dynamic-physics", "throwable-physics"])

@@ -48,6 +48,12 @@ class ThrowableType(Enum):
     WOOD = 1
     GOLD = 2
 
+THROWABLE_TYPE_INTO_WEIGHT = {
+    ThrowableType.IRON.value: 50,
+    ThrowableType.WOOD.value: 20,
+    ThrowableType.GOLD.value: 200
+}
+
 
 class PortalColor(Enum):
     GREEN = 1
