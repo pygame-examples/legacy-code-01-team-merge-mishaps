@@ -55,8 +55,15 @@ class Door(PhysicsSprite):
         door_surface = pygame.transform.rotate(door_surface, 180)
 
         # draw head and base
-        door_surface.blit(self.segments["head"], (0, 0, self.head_rect.width, self.head_rect.height))
-        door_surface.blit(self.segments["base"], (0, self.base_rect.y - self.head_rect.y, self.base_rect.width, self.base_rect.height))
+        door_surface.blit(self.segments["head"], self.head_rect)
+        door_surface.blit(self.segments["base"], self.base_rect)
+
+
+        # draw lights indicating opening and closing
+        if self.state == "opening":
+            door_surface.blit(self.segments["light-green"], self.base_rect)
+        else:
+            door_surface.blit(self.segments["light-red"], self.base_rect)
 
         # change height depending on the state
         if self.state == "opening":
@@ -79,4 +86,4 @@ class Door(PhysicsSprite):
 
     @property
     def collision_rect(self):
-        return pygame.Rect(self.rect.left, self.rect.bottom - self.current_height - self.segments["tip"].height, self.rect.width, self.current_height)
+        return pygame.Rect(self.rect.left, self.rect.bottom - self.current_height - self.segments["tip"].height, self.rect.width, self.current_height + self.segments["tip"].height)
