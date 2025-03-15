@@ -42,6 +42,22 @@ class Axis(Enum):
     HORIZONTAL = 0
     VERTICAL = 1
 
+
+class ThrowableType(Enum):
+    IRON = 0
+    WOOD = 1
+    GOLD = 2
+
+
+class PortalColor(Enum):
+    GREEN = 1
+    YELLOW = 2
+    RED = 3
+    BLUE = 4
+    BEIGE = 5
+    CYAN = 6
+
+
 class Direction(Enum):
     NORTH = (0, -1)
     SOUTH = (0, 1)

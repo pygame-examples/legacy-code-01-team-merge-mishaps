@@ -17,17 +17,21 @@ class Door(PhysicsSprite):
 
         image = pygame.image.load("game/assets/sprites/pressure-door.png").convert_alpha()
 
-        scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
+        if data.properties["orientation"] == Axis.VERTICAL:
+            scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
+        else:
+            scale_factor = data.rect[3] // 32
 
         self.state = "closing"  # "opening" or "closing"
-        self.max_height = data.rect[3]  # max height of the oppening in the door
+        self.max_height = data.rect[3] if self.orientation == Axis.VERTICAL else data.rect[2]  # max height of the oppening in the door
         self.min_height = 0  # smallest height of the oppening in the door
         self.current_height = self.max_height
+        self.image_size = self.rect.size if self.orientation == Axis.VERTICAL else (self.rect.h, self.rect.w)
 
         if data.properties["orientation"] == Axis.VERTICAL:
             self.head_rect = pygame.FRect(0, 0, self.rect.width, 16*scale_factor)
             self.base_rect = pygame.FRect(0, self.rect.height-16*scale_factor, self.rect.width, 16*scale_factor)
-        elif data.properties["orietation"] == Axis.HORIZONTAL:
+        elif data.properties["orientation"] == Axis.HORIZONTAL:
             self.head_rect = pygame.FRect(0, 0, 16*scale_factor, self.rect.width)
             self.base_rect = pygame.FRect(0, self.rect.width-16*scale_factor, 16*scale_factor, self.rect.width)
 
@@ -43,7 +47,7 @@ class Door(PhysicsSprite):
         }
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
-        door_surface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        door_surface = pygame.Surface(self.image_size, pygame.SRCALPHA)
 
         # draw the bar
         times_to_draw_middle = ceil(self.current_height / self.segments["middle"].height) - 1
@@ -71,6 +75,10 @@ class Door(PhysicsSprite):
         else:
             self.current_height += self.segments["middle"].height*dt_since_physics
         self.current_height = min(max(self.current_height, self.min_height), self.max_height)
+
+        # rotate the thing
+        if self.orientation == Axis.HORIZONTAL:
+            door_surface = pygame.transform.rotate(door_surface, -90)
 
         # blit everything onto the screen
         new_rect = self.rect.copy()
