@@ -77,12 +77,10 @@ class Game(GameInterface):
             dt_since_physics = (start - self.last_physics_update) / 1000
             surface = await self.state_stack[-1].render(const.WINDOW_RESOLUTION, dt_since_physics)
             disp = self.window.get_surface()
-            disp.fill((0, 0, 0))
             output = const.fit_surface(surface, self.window.size)
             disp.blit(output, output.get_rect(center=disp.get_rect().center))
             self.window.flip()
             if dt_since_physics > self.physics_delay * 2:
-                # print("YES I KNOW LAG DETECTED")
                 self.render_delay = min(self.render_delay + 0.05, 1 / 15)
             elif self.render_delay > self.target_render_delay:
                 self.render_delay = max(self.target_render_delay, self.render_delay - 0.05)

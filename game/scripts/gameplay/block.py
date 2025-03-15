@@ -1,7 +1,4 @@
-from hmac import new
 import pygame
-
-from game.scripts.gameplay import sprite
 
 from ..interfaces import PhysicsType
 from .physics import PhysicsSprite, SpriteInitData, SpritePhysicsData
@@ -34,7 +31,7 @@ class OneWayBlock(PhysicsSprite):
 
         spritesheet = pygame.image.load("game/assets/sprites/one-way-platform.png").convert_alpha()
         width = data.rect[2] // (2*16)
-        self.image = pygame.Surface((width*16, 16))
+        self.image = pygame.Surface((width*16, 16), pygame.SRCALPHA)  # this forgotten SRCALPHA flag costed me 30 mins of debugging >:[
         if width == 1:
             self.image.blit(spritesheet.subsurface((48, 0, 16, 16)), (0, 0))
         else:
@@ -46,12 +43,11 @@ class OneWayBlock(PhysicsSprite):
                 else:
                     self.image.blit(spritesheet.subsurface((16, 0, 16, 16)), (16*i, 0))
         scale_factor = data.rect[2] // self.image.width
-        self.image = pygame.transform.scale_by(self.image, scale_factor)
+        self.image = pygame.transform.scale_by(self.image, scale_factor).convert_alpha()
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float):
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
-        # pygame.draw.rect(surface, "yellow", new_rect)
         surface.blit(self.image, new_rect)
 
 class ThrowableBlock(PhysicsSprite):
@@ -68,5 +64,4 @@ class ThrowableBlock(PhysicsSprite):
         self.image = self.image.subsurface((data.properties["id"]*16, 0, 16, 16))
         scale_factor = self.rect.width // 16
         self.image = pygame.transform.scale_by(self.image, scale_factor)
-        # pygame.draw.rect(self.image, "red", (0, 0, *self.rect.size))
 

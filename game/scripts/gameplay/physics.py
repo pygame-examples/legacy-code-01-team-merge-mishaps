@@ -152,7 +152,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.weight: float = physics_data.weight  # unused atm
         self.jump_speed: float = physics_data.jump_speed  # initial jump velocity (if dynamic)
         self.duck_speed: float = physics_data.duck_speed  # initial downward duck velocity (if dynamic)
-        self.orientation: Direction = physics_data.orientation  # orientation (if portal)
+        self.orientation: Direction = physics_data.orientation  # orientation
         self.tunnel_id: str = physics_data.tunnel_id  # used to get twin portal (if portal)
         self.coyote_time: float = physics_data.coyote_time  # time-frame of allowed jumping when disconnected from the ground (if dynamic)
         self.coyote_time_left: float = 0  # see above
@@ -401,7 +401,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if sprite.collision_rect.colliderect(collision_rect):
                 self.trigger(sprite)
                 return
-        self.untrigger()
+        self.untrigger(None)
 
 
     def handle_portal_collision(self) -> None:
@@ -495,7 +495,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
     def abort_portal(self) -> None:
         """
-        State changes when I leave the portal completely
+        State changes when I leave the portal completelya
 
         Called internally.
         """
@@ -572,7 +572,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if sprite.one_way and (self.velocity.y < 0 or self.ducking):
                 continue
 
-            if sprite.collision_rect.colliderect(collision_rect) and self.portal_state == self.PortalState.OUT:
+            if sprite.collision_rect.colliderect(collision_rect):
+                if self.portal_state != self.PortalState.OUT:
+                    if self.current_portal.orientation == Direction.NORTH:
+                        return False
                 return True
 
         return False

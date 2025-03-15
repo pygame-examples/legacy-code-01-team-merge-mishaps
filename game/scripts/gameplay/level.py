@@ -4,7 +4,7 @@ from typing import Awaitable
 import pygame
 from pygame.typing import RectLike
 
-from ..interfaces import GameLevelInterface, SpriteInterface, SpriteInitData, GameInterface, Direction
+from ..interfaces import GameLevelInterface, SpriteInterface, SpriteInitData, GameInterface, Direction, Axis
 from ..assets import LEVELS
 from ..loaders import LevelLoader
 
@@ -12,6 +12,7 @@ from .player import Player
 from .block import Block, OneWayBlock, ThrowableBlock
 from .portal import Portal
 from .button import Button
+from .door import Door
 from .camera import Camera
 
 
@@ -74,7 +75,7 @@ class Level(GameLevelInterface):
 
         # ---------------------- platforms ----------------------
         self.spawn(OneWayBlock, SpriteInitData(
-            rect=(25*32, 5*32, 2*32, 32),
+            rect=(20*32, 5*32, 2*32, 32),
             level=self
         ))
 
@@ -95,10 +96,22 @@ class Level(GameLevelInterface):
             }
         ))
 
+        # ---------------------- activateable ----------------------
+        door1 = self.spawn(Door, SpriteInitData(
+            rect=(27*32, 2*32, 2*32, 6*32),
+            level=self,
+            properties={
+                "orientation": Axis.VERTICAL
+            }
+        ))
+
         # ---------------------- triggerable ----------------------
         self.spawn(Button, SpriteInitData(
-            rect=(27*32, 7*32, 2*32, 32),
-            level=self
+            rect=(23*32, 7*32, 2*32, 32),
+            level=self,
+            properties={
+                "linked-to": [door1]
+            }
         ))
 
         # ---------------------- portals -----------------------
@@ -179,3 +192,6 @@ class Level(GameLevelInterface):
     def add_task(self, task: Awaitable) -> None:
         """Adds task to main game loop"""
         self.game.add_task(task)
+    
+    # def render(self, resolution, dt_since_physics):
+    #     surface = pygame.Surface(resolution)

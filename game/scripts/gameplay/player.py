@@ -26,7 +26,7 @@ class Player(PhysicsSprite):
 
         self.image = pygame.image.load("game/assets/sprites/player.png").convert_alpha()
         scale_factor = data.rect[2] // 16
-        self.image = pygame.transform.scale_by(self.image, scale_factor)
+        self.image = pygame.transform.scale_by(self.image, scale_factor).convert_alpha()
 
         self.last_down_press = 0
         self.timer = 0

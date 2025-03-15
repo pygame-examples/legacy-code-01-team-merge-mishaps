@@ -3,6 +3,7 @@ import pygame
 from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, SpriteInterface
 from .physics import PhysicsSprite
 
+
 class Button(PhysicsSprite):
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(
@@ -31,8 +32,12 @@ class Button(PhysicsSprite):
     
     def trigger(self, other: SpriteInterface):
         self.state = "triggered"
-        self.linked_to.trigger(self)
+
+        for activator in self.linked_to:
+           activator.trigger(self)
     
-    def untrigger(self):
+    def untrigger(self, other: SpriteInterface):
         self.state = "rest"
-        self.linked_to.untrigger(self)
+
+        for activator in self.linked_to:
+           activator.untrigger(self)

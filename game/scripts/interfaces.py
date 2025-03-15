@@ -35,7 +35,12 @@ class PhysicsType(Enum):
     TRIGGER = 3  # Can message certain sprites when they collide with it
     KINEMATIC = 4  # Not messed with by physics engine
     PORTAL = 5  # PORTAL!!!!!
+    ACTIVATED = 6  # TRIGGER objects interact with these
 
+
+class Axis(Enum):
+    HORIZONTAL = 0
+    VERTICAL = 1
 
 class Direction(Enum):
     NORTH = (0, -1)
