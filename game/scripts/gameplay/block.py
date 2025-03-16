@@ -3,7 +3,7 @@ import pygame
 from ..interfaces import PhysicsType, THROWABLE_TYPE_INTO_WEIGHT
 from .physics import PhysicsSprite, SpriteInitData, SpritePhysicsData
 
-from .consts_pg_loaded import get_image
+from .sprites_and_sounds import get_image
 
 class Block(PhysicsSprite):
     """Static block that you run into"""

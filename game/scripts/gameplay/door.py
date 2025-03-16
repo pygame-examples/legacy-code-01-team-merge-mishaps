@@ -5,7 +5,7 @@ from .physics import PhysicsSprite
 from math import ceil
 
 from ..const import DOOR_CHANNEL
-from .consts_pg_loaded import get_image, get_sfx
+from .sprites_and_sounds import get_image, get_sfx
 
 
 class Door(PhysicsSprite):
@@ -82,7 +82,7 @@ class Door(PhysicsSprite):
 
         if self.min_height < self.current_height < self.max_height:
             if not pygame.mixer.Channel(DOOR_CHANNEL).get_busy():
-                # pygame.mixer.Channel(DOOR_CHANNEL).play(self.sound) 
+                pygame.mixer.Channel(DOOR_CHANNEL).play(self.sound) 
                 # TODO: ANNOYING AHH SOUND, PLEASE FIND A BETTER ONE
                 pass
         else:

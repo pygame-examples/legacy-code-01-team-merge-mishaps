@@ -13,7 +13,7 @@ from ..interfaces import SpriteInitData, PhysicsType, SpritePhysicsData, SpriteI
 from ..const import GRAVITY
 from .sprite import Sprite
 from ..const import MAX_SPEED, TO_SECONDS, AIR_CONTROLS_REDUCTION, YEET_UP_PERCENTAGE
-from .consts_pg_loaded import get_sfx
+from .sprites_and_sounds import get_sfx
 
 
 def apply_friction(velocity: pygame.Vector2 | float, friction: float, dt: float):
@@ -263,6 +263,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.on_ground or self.coyote_time_left > 0:
             self.velocity.y = -self.jump_speed * TO_SECONDS * dt
             self.coyote_time_left = 0
+            get_sfx("game/assets/sfx/jump.ogg").play()
         # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
 
     @protect
@@ -274,6 +275,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.velocity.y = max(self.duck_speed * TO_SECONDS * dt, self.velocity.y, 1)
             if self.current_throwable:
                 self.current_throwable.duck()
+            else:
+                get_sfx("game/assets/sfx/slam.ogg").play()  # we don't need this playing twice
 
 
     @protect
@@ -452,7 +455,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.current_portal = portal
         self.twin_portal = twin
         self.portal_state = self.PortalState.ENTER
-        get_sfx("game/assets/sfx/teleport.ogg").play()
+        get_sfx("game/assets/sfx/teleport.ogg").play()  # play the portal enter sound (duh)
         
     def exit_portal(self) -> None:
         """

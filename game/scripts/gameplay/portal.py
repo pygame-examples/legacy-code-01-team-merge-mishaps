@@ -5,7 +5,7 @@ from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, Directi
 from .physics import PhysicsSprite
 
 from .animation import ANIMATIONMYWAY
-from .consts_pg_loaded import get_sfx
+from .sprites_and_sounds import get_sfx
 
 class Portal(PhysicsSprite):
     """

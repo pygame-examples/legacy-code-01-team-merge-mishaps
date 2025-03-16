@@ -5,7 +5,7 @@ from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType
 from ..const import Actions
 from ..game_input import input_state
 
-from .consts_pg_loaded import get_image
+from .sprites_and_sounds import get_image
 
 
 class Player(PhysicsSprite):

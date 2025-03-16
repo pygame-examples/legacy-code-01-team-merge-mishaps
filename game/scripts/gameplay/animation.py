@@ -1,5 +1,5 @@
 import pygame
-from .consts_pg_loaded import get_image
+from .sprites_and_sounds import get_image
 
 class ANIMATIONMYWAY:
     def __init__(self, spritesheet_path: str, fps: int, single_frame_rect: pygame.Rect=(0,0,-1,-1), frame_count: int=-1,  loop_type="wrap", scale_factor: int=1, rotation: int=0):

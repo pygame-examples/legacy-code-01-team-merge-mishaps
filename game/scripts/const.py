@@ -30,7 +30,7 @@ YEET_UP_PERCENTAGE = 0.5  # How much of the force is used to throw up, instead o
 TO_SECONDS: float = 1000
 
 
-class Actions(Enum):
+class Actions(Enum):  # ROB LITERALLY SAID NOT TO PUT ENUMS IN HERE LMAOO
     LEFT = auto()
     RIGHT = auto()
     UP = auto()

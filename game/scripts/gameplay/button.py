@@ -4,7 +4,7 @@ from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, SpriteI
 from .physics import PhysicsSprite
 
 from ..const import BUTTON_CHANNEL
-from .consts_pg_loaded import get_image, get_sfx
+from .sprites_and_sounds import get_image, get_sfx
 
 
 class Button(PhysicsSprite):
