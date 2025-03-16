@@ -12,7 +12,6 @@ Or suffer JiffyRob's wrath
 from __future__ import annotations
 
 import pathlib
-import pytmx.project_loader
 from dataclasses import dataclass, field
 from enum import Enum
 from abc import ABC, abstractmethod

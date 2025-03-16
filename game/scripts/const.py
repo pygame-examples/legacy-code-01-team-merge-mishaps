@@ -24,14 +24,14 @@ RENDER_FPS: int = 60
 INPUT_FPS: int = 500
 
 GRAVITY: tuple[int, int] = (0, 1000)  # acceleration for Physics sprites
-MAX_SPEED: float = 1000  # max speed of physics sprites
+MAX_SPEED: float = 2000  # max speed of physics sprites
 AIR_CONTROLS_REDUCTION = 0.2  # how much control a dynamic physics object has when moving in the air
 YEET_UP_PERCENTAGE = 0.5  # How much of the force is used to throw up, instead of forward
 TO_SECONDS: float = 1000
 
 
 class Actions(Enum):  # ROB LITERALLY SAID NOT TO PUT ENUMS IN HERE LMAOO
-    LEFT = auto()
+    LEFT = auto()  # whatever, just keep this here loll
     RIGHT = auto()
     UP = auto()
     DOWN = auto()
@@ -40,7 +40,7 @@ class Actions(Enum):  # ROB LITERALLY SAID NOT TO PUT ENUMS IN HERE LMAOO
 
 
 DEFAULT_KEYBINDINGS = {
-    Actions.UP: [pygame.K_UP, pygame.K_w],
+    Actions.UP: [pygame.K_UP, pygame.K_w],  # just looking up to throw something up, but otherwise does nothing
     Actions.LEFT: [pygame.K_LEFT, pygame.K_a],
     Actions.RIGHT: [pygame.K_RIGHT, pygame.K_d],
     Actions.DOWN: [pygame.K_DOWN, pygame.K_s],
@@ -57,6 +57,8 @@ RESERVED_CHANNELS = [
     BUTTON_CHANNEL
 ]
 
+
+TILE_SIZE = 32  # 32px
 
 
 ## Util functions ##

@@ -1,6 +1,6 @@
 import pygame
 
-from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, Direction, PhysicsSpriteInterface, DIRECTION_TO_ANGLE
+from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, DIRECTION_TO_ANGLE
 
 from .physics import PhysicsSprite
 
@@ -26,10 +26,9 @@ class Portal(PhysicsSprite):
         )
         super().__init__(data, physics_data)
 
-        rotation = DIRECTION_TO_ANGLE[self.orientation] - 90 # - 90 because the portal is FACING in that direciton
-        # this is not in the consts_pg_loaded.py because the inherently can't be portals with the same sprites in the same level
-        self.animation = ANIMATIONMYWAY(f"game/assets/sprites/portals/portal{data.properties["tunnel_id"]}.png", 5, frame_count=7, scale_factor=2, rotation=rotation)
-        self.sound = get_sfx("game/assets/sfx/teleport.ogg")
+        rotation = DIRECTION_TO_ANGLE[self.orientation] - 90 # -90  - alignment value, otherwise the portal is unaligned by 90 degrees (duh)
+        self.animation = ANIMATIONMYWAY(f"portals/portal{data.properties["tunnel_id"]}.png", 5, frame_count=7, scale_factor=2, rotation=rotation)
+        self.sound = get_sfx("teleport.ogg")
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         new_rect = self.rect.copy()

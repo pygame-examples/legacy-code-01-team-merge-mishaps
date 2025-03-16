@@ -9,8 +9,7 @@ class Camera(pygame.sprite.LayeredUpdates):
     """
     Camera group, meant for following a specific sprite while rendering
 
-    TODO:
-        add a screen shake for when objects collide >:]   - ??
+    TODO: add a screen shake for when objects collide >:]   - ??
     """
     def __init__(self) -> None:
         super().__init__()
@@ -29,7 +28,7 @@ class Camera(pygame.sprite.LayeredUpdates):
 
         # Limit the camera within the boundary of the view_range
         if self.view_range is not None:
-            if cam.left < self.view_range.left:cam.left = self.view_range.left
+            if cam.left < self.view_range.left:cam.left = self.view_range.left  # my PEP-8 brain is in denial
             if cam.right > self.view_range.right: cam.right = self.view_range.right
             if cam.top < self.view_range.top: cam.top = self.view_range.top
             if cam.bottom > self.view_range.bottom: cam.bottom = self.view_range.bottom

@@ -9,6 +9,9 @@ from .sprites_and_sounds import get_image, get_sfx
 
 class Button(PhysicsSprite):
     def __init__(self, data: SpriteInitData):
+        """
+        A simple mechanism, designed to activate complex machinery inside the facility.
+        """
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.TRIGGER
         )
@@ -20,8 +23,8 @@ class Button(PhysicsSprite):
 
         scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
         self.states = {
-            "rest": pygame.transform.scale_by(get_image("game/assets/sprites/button.png").subsurface((0, 0, 32, 16)),  scale_factor),
-            "triggered": pygame.transform.scale_by(get_image("game/assets/sprites/button.png").subsurface((32, 0, 32, 16)),  scale_factor)
+            "rest": pygame.transform.scale_by(get_image("button.png").subsurface((0, 0, 32, 16)),  scale_factor),
+            "triggered": pygame.transform.scale_by(get_image("button.png").subsurface((32, 0, 32, 16)),  scale_factor)
         }
         self.state = "rest"
         self.image = self.states[self.state]
@@ -29,8 +32,8 @@ class Button(PhysicsSprite):
         self.previous_state = "rest"
 
         self.sounds = {
-            "press": get_sfx("game/assets/sfx/button-press.ogg"),
-            "unpress": get_sfx("game/assets/sfx/unpress.ogg")
+            "press": get_sfx("button-press.ogg"),
+            "unpress": get_sfx("unpress.ogg")
         }
     
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:

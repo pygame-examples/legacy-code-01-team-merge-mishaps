@@ -3,6 +3,8 @@ import pygame
 from ..interfaces import PhysicsType, THROWABLE_TYPE_INTO_WEIGHT
 from .physics import PhysicsSprite, SpriteInitData, SpritePhysicsData
 
+from ..const import TILE_SIZE
+
 from .sprites_and_sounds import get_image
 
 class Block(PhysicsSprite):
@@ -18,7 +20,7 @@ class Block(PhysicsSprite):
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
 
-        pygame.draw.rect(surface, "blue", new_rect)
+        pygame.draw.rect(surface, "blue", new_rect)  # the only thing that need a proper sprite drawing. Preferably tiling *wink wink
 
 
 class OneWayBlock(PhysicsSprite):
@@ -31,19 +33,19 @@ class OneWayBlock(PhysicsSprite):
         data.groups.extend(["render", "physics", "static-physics"])
         super().__init__(data, physics_data)
 
-        width = data.rect[2] // (2*16)
+        width = data.rect[2] // TILE_SIZE
         self.image = pygame.Surface((width*16, 16), pygame.SRCALPHA)  # this forgotten SRCALPHA flag costed me 30 mins of debugging >:[
-        spritesheet = get_image("game/assets/sprites/one-way-platform.png")
+        spritesheet = get_image("one-way-platform.png")
 
         if width == 1:
             self.image.blit(spritesheet.subsurface((48, 0, 16, 16)), (0, 0))
         else:
             for i in range(width):
-                if i == 0:
+                if i == 0:  # left-most bit of the platform
                     self.image.blit(spritesheet.subsurface((0, 0, 16, 16)), (16*i, 0))
-                elif i == (width-1):
+                elif i == (width-1):  # right-most bit of the platform
                     self.image.blit(spritesheet.subsurface((32, 0, 16, 16)), (16*i, 0))
-                else:
+                else:  # middle segment of the platform
                     self.image.blit(spritesheet.subsurface((16, 0, 16, 16)), (16*i, 0))
         scale_factor = data.rect[2] // self.image.width
         self.image = pygame.transform.scale_by(self.image, scale_factor).convert_alpha()
@@ -65,7 +67,7 @@ class ThrowableBlock(PhysicsSprite):
 
         data.groups.extend(["render", "physics", "dynamic-physics", "throwable-physics"])
         super().__init__(data, physics_data)
-        self.image = get_image("game/assets/sprites/cube.png").subsurface((data.properties["id"]*16, 0, 16, 16))
-        scale_factor = self.rect.width // 16
+        self.image = get_image("cube.png").subsurface((data.properties["id"]*16, 0, 16, 16))
+        scale_factor = self.rect.width // 16  # 16 is the width of the unscaled sprite
         self.image = pygame.transform.scale_by(self.image, scale_factor)
 
