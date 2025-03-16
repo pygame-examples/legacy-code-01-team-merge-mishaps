@@ -14,7 +14,7 @@ from enum import Enum, auto
 import pygame
 
 
-TITLE = "Untiteled mess"  # title of the window
+TITLE = "a COOL platformer game"  # title of the window
 
 WINDOW_RESOLUTION: tuple[int, int] = (640, 480)  # game resolution (might be different from the actual resolution of the window if resized)
 
