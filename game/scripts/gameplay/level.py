@@ -67,9 +67,9 @@ class Level(GameLevelInterface):
             self.spawn_one_way_block((10, 5), 4)
 
             # ---------------------- blocks ----------------------
-            self.spawn_throwable((7, 5), ThrowableType.GOLD)
-            self.spawn_throwable((9, 5), ThrowableType.IRON)
-            self.spawn_throwable((11, 5), ThrowableType.WOOD)
+            self.spawn_throwable((8, 4), ThrowableType.GOLD)
+            self.spawn_throwable((8, 3), ThrowableType.IRON)
+            self.spawn_throwable((8, 2), ThrowableType.WOOD)
 
             # ---------------------- activateable ----------------------
             door1 = self.spawn_door((26, 2), 6, Axis.VERTICAL)
@@ -102,17 +102,17 @@ class Level(GameLevelInterface):
         portal_w = 3*32
         portal_h = 32
 
-        rect1 = (pos1[0]*32, pos1[1]*32, portal_w, portal_h) if orientation1 not in [Direction.EAST, Direction.WEST] else (pos1[0]*32, pos1[1]*32, portal_h, portal_w)
+        rect1 = (pos1[0]*32, pos1[1]*32, portal_w, portal_h) if orientation1 in [Direction.NORTH, Direction.SOUTH] else (pos1[0]*32, pos1[1]*32, portal_h, portal_w)
         portal1 = self.spawn(Portal, SpriteInitData(
             rect=rect1,
             level=self,
             properties={
                 "orientation": orientation1,
-                "tunnel_id": str(portal_color.value)
+                "tunnel_id": str(portal_color.value)  # it's important to keep this as a string, because... uhh.. idk
             }
         ))
         
-        rect2 = (pos2[0]*32, pos2[1]*32, portal_w, portal_h) if orientation2 not in [Direction.EAST, Direction.WEST] else (pos2[0]*32, pos2[1]*32, portal_h, portal_w)
+        rect2 = (pos2[0]*32, pos2[1]*32, portal_w, portal_h) if orientation2 in [Direction.NORTH, Direction.SOUTH] else (pos2[0]*32, pos2[1]*32, portal_h, portal_w)
         portal2 = self.spawn(Portal, SpriteInitData(
             rect=rect2,
             level=self,

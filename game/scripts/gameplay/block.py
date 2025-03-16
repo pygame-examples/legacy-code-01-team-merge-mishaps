@@ -1,7 +1,9 @@
 import pygame
 
-from ..interfaces import PhysicsType, THROWABLE_TYPE_INTO_WEIGHT, ThrowableType
+from ..interfaces import PhysicsType, THROWABLE_TYPE_INTO_WEIGHT
 from .physics import PhysicsSprite, SpriteInitData, SpritePhysicsData
+
+from .consts_pg_loaded import get_image
 
 class Block(PhysicsSprite):
     """Static block that you run into"""
@@ -29,9 +31,10 @@ class OneWayBlock(PhysicsSprite):
         data.groups.extend(["render", "physics", "static-physics"])
         super().__init__(data, physics_data)
 
-        spritesheet = pygame.image.load("game/assets/sprites/one-way-platform.png").convert_alpha()
         width = data.rect[2] // (2*16)
         self.image = pygame.Surface((width*16, 16), pygame.SRCALPHA)  # this forgotten SRCALPHA flag costed me 30 mins of debugging >:[
+        spritesheet = get_image("game/assets/sprites/one-way-platform.png")
+
         if width == 1:
             self.image.blit(spritesheet.subsurface((48, 0, 16, 16)), (0, 0))
         else:
@@ -50,7 +53,7 @@ class OneWayBlock(PhysicsSprite):
         new_rect.center = new_rect.center - offset
         surface.blit(self.image, new_rect)
     
-    
+
 
 class ThrowableBlock(PhysicsSprite):
     """Meant for being picked up and thrown"""
@@ -62,8 +65,7 @@ class ThrowableBlock(PhysicsSprite):
 
         data.groups.extend(["render", "physics", "dynamic-physics", "throwable-physics"])
         super().__init__(data, physics_data)
-        self.image = pygame.image.load("game/assets/sprites/cube.png").convert_alpha()
-        self.image = self.image.subsurface((data.properties["id"]*16, 0, 16, 16))
+        self.image = get_image("game/assets/sprites/cube.png").subsurface((data.properties["id"]*16, 0, 16, 16))
         scale_factor = self.rect.width // 16
         self.image = pygame.transform.scale_by(self.image, scale_factor)
 

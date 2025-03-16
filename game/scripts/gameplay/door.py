@@ -5,6 +5,7 @@ from .physics import PhysicsSprite
 from math import ceil
 
 from ..const import DOOR_CHANNEL
+from .consts_pg_loaded import get_image, get_sfx
 
 
 class Door(PhysicsSprite):
@@ -16,8 +17,6 @@ class Door(PhysicsSprite):
         # sprite will be added to these groups later
         data.groups.extend(["physics", "render", "static-physics"])
         super().__init__(data, physics_data)
-
-        image = pygame.image.load("game/assets/sprites/pressure-door.png").convert_alpha()
 
         if data.properties["orientation"] == Axis.VERTICAL:
             scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
@@ -39,16 +38,17 @@ class Door(PhysicsSprite):
 
         self.middle_rect = self.rect.copy()
 
+        spritesheet = get_image("game/assets/sprites/pressure-door.png")
         self.segments = {   # the entire door will be drawn by segments
-            "head": pygame.transform.scale_by(image.subsurface((0, 0, 32, 16)), scale_factor),
-            "middle": pygame.transform.scale_by(image.subsurface((0, 16, 32, 16)), scale_factor),
-            "base": pygame.transform.scale_by(image.subsurface((0, 32, 32, 16)), scale_factor),
-            "tip": pygame.transform.scale_by(image.subsurface((32, 0, 32, 16)), scale_factor),
-            "light-green": pygame.transform.scale_by(image.subsurface((32, 16, 32, 16)), scale_factor),
-            "light-red": pygame.transform.scale_by(image.subsurface((32, 32, 32, 16)), scale_factor)
+            "head": pygame.transform.scale_by(spritesheet.subsurface((0, 0, 32, 16)), scale_factor),
+            "middle": pygame.transform.scale_by(spritesheet.subsurface((0, 16, 32, 16)), scale_factor),
+            "base": pygame.transform.scale_by(spritesheet.subsurface((0, 32, 32, 16)), scale_factor),
+            "tip": pygame.transform.scale_by(spritesheet.subsurface((32, 0, 32, 16)), scale_factor),
+            "light-green": pygame.transform.scale_by(spritesheet.subsurface((32, 16, 32, 16)), scale_factor),
+            "light-red": pygame.transform.scale_by(spritesheet.subsurface((32, 32, 32, 16)), scale_factor)
         }
 
-        self.sound = pygame.mixer.Sound("game/assets/sfx/pressure-door.ogg")
+        self.sound = get_sfx("game/assets/sfx/pressure-door.ogg")
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         door_surface = pygame.Surface(self.image_size, pygame.SRCALPHA)
@@ -82,7 +82,9 @@ class Door(PhysicsSprite):
 
         if self.min_height < self.current_height < self.max_height:
             if not pygame.mixer.Channel(DOOR_CHANNEL).get_busy():
-                pygame.mixer.Channel(DOOR_CHANNEL).play(self.sound)
+                # pygame.mixer.Channel(DOOR_CHANNEL).play(self.sound) 
+                # TODO: ANNOYING AHH SOUND, PLEASE FIND A BETTER ONE
+                pass
         else:
             pygame.mixer.Channel(DOOR_CHANNEL).stop()
 

@@ -5,6 +5,8 @@ from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType
 from ..const import Actions
 from ..game_input import input_state
 
+from .consts_pg_loaded import get_image
+
 
 class Player(PhysicsSprite):
     """Player sprite"""
@@ -24,9 +26,8 @@ class Player(PhysicsSprite):
         data.groups.extend(["physics", "render", "dynamic-physics", "actors"])
         super().__init__(data, physics_data)
 
-        self.image = pygame.image.load("game/assets/sprites/player.png").convert_alpha()
         scale_factor = data.rect[2] // 16
-        self.image = pygame.transform.scale_by(self.image, scale_factor).convert_alpha()
+        self.image = pygame.transform.scale_by(get_image("game/assets/sprites/player.png"), scale_factor).convert_alpha()
 
         self.last_down_press = 0
         self.timer = 0

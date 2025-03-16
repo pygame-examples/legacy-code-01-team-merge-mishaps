@@ -1,5 +1,5 @@
 import pygame
-
+from .consts_pg_loaded import get_image
 
 class ANIMATIONMYWAY:
     def __init__(self, spritesheet_path: str, fps: int, single_frame_rect: pygame.Rect=(0,0,-1,-1), frame_count: int=-1,  loop_type="wrap", scale_factor: int=1, rotation: int=0):
@@ -12,7 +12,7 @@ class ANIMATIONMYWAY:
         self.loop_type = loop_type
 
     def get_animation(self, spritesheet_path: str, frame_rect: pygame.Rect, frame_count: int, scale_factor: int, rotation: int):
-        spritesheet = pygame.image.load(spritesheet_path).convert_alpha()
+        spritesheet = get_image(spritesheet_path)
 
         if frame_count == -1 and frame_rect == (0, 0, -1, -1):
             raise Exception('invalid animation information! specify either a single frame rect or a number of frames!')

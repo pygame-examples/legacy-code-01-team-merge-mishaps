@@ -13,6 +13,7 @@ from ..interfaces import SpriteInitData, PhysicsType, SpritePhysicsData, SpriteI
 from ..const import GRAVITY
 from .sprite import Sprite
 from ..const import MAX_SPEED, TO_SECONDS, AIR_CONTROLS_REDUCTION, YEET_UP_PERCENTAGE
+from .consts_pg_loaded import get_sfx
 
 
 def apply_friction(velocity: pygame.Vector2 | float, friction: float, dt: float):
@@ -451,6 +452,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.current_portal = portal
         self.twin_portal = twin
         self.portal_state = self.PortalState.ENTER
+        get_sfx("game/assets/sfx/teleport.ogg").play()
         
     def exit_portal(self) -> None:
         """
