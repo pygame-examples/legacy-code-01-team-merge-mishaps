@@ -48,6 +48,16 @@ DEFAULT_KEYBINDINGS = {
     Actions.INTERACT: [pygame.K_e]
 }
 
+# reserve channels for sounds
+DOOR_CHANNEL = 1
+BUTTON_CHANNEL = 2
+
+RESERVED_CHANNELS = [
+    DOOR_CHANNEL,
+    BUTTON_CHANNEL
+]
+
+
 
 ## Util functions ##
 def fit_surface(surf: pygame.Surface, onto: tuple[int, int]):

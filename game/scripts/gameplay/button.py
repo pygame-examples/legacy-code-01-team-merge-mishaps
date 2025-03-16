@@ -3,6 +3,8 @@ import pygame
 from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, SpriteInterface
 from .physics import PhysicsSprite
 
+from ..const import BUTTON_CHANNEL
+
 
 class Button(PhysicsSprite):
     def __init__(self, data: SpriteInitData):
@@ -24,6 +26,13 @@ class Button(PhysicsSprite):
         }
         self.state = "rest"
         self.image = self.states[self.state]
+
+        self.previous_state = "rest"
+
+        self.sounds = {
+            "press": pygame.mixer.Sound("game/assets/sfx/button-press.ogg"),
+            "unpress": pygame.mixer.Sound("game/assets/sfx/unpress.ogg")
+        }
     
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         new_rect = self.rect.copy()
@@ -33,11 +42,21 @@ class Button(PhysicsSprite):
     def trigger(self, other: SpriteInterface):
         self.state = "triggered"
 
+        if self.previous_state != self.state:
+            pygame.mixer.Channel(BUTTON_CHANNEL).play(self.sounds["press"])
+
         for activator in self.linked_to:
            activator.trigger(self)
+        
+        self.previous_state = self.state
     
     def untrigger(self, other: SpriteInterface):
         self.state = "rest"
 
+        if self.previous_state != self.state:
+            pygame.mixer.Channel(BUTTON_CHANNEL).play(self.sounds["unpress"])
+
         for activator in self.linked_to:
            activator.untrigger(self)
+        
+        self.previous_state = self.state

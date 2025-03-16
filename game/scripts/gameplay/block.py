@@ -49,6 +49,8 @@ class OneWayBlock(PhysicsSprite):
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
         surface.blit(self.image, new_rect)
+    
+    
 
 class ThrowableBlock(PhysicsSprite):
     """Meant for being picked up and thrown"""

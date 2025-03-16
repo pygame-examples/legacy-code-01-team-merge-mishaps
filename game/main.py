@@ -32,6 +32,10 @@ class Game(GameInterface):
         self.input_delay = 1 / const.INPUT_FPS
         self.needs_canceled: list[asyncio.Task] = []  # list of tasks that need canceled when the game is closed
 
+        pygame.mixer.set_num_channels(16)
+        for reserved in const.RESERVED_CHANNELS:
+            pygame.mixer.set_reserved(reserved)
+
     def quit(self) -> None:
         """Close the game window and exit"""
         self.running = False

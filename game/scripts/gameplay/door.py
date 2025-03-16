@@ -4,6 +4,8 @@ from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, SpriteI
 from .physics import PhysicsSprite
 from math import ceil
 
+from ..const import DOOR_CHANNEL
+
 
 class Door(PhysicsSprite):
     def __init__(self, data: SpriteInitData):
@@ -46,6 +48,8 @@ class Door(PhysicsSprite):
             "light-red": pygame.transform.scale_by(image.subsurface((32, 32, 32, 16)), scale_factor)
         }
 
+        self.sound = pygame.mixer.Sound("game/assets/sfx/pressure-door.ogg")
+
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         door_surface = pygame.Surface(self.image_size, pygame.SRCALPHA)
 
@@ -76,6 +80,12 @@ class Door(PhysicsSprite):
             self.current_height += self.segments["middle"].height*dt_since_physics
         self.current_height = min(max(self.current_height, self.min_height), self.max_height)
 
+        if self.min_height < self.current_height < self.max_height:
+            if not pygame.mixer.Channel(DOOR_CHANNEL).get_busy():
+                pygame.mixer.Channel(DOOR_CHANNEL).play(self.sound)
+        else:
+            pygame.mixer.Channel(DOOR_CHANNEL).stop()
+
         # rotate the thing
         if self.orientation == Axis.HORIZONTAL:
             door_surface = pygame.transform.rotate(door_surface, -90)
@@ -94,4 +104,4 @@ class Door(PhysicsSprite):
 
     @property
     def collision_rect(self):
-        return pygame.Rect(self.rect.left, self.rect.bottom - self.current_height - self.segments["tip"].height, self.rect.width, self.current_height + self.segments["tip"].height)
+        return pygame.Rect(self.rect.left + self.segments["middle"].width//4, self.rect.bottom - self.current_height - self.segments["tip"].height, self.rect.width // 2, self.current_height + self.segments["tip"].height)

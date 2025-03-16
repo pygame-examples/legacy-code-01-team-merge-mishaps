@@ -64,11 +64,12 @@ class Level(GameLevelInterface):
             self.spawn_wall((1, 1), (32, 1))
 
             # ---------------------- platforms ----------------------
-            self.spawn_one_way_block((20, 5), 4)
+            self.spawn_one_way_block((10, 5), 4)
 
             # ---------------------- blocks ----------------------
             self.spawn_throwable((7, 5), ThrowableType.GOLD)
             self.spawn_throwable((9, 5), ThrowableType.IRON)
+            self.spawn_throwable((11, 5), ThrowableType.WOOD)
 
             # ---------------------- activateable ----------------------
             door1 = self.spawn_door((26, 2), 6, Axis.VERTICAL)
