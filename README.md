@@ -24,7 +24,7 @@ Not sure what to do? Try looking for `TODO`s and do those.
 #### With [`uv`](https://docs.astral.sh/uv/):
 First run
 ```bash
-uv sync
+uv sync --all-extras
 ```
 Then activate the virutal environment (there's a space after the first `.`):
 ```bash
