@@ -11,6 +11,23 @@ classifiers = [
 ]
 dependencies = ["pygame-ce"]
 
+[project.optional-dependencies]
+dev = ["ruff"]
+
 [project.urls]
 Homepage = "https://github.com/pygame-examples/legacy-code-01-team-merge-mishaps"
 Issues = "https://github.com/pygame-examples/legacy-code-01-team-merge-mishaps/issues"
+
+[tool.pylint.main]
+disable = ["all"]
+enable = ["attribute-defined-outside-init"]
+
+[tool.ruff]
+extend-exclude = ["pytmx"]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "C901"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
