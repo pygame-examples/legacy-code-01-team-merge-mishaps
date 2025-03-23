@@ -1,0 +1,16 @@
+[project]
+name = "portaler"
+version = "0.0.1"
+authors = [{ name = "", email = "author@example.com" }]
+description = ""
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = ["pygame-ce"]
+
+[project.urls]
+Homepage = "https://github.com/pygame-examples/legacy-code-01-team-merge-mishaps"
+Issues = "https://github.com/pygame-examples/legacy-code-01-team-merge-mishaps/issues"
