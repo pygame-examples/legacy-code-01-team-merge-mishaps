@@ -328,7 +328,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if self.current_throwable:
                 self.current_throwable.duck()
             else:
-                get_sfx("game/assets/sfx/slam.ogg").play()  # we don't need this playing twice
+                get_sfx("slam.ogg").play()  # we don't need this playing twice
 
     @protect
     def interact(self, dt: float = 1):
