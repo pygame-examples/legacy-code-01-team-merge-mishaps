@@ -1,3 +1,4 @@
-from game import main
+import portaler
 
-main()
+if __name__ == "__main__":
+    portaler.main()
