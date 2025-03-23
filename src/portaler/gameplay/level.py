@@ -16,7 +16,7 @@ from ..interfaces import (
 )
 from ..loaders import LevelLoader
 from .block import Block, OneWayBlock, ThrowableBlock
-from .button import Button
+from .button import Button, FinishButton
 from .camera import Camera
 from .door import Door
 from .player import Player
@@ -46,7 +46,7 @@ class Level(GameLevelInterface):
         # -1 for test map
         # self.level_count = -1
         # self.level_count = 0
-        self.level_count = 1
+        self.level_count = 0
 
         # Currently the only thing overwritten by the level loader
         self.groups["render"].view_range = pygame.FRect(0, 0, 1088, 320)
@@ -115,7 +115,7 @@ class Level(GameLevelInterface):
             door = self.spawn_door((13, 0), 6, Axis.VERTICAL)
             self.spawn_button((12, 10), [door])
 
-            # TODO: spawn finish
+            self.spawn_finish((18, 5))
 
         elif self.level_count == 1:
             # based on assets/ideas/idea4.png
@@ -157,7 +157,10 @@ class Level(GameLevelInterface):
 
             self.spawn_portal_pair((21, 19), Direction.NORTH, (17, 9), Direction.NORTH, PortalColor.GREEN)
 
-            # TODO: spawn finish
+            self.spawn_finish((28, 2))
+
+        else:
+            raise NotImplementedError(f"Level {self.level_count} not implemented")
 
     def set_camera_view(self, view: RectLike):
         self.groups["render"].view_range = pygame.FRect(view)
@@ -302,3 +305,9 @@ class Level(GameLevelInterface):
         )
 
         return door
+
+    def spawn_finish(self, pos):
+        return self.spawn(
+            FinishButton,
+            SpriteInitData(rect=(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), level=self),
+        )

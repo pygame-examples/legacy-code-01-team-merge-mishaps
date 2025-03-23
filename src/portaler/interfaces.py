@@ -13,6 +13,7 @@ Or suffer JiffyRob's wrath
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Awaitable, Callable
@@ -79,6 +80,8 @@ DIRECTION_TO_ANGLE = {
 
 
 class GameInterface:
+    state_stack: deque[GameStateInterface]
+
     def quit(self) -> None:
         pass
 
@@ -114,6 +117,8 @@ class GameStateInterface:
 
 class GameLevelInterface(GameStateInterface, ABC):
     groups: dict[str, pygame.sprite.AbstractGroup]
+    game: GameInterface
+    level_count: int
 
     def spawn(
         self,

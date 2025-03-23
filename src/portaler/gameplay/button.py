@@ -63,3 +63,26 @@ class Button(PhysicsSprite):
             activator.untrigger(self)
 
         self.previous_state = self.state
+
+
+class FinishButton(PhysicsSprite):
+    def __init__(self, data: SpriteInitData):
+        """
+        A simple mechanism, designed to activate complex machinery inside the facility.
+        """
+        physics_data = SpritePhysicsData(physics_type=PhysicsType.TRIGGER)
+        # sprite will be added to these groups later
+        data.groups.extend(["physics", "render", "triggerable"])
+        super().__init__(data, physics_data)
+        self.image = get_image("finish.png")
+        self.data = data
+
+    def trigger(self, other: SpriteInterface):
+        self.data.level.game.state_stack.pop()
+
+        from .level import Level
+
+        next_level = Level(self.data.level.game)
+        next_level.level_count = self.data.level.level_count + 1
+        next_level.init()
+        self.data.level.game.state_stack.append(next_level)
