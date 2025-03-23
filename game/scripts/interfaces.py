@@ -1,5 +1,5 @@
 """
-This file is full of interfaces, dataclasses, and enums for type hinting.                        
+This file is full of interfaces, dataclasses, and enums for type hinting.
 I put in type hints for methods intended to be called by external code.
 
 Classes implementing these interfaces should be subclasses of them.
@@ -9,19 +9,18 @@ Do not add any implementations here.
 
 Or suffer JiffyRob's wrath
 """
+
 from __future__ import annotations
 
-import pathlib
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from abc import ABC, abstractmethod
 from typing import Any, Awaitable, Callable
 
 import pygame
 from pygame.typing import RectLike, SequenceLike
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 class WindowScale(Enum):
     INTEGER = 1
     STRETCH = 2
@@ -47,10 +46,11 @@ class ThrowableType(Enum):
     WOOD = 1
     GOLD = 2
 
+
 THROWABLE_TYPE_INTO_WEIGHT = {
     ThrowableType.IRON.value: 50,
     ThrowableType.WOOD.value: 20,
-    ThrowableType.GOLD.value: 200
+    ThrowableType.GOLD.value: 200,
 }
 
 
@@ -69,12 +69,14 @@ class Direction(Enum):
     EAST = (1, 0)
     WEST = (-1, 0)
 
+
 DIRECTION_TO_ANGLE = {
     Direction.NORTH: 90,
     Direction.SOUTH: 270,
     Direction.EAST: 0,
-    Direction.WEST: 180
+    Direction.WEST: 180,
 }
+
 
 class GameInterface:
     def quit(self) -> None:
@@ -106,15 +108,21 @@ class GameStateInterface:
     async def update_physics(self, dt: float) -> None:
         pass
 
-    async def render(self, size: tuple[int, int], dt_since_physics: float) -> pygame.Surface:
+    async def render(
+        self, size: tuple[int, int], dt_since_physics: float
+    ) -> pygame.Surface:
         pass
 
 
 class GameLevelInterface(GameStateInterface, ABC):
     groups: dict[str, pygame.sprite.AbstractGroup]
 
-    def spawn(self, cls: Callable[[SpriteInitData], SpriteInterface], data: SpriteInitData,
-              target: bool = False) -> SpriteInterface:
+    def spawn(
+        self,
+        cls: Callable[[SpriteInitData], SpriteInterface],
+        data: SpriteInitData,
+        target: bool = False,
+    ) -> SpriteInterface:
         """Spawn a new sprite"""
         sprite = cls(data)
         if target:
@@ -136,13 +144,17 @@ class GameLevelInterface(GameStateInterface, ABC):
         Will create new ones if the groups do not exist
         """
         for group in groups:
-            self.groups.setdefault(group, pygame.sprite.Group()).add(sprite)  # somehow creates a new group ????
+            self.groups.setdefault(group, pygame.sprite.Group()).add(
+                sprite
+            )  # somehow creates a new group ????
 
     @abstractmethod
     def set_camera_view(self, view: RectLike):
         pass
 
-    async def render(self, size: tuple[int, int], dt_since_physics: float) -> pygame.Surface:
+    async def render(
+        self, size: tuple[int, int], dt_since_physics: float
+    ) -> pygame.Surface:
         """
         Return a drawn surface.
 
@@ -163,7 +175,6 @@ class GameLevelInterface(GameStateInterface, ABC):
         """
         for sprite in self.get_group("physics"):
             sprite.update_physics(dt)
-
 
 
 @dataclass
@@ -189,14 +200,20 @@ class SpritePhysicsData:
     weight: float = 10  # weight (not used RN)
     yeet_force: float = 0.5  # flight speed (for dynamic sprites)
     horizontal_speed: float = 30  # walking speed (for dynamic sprites)
-    horizontal_air_speed: float = 25  # movement speed for dynamic sprites that are in the air
+    horizontal_air_speed: float = (
+        25  # movement speed for dynamic sprites that are in the air
+    )
     friction: float = 20  # amount by which acceleration changes (for dynamic sprites)
-    air_friction: float = 0.1 # amount by which acceleration changes (for dynamic sprites) when in the air
+    air_friction: float = 0.1  # amount by which acceleration changes (for dynamic sprites) when in the air
     jump_speed: float = 55  # jump speed (for dynamic sprites)
     duck_speed: float = 100  # duck speed (for dynamic sprites)
-    coyote_time: float = 0.25  # time within witch, you can jump after walking of the ground (in seconds)
+    coyote_time: float = (
+        0.25  # time within witch, you can jump after walking of the ground (in seconds)
+    )
     one_way: bool = False  # whether a static sprite collides downward
-    orientation: Direction = Direction.NORTH  # which way a portal shoots / accepts sprites
+    orientation: Direction = (
+        Direction.NORTH
+    )  # which way a portal shoots / accepts sprites
     tunnel_id: str = "default"  # portals with the same tunnel_id link to each other
 
 

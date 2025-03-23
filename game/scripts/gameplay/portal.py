@@ -1,11 +1,15 @@
 import pygame
 
-from ..interfaces import SpriteInitData, SpritePhysicsData, PhysicsType, DIRECTION_TO_ANGLE
-
-from .physics import PhysicsSprite
-
+from ..interfaces import (
+    DIRECTION_TO_ANGLE,
+    PhysicsType,
+    SpriteInitData,
+    SpritePhysicsData,
+)
 from .animation import ANIMATIONMYWAY
+from .physics import PhysicsSprite
 from .sprites_and_sounds import get_sfx
+
 
 class Portal(PhysicsSprite):
     """
@@ -17,8 +21,11 @@ class Portal(PhysicsSprite):
      - orientation: a Direction enum value.  Which directions sprites are going when they EXIT this portal.
         they exit the other direction
     """
+
     def __init__(self, data: SpriteInitData):
-        data.groups.extend(["render", "physics", "portal-physics", data.properties["tunnel_id"]])
+        data.groups.extend(
+            ["render", "physics", "portal-physics", data.properties["tunnel_id"]]
+        )
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.PORTAL,
             orientation=data.properties["orientation"],
@@ -26,13 +33,22 @@ class Portal(PhysicsSprite):
         )
         super().__init__(data, physics_data)
 
-        rotation = DIRECTION_TO_ANGLE[self.orientation] - 90 # -90  - alignment value, otherwise the portal is unaligned by 90 degrees (duh)
-        self.animation = ANIMATIONMYWAY(f"portals/portal{data.properties["tunnel_id"]}.png", 5, frame_count=7, scale_factor=2, rotation=rotation)
+        rotation = (
+            DIRECTION_TO_ANGLE[self.orientation] - 90
+        )  # -90  - alignment value, otherwise the portal is unaligned by 90 degrees (duh)
+        self.animation = ANIMATIONMYWAY(
+            f"portals/portal{data.properties['tunnel_id']}.png",
+            5,
+            frame_count=7,
+            scale_factor=2,
+            rotation=rotation,
+        )
         self.sound = get_sfx("teleport.ogg")
 
-    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
+    def draw(
+        self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float
+    ) -> None:
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
         self.animation.update(dt_since_physics)
         surface.blit(self.animation.get_frame(), new_rect)
-        

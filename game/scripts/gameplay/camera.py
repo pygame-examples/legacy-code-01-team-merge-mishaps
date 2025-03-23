@@ -11,6 +11,7 @@ class Camera(pygame.sprite.LayeredUpdates):
 
     TODO: add a screen shake for when objects collide >:]   - ??
     """
+
     def __init__(self) -> None:
         super().__init__()
         self.target: Sprite | None = None
@@ -21,17 +22,25 @@ class Camera(pygame.sprite.LayeredUpdates):
         cam = surface.get_frect(center=self.offset)
         if self.target is not None:
             pos = self.target.interpolated_pos(dt) - self.offset
-            view_frect = surface.get_frect(center=(0,0))
+            view_frect = surface.get_frect(center=(0, 0))
             view_frect.scale_by_ip(0.25)
-            self.offset.x += min(pos.x - view_frect.left, 0) + max(pos.x - view_frect.right, 0)
-            self.offset.y += min(pos.y - view_frect.top, 0) + max(pos.y - view_frect.bottom, 0)
+            self.offset.x += min(pos.x - view_frect.left, 0) + max(
+                pos.x - view_frect.right, 0
+            )
+            self.offset.y += min(pos.y - view_frect.top, 0) + max(
+                pos.y - view_frect.bottom, 0
+            )
 
         # Limit the camera within the boundary of the view_range
         if self.view_range is not None:
-            if cam.left < self.view_range.left:cam.left = self.view_range.left  # my PEP-8 brain is in denial
-            if cam.right > self.view_range.right: cam.right = self.view_range.right
-            if cam.top < self.view_range.top: cam.top = self.view_range.top
-            if cam.bottom > self.view_range.bottom: cam.bottom = self.view_range.bottom
+            if cam.left < self.view_range.left:
+                cam.left = self.view_range.left  # my PEP-8 brain is in denial
+            if cam.right > self.view_range.right:
+                cam.right = self.view_range.right
+            if cam.top < self.view_range.top:
+                cam.top = self.view_range.top
+            if cam.bottom > self.view_range.bottom:
+                cam.bottom = self.view_range.bottom
 
             if cam.width > self.view_range.width:
                 cam.centerx = self.view_range.centerx

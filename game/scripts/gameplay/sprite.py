@@ -3,15 +3,16 @@ from __future__ import annotations
 import pygame
 from pygame.typing import SequenceLike
 
-from ..interfaces import SpriteInterface, SpriteInitData, GameLevelInterface
+from ..interfaces import GameLevelInterface, SpriteInitData, SpriteInterface
 
 
 class Sprite(pygame.sprite.Sprite, SpriteInterface):
     """
-    Base sprite class.  
-    
+    Base sprite class.
+
     Implements Sprite Interface on top of pygame.Sprite objects for group stuff
     """
+
     rect: pygame.FRect
 
     def __init__(self, data: SpriteInitData):
@@ -23,7 +24,7 @@ class Sprite(pygame.sprite.Sprite, SpriteInterface):
     @property
     def pos(self) -> tuple[float, float]:
         return self.rect.center
-    
+
     @pos.setter
     def pos(self, value: str | float | SequenceLike[float] | pygame.Vector2) -> None:
         self.rect.center = pygame.Vector2(value)
