@@ -51,7 +51,11 @@ try:
     import pygame
     random_ahh_name = pygame.image.load(f"game/{chr(99)}{chr(111)}{chr(99)}{chr(111)}{chr(110)}{chr(117)}{chr(116)}.jpeg")  # if you found this, pls, dont delete this, let it confuse others
 except:
-    raise Exception("'coconut.jpeg' not in current project, not launching...")
+    try:
+        # as if it's not confusing enough
+        raise Exception("'coconut.jpeg' not in current project, not launching...")
+    except Exception:
+        pass
 
 
 
