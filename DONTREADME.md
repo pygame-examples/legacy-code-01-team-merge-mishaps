@@ -18,7 +18,8 @@ Team two Merge Mishaps (times are in UTC):
 
 
 ## Development
-Not sure what to do? Try looking for `TODO`s and do those.
+Not sure what to do? Try looking for `TODO`s and do those.  
+Also check out `src/portaler/assets/ideas` for some level ideas.  
 
 ### Environment setup
 #### With [`uv`](https://docs.astral.sh/uv/):
