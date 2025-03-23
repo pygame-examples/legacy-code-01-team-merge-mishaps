@@ -45,7 +45,8 @@ class Level(GameLevelInterface):
 
         # -1 for test map
         # self.level_count = -1
-        self.level_count = 0
+        # self.level_count = 0
+        self.level_count = 1
 
         # Currently the only thing overwritten by the level loader
         self.groups["render"].view_range = pygame.FRect(0, 0, 1088, 320)
@@ -113,6 +114,50 @@ class Level(GameLevelInterface):
 
             door = self.spawn_door((13, 0), 6, Axis.VERTICAL)
             self.spawn_button((12, 10), [door])
+
+            # TODO: spawn finish
+
+        elif self.level_count == 1:
+            # based on assets/ideas/idea4.png
+            # slightly modified though
+
+            self.groups["render"].view_range = pygame.FRect(0, 0, 1024 - 32 * 2, 672)
+
+            self.spawn_player(pos=(1, 3))
+
+            self.spawn_wall((0, 0), (30, 1))
+            self.spawn_wall((0, 20), (30, 1))
+            self.spawn_wall((0, 0), (1, 20))
+            self.spawn_wall((29, 0), (1, 20))
+
+            self.spawn_wall((1, 4), (1, 1))
+            self.spawn_wall((2, 5), (1, 1))
+            # self.spawn_wall((3, 6), (1, 1))
+            # self.spawn_wall((4, 7), (1, 1))
+            # self.spawn_wall((5, 8), (1, 1))
+            # self.spawn_wall((6, 9), (1, 1))
+            # self.spawn_wall((7, 10), (1, 1))
+            # self.spawn_wall((8, 11), (1, 1))
+            self.spawn_wall((9, 12), (1, 1))
+
+            self.spawn_wall((13, 12), (1, 1))
+            self.spawn_wall((13, 13), (1, 1))
+            self.spawn_wall((13, 14), (1, 1))
+            self.spawn_wall((13, 15), (1, 1))
+            self.spawn_wall((13, 16), (1, 1))
+            self.spawn_wall((14, 17), (1, 1))
+            self.spawn_wall((15, 18), (1, 1))
+            self.spawn_wall((16, 19), (1, 1))
+
+            self.spawn_wall((17, 10), (3, 2))
+            self.spawn_wall((20, 0), (1, 12))
+            self.spawn_wall((16, 0), (1, 12))
+
+            self.spawn_wall((26, 3), (3, 1))
+
+            self.spawn_portal_pair((21, 19), Direction.NORTH, (17, 9), Direction.NORTH, PortalColor.GREEN)
+
+            # TODO: spawn finish
 
     def set_camera_view(self, view: RectLike):
         self.groups["render"].view_range = pygame.FRect(view)
