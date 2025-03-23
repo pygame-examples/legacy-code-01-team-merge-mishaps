@@ -18,9 +18,7 @@ class Button(PhysicsSprite):
 
         self.linked_to: list[PhysicsSprite] = data.properties["linked-to"]
 
-        scale_factor = (
-            data.rect[2] // 32
-        )  # 32 is the width of the sprite in the unscaled image
+        scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
         self.states = {
             "rest": pygame.transform.scale_by(
                 get_image("button.png").subsurface((0, 0, 32, 16)), scale_factor
@@ -39,9 +37,7 @@ class Button(PhysicsSprite):
             "unpress": get_sfx("unpress.ogg"),
         }
 
-    def draw(
-        self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float
-    ) -> None:
+    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
         surface.blit(self.states[self.state], new_rect)

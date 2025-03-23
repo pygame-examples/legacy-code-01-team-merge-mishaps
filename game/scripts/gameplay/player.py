@@ -26,12 +26,8 @@ class Player(PhysicsSprite):
         data.groups.extend(["physics", "render", "dynamic-physics", "actors"])
         super().__init__(data, physics_data)
 
-        scale_factor = (
-            data.rect[2] // 16
-        )  # 16 is the width of the unscaled player sprite
-        self.image = pygame.transform.scale_by(
-            get_image("player.png"), scale_factor
-        ).convert_alpha()
+        scale_factor = data.rect[2] // 16  # 16 is the width of the unscaled player sprite
+        self.image = pygame.transform.scale_by(get_image("player.png"), scale_factor).convert_alpha()
 
         self.last_down_press = 0
         self.timer = 0

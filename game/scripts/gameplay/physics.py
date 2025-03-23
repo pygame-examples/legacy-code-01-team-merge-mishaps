@@ -47,28 +47,18 @@ def is_aligned_with_portal(
 ) -> bool:
     """Returns if a rect is aligned with the portal in its axis"""
     if direction in {Direction.NORTH, Direction.SOUTH}:
-        return (
-            collision_rect.left > portal_rect.left
-            and collision_rect.right < portal_rect.right
-        )
-    return (
-        collision_rect.top > portal_rect.top
-        and collision_rect.bottom < portal_rect.bottom
-    )
+        return collision_rect.left > portal_rect.left and collision_rect.right < portal_rect.right
+    return collision_rect.top > portal_rect.top and collision_rect.bottom < portal_rect.bottom
 
 
-def is_inside_portal(
-    collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction
-) -> bool:
+def is_inside_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction) -> bool:
     """Returns if a rect is inside a portal"""
     if not collision_rect.colliderect(portal_rect):
         return False
     return is_aligned_with_portal(collision_rect, portal_rect, direction)
 
 
-def is_through_portal(
-    collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction
-) -> bool:
+def is_through_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction) -> bool:
     """Returns if a rect is aligned and behind the back of a portal"""
     if not is_aligned_with_portal(collision_rect, portal_rect, direction):
         return False
@@ -142,9 +132,7 @@ def clip_rect_to_portal(
         # only show rect left of left  ?????
         overlap = 0
         if collision_rect.right > portal_rect.right:
-            overlap = min(
-                collision_rect.right - portal_rect.right + 2, collision_rect.height
-            )
+            overlap = min(collision_rect.right - portal_rect.right + 2, collision_rect.height)
         collision_rect.width -= overlap
     return collision_rect
 
@@ -188,45 +176,29 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.acceleration: pygame.Vector2 = pygame.Vector2(
             0
         )  # Separated from gravity, to not apply gravity when on ground.
-        self.gravity: pygame.Vector2 = pygame.Vector2(
-            GRAVITY
-        )  # pixels/second squared (I think)
-        self.yeet_force: float = (
-            physics_data.yeet_force
-        )  # how hard the sprite is thrown (if dynamic)
+        self.gravity: pygame.Vector2 = pygame.Vector2(GRAVITY)  # pixels/second squared (I think)
+        self.yeet_force: float = physics_data.yeet_force  # how hard the sprite is thrown (if dynamic)
         self.horizontal_speed: float = (
             physics_data.horizontal_speed * TO_SECONDS
         )  # how fast the sprite walks right and left (if dynamic)
         self.horizontal_air_speed: float = (
             physics_data.horizontal_air_speed * TO_SECONDS
         )  # how fast the sprite walks in the air (while jumping)
-        self.friction: float = (
-            physics_data.friction
-        )  # how quickly the sprite slows down (if dynamic)
-        self.air_friction: float = (
-            physics_data.air_friction
-        )  # see above, but applied when in the air
+        self.friction: float = physics_data.friction  # how quickly the sprite slows down (if dynamic)
+        self.air_friction: float = physics_data.air_friction  # see above, but applied when in the air
         self.weight: float = physics_data.weight  # unused atm
-        self.jump_speed: float = (
-            physics_data.jump_speed
-        )  # initial jump velocity (if dynamic)
-        self.duck_speed: float = (
-            physics_data.duck_speed
-        )  # initial downward duck velocity (if dynamic)
+        self.jump_speed: float = physics_data.jump_speed  # initial jump velocity (if dynamic)
+        self.duck_speed: float = physics_data.duck_speed  # initial downward duck velocity (if dynamic)
         self.orientation: Direction = physics_data.orientation  # orientation
-        self.tunnel_id: str = (
-            physics_data.tunnel_id
-        )  # used to get twin portal (if portal)
-        self.coyote_time: float = physics_data.coyote_time  # time-frame of allowed jumping when disconnected from the ground (if dynamic)
+        self.tunnel_id: str = physics_data.tunnel_id  # used to get twin portal (if portal)
+        self.coyote_time: float = (
+            physics_data.coyote_time
+        )  # time-frame of allowed jumping when disconnected from the ground (if dynamic)
         self.coyote_time_left: float = 0  # see above
         self.on_ground: bool = False  # whether sprite is touching ground (if dynamic)
-        self.one_way: bool = (
-            physics_data.one_way
-        )  # whether sprite only collides downward (if static)
+        self.one_way: bool = physics_data.one_way  # whether sprite only collides downward (if static)
         self.ducking: bool = False  # whether sprite is ducking (if dynamic)
-        self.facing: pygame.Vector2 = pygame.Vector2(
-            1, 0
-        )  # the direction the sprite should be facing
+        self.facing: pygame.Vector2 = pygame.Vector2(1, 0)  # the direction the sprite should be facing
 
         self.min_distance: int = 40  # minimum distance to pick up something
         self.current_throwable: PhysicsSprite | None = (
@@ -249,15 +221,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.commands_used: dict[str, bool] = {}
 
         # portal handling
-        self.current_portal: PhysicsSpriteInterface | None = (
-            None  # which portal I am entering
-        )
-        self.twin_portal: PhysicsSpriteInterface | None = (
-            None  # which portal I am exiting
-        )
-        self.portal_state: PhysicsSprite.PortalState = (
-            self.PortalState.OUT
-        )  # what portal state I am in
+        self.current_portal: PhysicsSpriteInterface | None = None  # which portal I am entering
+        self.twin_portal: PhysicsSpriteInterface | None = None  # which portal I am exiting
+        self.portal_state: PhysicsSprite.PortalState = self.PortalState.OUT  # what portal state I am in
 
     @property
     def full_clip_rect(self):
@@ -282,9 +248,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             )
             clipped.center -= pygame.Vector2(self.rect.topleft)
         elif self.portal_state == self.PortalState.EXIT:
-            clipped = clip_rect_to_portal(
-                self.rect, self.twin_portal.rect, self.twin_portal.orientation
-            )
+            clipped = clip_rect_to_portal(self.rect, self.twin_portal.rect, self.twin_portal.orientation)
             clipped.center -= pygame.Vector2(self.rect.topleft)
         clipped.center -= self.rect.center
         return clipped
@@ -364,9 +328,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if self.current_throwable:
                 self.current_throwable.duck()
             else:
-                get_sfx(
-                    "game/assets/sfx/slam.ogg"
-                ).play()  # we don't need this playing twice
+                get_sfx("game/assets/sfx/slam.ogg").play()  # we don't need this playing twice
 
     @protect
     def interact(self, dt: float = 1):
@@ -396,9 +358,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             )
             clipped.center -= pygame.Vector2(collision_rect.topleft)
         elif self.portal_state == self.PortalState.EXIT:
-            clipped = clip_rect_to_portal(
-                collision_rect, self.twin_portal.rect, self.twin_portal.orientation
-            )
+            clipped = clip_rect_to_portal(collision_rect, self.twin_portal.rect, self.twin_portal.orientation)
             clipped.center -= pygame.Vector2(collision_rect.topleft)
         return clipped
 
@@ -410,9 +370,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         collision_rect = self.collision_rect.copy()
         for portal in self.level.get_group("portal-physics"):
-            if is_inside_portal(
-                collision_rect, portal.collision_rect, portal.orientation
-            ):
+            if is_inside_portal(collision_rect, portal.collision_rect, portal.orientation):
                 collision_rect = clip_rect_to_portal(
                     collision_rect, portal.collision_rect, portal.orientation
                 )
@@ -537,9 +495,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         for sprite in self.level.get_group("dynamic-physics"):
             if (
                 sprite.portal_state == self.PortalState.OUT
-                and is_inside_portal(
-                    sprite.collision_rect, self.collision_rect, self.orientation
-                )
+                and is_inside_portal(sprite.collision_rect, self.collision_rect, self.orientation)
                 and is_entering_portal(self.orientation, sprite.velocity)
             ):
                 for portal in self.level.get_group(self.tunnel_id):
@@ -575,9 +531,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                     self.velocity.y = 0
                     self.velocity.x /= fade_scale
 
-    def enter_portal(
-        self, portal: PhysicsSpriteInterface, twin: PhysicsSpriteInterface
-    ) -> None:
+    def enter_portal(self, portal: PhysicsSpriteInterface, twin: PhysicsSpriteInterface) -> None:
         """
         State changes when a sprite enters a portal
 
@@ -598,65 +552,37 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.twin_portal.orientation == Direction.NORTH:
             self.velocity = pygame.Vector2(0, min(-self.velocity.length(), -350))
             if get_axis_of_direction(self.current_portal.orientation):
-                self.rect.left = (
-                    self.twin_portal.rect.left
-                    + self.rect.left
-                    - self.current_portal.rect.left
-                )
+                self.rect.left = self.twin_portal.rect.left + self.rect.left - self.current_portal.rect.left
             else:
                 self.rect.left = (
-                    self.twin_portal.rect.left
-                    + self.current_portal.rect.bottom
-                    - self.rect.bottom
+                    self.twin_portal.rect.left + self.current_portal.rect.bottom - self.rect.bottom
                 )
             self.rect.top = self.twin_portal.rect.bottom - 2
 
         if self.twin_portal.orientation == Direction.SOUTH:
             self.velocity = pygame.Vector2(0, self.velocity.length())
             if get_axis_of_direction(self.current_portal.orientation):
-                self.rect.left = (
-                    self.twin_portal.rect.left
-                    + self.rect.left
-                    - self.current_portal.rect.left
-                )
+                self.rect.left = self.twin_portal.rect.left + self.rect.left - self.current_portal.rect.left
             else:
                 self.rect.left = (
-                    self.twin_portal.rect.left
-                    + self.current_portal.rect.bottom
-                    - self.rect.bottom
+                    self.twin_portal.rect.left + self.current_portal.rect.bottom - self.rect.bottom
                 )
             self.rect.bottom = self.twin_portal.rect.top + 1
 
         if self.twin_portal.orientation == Direction.EAST:
             self.velocity = pygame.Vector2(self.velocity.length(), 0)
             if get_axis_of_direction(self.current_portal.orientation):
-                self.rect.top = (
-                    self.twin_portal.rect.top
-                    + self.current_portal.rect.right
-                    - self.rect.right
-                )
+                self.rect.top = self.twin_portal.rect.top + self.current_portal.rect.right - self.rect.right
             else:
-                self.rect.top = (
-                    self.twin_portal.rect.top
-                    + self.rect.top
-                    - self.current_portal.rect.top
-                )
+                self.rect.top = self.twin_portal.rect.top + self.rect.top - self.current_portal.rect.top
             self.rect.right = self.twin_portal.rect.left + 1
 
         if self.twin_portal.orientation == Direction.WEST:
             self.velocity = pygame.Vector2(-self.velocity.length(), 0)
             if get_axis_of_direction(self.current_portal.orientation):
-                self.rect.top = (
-                    self.twin_portal.rect.top
-                    + self.current_portal.rect.right
-                    - self.rect.right
-                )
+                self.rect.top = self.twin_portal.rect.top + self.current_portal.rect.right - self.rect.right
             else:
-                self.rect.top = (
-                    self.twin_portal.rect.top
-                    + self.rect.top
-                    - self.current_portal.rect.top
-                )
+                self.rect.top = self.twin_portal.rect.top + self.rect.top - self.current_portal.rect.top
             self.rect.left = self.twin_portal.rect.right - 1
 
         self.portal_state = self.PortalState.EXIT
@@ -688,9 +614,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         if self.current_throwable:
             yeet_force = (
-                self.yeet_force / self.current_throwable.weight
-                if self.current_throwable.weight
-                else 0
+                self.yeet_force / self.current_throwable.weight if self.current_throwable.weight else 0
             )
             up_part = yeet_force * YEET_UP_PERCENTAGE
             self.current_throwable.velocity = (
@@ -724,13 +648,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if not len(throwables):
             return None, 0
         closest_throwable = throwables[0]
-        closest_distance = (
-            pygame.Vector2(self.pos) - pygame.Vector2(closest_throwable.pos)
-        ).length()
+        closest_distance = (pygame.Vector2(self.pos) - pygame.Vector2(closest_throwable.pos)).length()
         for throwable in throwables:
-            current_distance = (
-                pygame.Vector2(self.pos) - pygame.Vector2(throwable.pos)
-            ).length()
+            current_distance = (pygame.Vector2(self.pos) - pygame.Vector2(throwable.pos)).length()
             if current_distance < closest_distance:
                 closest_throwable = throwable
                 closest_distance = current_distance
@@ -742,9 +662,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         makes the picked up object follow the one who picked up the object
         """
         if self.picker_upper:
-            distance_to = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(
-                self.pos
-            )
+            distance_to = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
             if (
                 distance_to.length() > 2 * TILE_SIZE
             ):  # if the picker_upper is too far away (went through the portal for example) teleport to the picker_upper
@@ -789,9 +707,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 self.coyote_time_left = self.coyote_time
             else:
                 # A bit unrealistic, that there's no horizontal friction.
-                self.velocity[0] = apply_friction(
-                    self.velocity[0], self.air_friction, dt
-                )
+                self.velocity[0] = apply_friction(self.velocity[0], self.air_friction, dt)
                 self.coyote_time_left -= dt
 
             self.get_facing()  # get the direction the object is facing
@@ -819,11 +735,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         new_rect = self.rect.copy()
         # only draw the part of the sprite that is above the 'bottom' of the portal (if we are inside one) (only applies to dynamic objects)
         clip_rect = self.interpolated_cliprect(dt_since_physics)
-        new_rect.center = (
-            self.interpolated_pos(dt_since_physics)
-            + pygame.Vector2(clip_rect.topleft)
-            - offset
-        )
+        new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
         surface.blit(self.image.subsurface(clip_rect), new_rect)
 
 

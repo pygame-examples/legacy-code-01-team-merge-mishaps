@@ -23,9 +23,7 @@ class Portal(PhysicsSprite):
     """
 
     def __init__(self, data: SpriteInitData):
-        data.groups.extend(
-            ["render", "physics", "portal-physics", data.properties["tunnel_id"]]
-        )
+        data.groups.extend(["render", "physics", "portal-physics", data.properties["tunnel_id"]])
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.PORTAL,
             orientation=data.properties["orientation"],
@@ -45,9 +43,7 @@ class Portal(PhysicsSprite):
         )
         self.sound = get_sfx("teleport.ogg")
 
-    def draw(
-        self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float
-    ) -> None:
+    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
         self.animation.update(dt_since_physics)

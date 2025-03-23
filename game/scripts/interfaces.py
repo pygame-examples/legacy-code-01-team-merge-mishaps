@@ -108,9 +108,7 @@ class GameStateInterface:
     async def update_physics(self, dt: float) -> None:
         pass
 
-    async def render(
-        self, size: tuple[int, int], dt_since_physics: float
-    ) -> pygame.Surface:
+    async def render(self, size: tuple[int, int], dt_since_physics: float) -> pygame.Surface:
         pass
 
 
@@ -152,9 +150,7 @@ class GameLevelInterface(GameStateInterface, ABC):
     def set_camera_view(self, view: RectLike):
         pass
 
-    async def render(
-        self, size: tuple[int, int], dt_since_physics: float
-    ) -> pygame.Surface:
+    async def render(self, size: tuple[int, int], dt_since_physics: float) -> pygame.Surface:
         """
         Return a drawn surface.
 
@@ -200,20 +196,14 @@ class SpritePhysicsData:
     weight: float = 10  # weight (not used RN)
     yeet_force: float = 0.5  # flight speed (for dynamic sprites)
     horizontal_speed: float = 30  # walking speed (for dynamic sprites)
-    horizontal_air_speed: float = (
-        25  # movement speed for dynamic sprites that are in the air
-    )
+    horizontal_air_speed: float = 25  # movement speed for dynamic sprites that are in the air
     friction: float = 20  # amount by which acceleration changes (for dynamic sprites)
     air_friction: float = 0.1  # amount by which acceleration changes (for dynamic sprites) when in the air
     jump_speed: float = 55  # jump speed (for dynamic sprites)
     duck_speed: float = 100  # duck speed (for dynamic sprites)
-    coyote_time: float = (
-        0.25  # time within witch, you can jump after walking of the ground (in seconds)
-    )
+    coyote_time: float = 0.25  # time within witch, you can jump after walking of the ground (in seconds)
     one_way: bool = False  # whether a static sprite collides downward
-    orientation: Direction = (
-        Direction.NORTH
-    )  # which way a portal shoots / accepts sprites
+    orientation: Direction = Direction.NORTH  # which way a portal shoots / accepts sprites
     tunnel_id: str = "default"  # portals with the same tunnel_id link to each other
 
 

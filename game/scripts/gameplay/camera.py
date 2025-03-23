@@ -24,12 +24,8 @@ class Camera(pygame.sprite.LayeredUpdates):
             pos = self.target.interpolated_pos(dt) - self.offset
             view_frect = surface.get_frect(center=(0, 0))
             view_frect.scale_by_ip(0.25)
-            self.offset.x += min(pos.x - view_frect.left, 0) + max(
-                pos.x - view_frect.right, 0
-            )
-            self.offset.y += min(pos.y - view_frect.top, 0) + max(
-                pos.y - view_frect.bottom, 0
-            )
+            self.offset.x += min(pos.x - view_frect.left, 0) + max(pos.x - view_frect.right, 0)
+            self.offset.y += min(pos.y - view_frect.top, 0) + max(pos.y - view_frect.bottom, 0)
 
         # Limit the camera within the boundary of the view_range
         if self.view_range is not None:

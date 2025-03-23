@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from pytmx import load_project
 
 ASSETS_DIRECTORY = Path(__file__).parent.parent / "assets"

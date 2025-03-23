@@ -25,15 +25,11 @@ class Game(GameInterface):
         super().__init__()
         self.running: bool = False  # whether the game is running the main loop
         # rightmost = top of stack
-        self.state_stack: deque[GameStateInterface] = (
-            deque()
-        )  # index -1 is top of stack
+        self.state_stack: deque[GameStateInterface] = deque()  # index -1 is top of stack
         self.render_delay: float = env.CAN_CAP_FPS * 1 / const.RENDER_FPS
         self.target_render_delay: float = self.render_delay
         self.physics_delay: float = 1 / const.PHYSICS_FPS
-        self.last_physics_update: int = (
-            0  # time (in milliseconds of the last physics update)
-        )
+        self.last_physics_update: int = 0  # time (in milliseconds of the last physics update)
         self.input_delay = 1 / const.INPUT_FPS
         self.needs_canceled: list[
             asyncio.Task
@@ -67,9 +63,7 @@ class Game(GameInterface):
     async def update_physics(self, half_steps: int = 1) -> None:
         """Update game physics. Called interally."""
         semi_step = self.physics_delay / half_steps
-        async with (
-            game_input.input_state
-        ):  # Hold lock for input to avoid interference with input_loop
+        async with game_input.input_state:  # Hold lock for input to avoid interference with input_loop
             for _ in range(half_steps):
                 await self.state_stack[-1].update_actors(self.physics_delay)
                 await self.state_stack[-1].update_physics(semi_step)
@@ -88,9 +82,7 @@ class Game(GameInterface):
         while self.running:
             start = pygame.time.get_ticks()
             dt_since_physics = (start - self.last_physics_update) / 1000
-            surface = await self.state_stack[-1].render(
-                const.WINDOW_RESOLUTION, dt_since_physics
-            )
+            surface = await self.state_stack[-1].render(const.WINDOW_RESOLUTION, dt_since_physics)
             disp = self.window.get_surface()
             output = const.fit_surface(surface, self.window.size)
             disp.blit(output, output.get_rect(center=disp.get_rect().center))
@@ -98,9 +90,7 @@ class Game(GameInterface):
             if dt_since_physics > self.physics_delay * 2:
                 self.render_delay = min(self.render_delay + 0.05, 1 / 15)
             elif self.render_delay > self.target_render_delay:
-                self.render_delay = max(
-                    self.target_render_delay, self.render_delay - 0.05
-                )
+                self.render_delay = max(self.target_render_delay, self.render_delay - 0.05)
             end = pygame.time.get_ticks()
             await asyncio.sleep(max(self.render_delay - (end - start), 0))
 

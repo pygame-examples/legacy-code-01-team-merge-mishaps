@@ -80,18 +80,10 @@ class Level(GameLevelInterface):
             door1 = self.spawn_door((26, 2), 6, Axis.VERTICAL)
 
             # ---------------------- portals -----------------------
-            self.spawn_portal_pair(
-                (8, 0), Direction.NORTH, (8, 2), Direction.SOUTH, PortalColor.YELLOW
-            )
-            self.spawn_portal_pair(
-                (2, 5), Direction.EAST, (32, 5), Direction.WEST, PortalColor.GREEN
-            )
-            self.spawn_portal_pair(
-                (14, 7), Direction.NORTH, (7, 7), Direction.NORTH, PortalColor.RED
-            )
-            self.spawn_portal_pair(
-                (19, 2), Direction.SOUTH, (19, 7), Direction.NORTH, PortalColor.CYAN
-            )
+            self.spawn_portal_pair((8, 0), Direction.NORTH, (8, 2), Direction.SOUTH, PortalColor.YELLOW)
+            self.spawn_portal_pair((2, 5), Direction.EAST, (32, 5), Direction.WEST, PortalColor.GREEN)
+            self.spawn_portal_pair((14, 7), Direction.NORTH, (7, 7), Direction.NORTH, PortalColor.RED)
+            self.spawn_portal_pair((19, 2), Direction.SOUTH, (19, 7), Direction.NORTH, PortalColor.CYAN)
 
             # ---------------------- triggerable ----------------------
             self.spawn_button((23, 7), [door1])
@@ -235,9 +227,7 @@ class Level(GameLevelInterface):
         )
         door = self.spawn(
             Door,
-            SpriteInitData(
-                rect=rect, level=self, properties={"orientation": orientation}
-            ),
+            SpriteInitData(rect=rect, level=self, properties={"orientation": orientation}),
         )
 
         return door

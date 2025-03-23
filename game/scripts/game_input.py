@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from asyncio import Lock
-from pygame.typing import SequenceLike
 
 import pygame
+from pygame.typing import SequenceLike
 
-from .const import Actions, DEFAULT_KEYBINDINGS
+from .const import DEFAULT_KEYBINDINGS, Actions
 
 
 class InputState:

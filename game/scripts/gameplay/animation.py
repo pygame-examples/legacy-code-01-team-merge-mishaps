@@ -43,9 +43,7 @@ class ANIMATIONMYWAY:
                 "invalid animation information! specify either a single frame rect or a number of frames!"
             )
 
-        if (
-            frame_count == -1
-        ):  # if no frame count was given, iterate through the whole spritesheet
+        if frame_count == -1:  # if no frame count was given, iterate through the whole spritesheet
             frame_count = spritesheet.height // frame_rect.height
         elif frame_rect == (
             0,
@@ -53,9 +51,7 @@ class ANIMATIONMYWAY:
             -1,
             -1,
         ):  # if no rect was given, calculate it using the number of frames
-            frame_rect = pygame.Rect(
-                0, 0, spritesheet.width, spritesheet.height // frame_count
-            )
+            frame_rect = pygame.Rect(0, 0, spritesheet.width, spritesheet.height // frame_count)
 
         frames = []
 
