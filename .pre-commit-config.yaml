@@ -1,0 +1,15 @@
+# Learn more about this config here: https://pre-commit.com/
+
+# To enable these pre-commit hooks run:
+# `brew install pre-commit` or `python3 -m pip install pre-commit`
+# Then in the project root directory run `pre-commit install`
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.2
+    hooks: # See pyproject.toml for configuration options.
+      - id: ruff
+        name: ruff-sort-imports
+        args: [--select, I, --fix]
+      - id: ruff-format
+        types_or: [python, pyi, jupyter]
