@@ -27,11 +27,16 @@ First run
 uv sync
 ```
 Then activate the virutal environment (there's a space after the first `.`):
-```
+```bash
 . .venv/bin/activate  # On Linux
 . .venv/source/activate  # On Windows
 ```
 And/or select the appropriate interpreter in your IDE
+
+Also make sure to install pre-commit hooks:
+```bash
+uvx pre-commit install
+```
 
 
 ### The plan
