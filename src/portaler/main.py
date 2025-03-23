@@ -10,9 +10,9 @@ from typing import Awaitable
 
 import pygame
 
-from .scripts import const, env, game_input
-from .scripts.gameplay import level
-from .scripts.interfaces import GameInterface, GameStateInterface
+from . import const, env, game_input
+from .gameplay import level
+from .interfaces import GameInterface, GameStateInterface
 
 
 class Game(GameInterface):
