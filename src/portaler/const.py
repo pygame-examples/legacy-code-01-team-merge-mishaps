@@ -23,7 +23,7 @@ WINDOW_RESOLUTION: tuple[int, int] = (
 )  # game resolution (might be different from the actual resolution of the window if resized)
 
 # FPS for different loops
-PHYSICS_FPS: int = 120
+PHYSICS_FPS: int = 120  # TODO: make physics delta time indepedent because it currently isn't
 RENDER_FPS: int = 60
 INPUT_FPS: int = 500
 
@@ -51,8 +51,8 @@ DEFAULT_KEYBINDINGS = {
     Actions.LEFT: [pygame.K_LEFT, pygame.K_a],
     Actions.RIGHT: [pygame.K_RIGHT, pygame.K_d],
     Actions.DOWN: [pygame.K_DOWN, pygame.K_s],
-    Actions.JUMP: [pygame.K_SPACE],
-    Actions.INTERACT: [pygame.K_e],
+    Actions.JUMP: [pygame.K_UP, pygame.K_w],
+    Actions.INTERACT: [pygame.K_SPACE],
 }
 
 # reserve channels for sounds

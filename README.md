@@ -11,8 +11,8 @@ Team two Merge Mishaps (times are in UTC):
 
 ## Gameplay
 - To move use either WASD or arrow keys
-- To jump press SPACE
-- To interact (pick up or throw) press E
+- To jump press W or up arrow key
+- To interact (pick up or throw) press SPACE
 - To slam down double press S or down key
 - Aim your throws by pressing the keys in the direction of which you want to throw
 
