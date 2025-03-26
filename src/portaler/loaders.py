@@ -20,22 +20,22 @@ def tile_variant_name(kind: str, neighbors: int) -> str:
 def load_tile_spritesheet() -> None:
     # bitmask: LEFT, TOP, RIGHT, BOTTOM
     variants = {
-        (0, 0): 0b1100,
-        (1, 0): 0b0100,
-        (2, 0): 0b0110,
-        (3, 0): 0b1110,
-        (0, 1): 0b1000,
-        (1, 1): 0b0000,
-        (2, 1): 0b0010,
-        (3, 1): 0b1010,
-        (0, 2): 0b1001,
-        (1, 2): 0b0001,
-        (2, 2): 0b0011,
-        (3, 2): 0b1011,
-        (0, 3): 0b1101,
-        (1, 3): 0b0101,
-        (2, 3): 0b0111,
-        (3, 3): 0b1111,
+        (0, 0): 0b0011,
+        (1, 0): 0b1011,
+        (2, 0): 0b1001,
+        (3, 0): 0b0001,
+        (0, 1): 0b0111,
+        (1, 1): 0b1111,
+        (2, 1): 0b1101,
+        (3, 1): 0b0101,
+        (0, 2): 0b0110,
+        (1, 2): 0b1110,
+        (2, 2): 0b1100,
+        (3, 2): 0b0100,
+        (0, 3): 0b0010,
+        (1, 3): 0b1010,
+        (2, 3): 0b1000,
+        (3, 3): 0b0000,
     }
     walls = pygame.image.load(SPRITES_DIRECTORY / "walls.png").convert_alpha()
     tile_size = 16
@@ -75,6 +75,7 @@ class LevelLoader:
             for x, symbol in enumerate(row):
                 symbol_tilemap[x + offset_x, y + offset_y] = symbol
         for pos, symbol in symbol_tilemap.items():
+            # Auto-tiling
             neighbors: int = 0
             if symbol_tilemap.get((pos[0] - 1, pos[1])) == symbol:
                 neighbors |= 0b1000
@@ -85,8 +86,8 @@ class LevelLoader:
             if symbol_tilemap.get((pos[0], pos[1] + 1)) == symbol:
                 neighbors |= 0b0001
             neighbors_map[pos] = neighbors
-        for pos, neighbors in neighbors_map.items():
-            self.add_tile(target, symbol_tilemap[pos], pos, neighbors)
+        for pos, symbol in symbol_tilemap.items():
+            self.add_tile(target, symbol, pos, neighbors_map[pos])
 
     def add_tile(self, target: level.Level, symbol: str, pos: tuple[int, int], neighbors: int) -> None:
         try:

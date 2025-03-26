@@ -13,14 +13,12 @@ class Block(PhysicsSprite):
         physics_data = SpritePhysicsData(physics_type=PhysicsType.STATIC)
         data.groups.extend(["render", "physics", "static-physics"])
         super().__init__(data, physics_data)
+        self.surface = data.properties["surface"]
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float):
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
-
-        pygame.draw.rect(
-            surface, "blue", new_rect
-        )  # the only thing that need a proper sprite drawing. Preferably tiling *wink wink
+        surface.blit(self.surface, new_rect)
 
 
 class OneWayBlock(PhysicsSprite):
