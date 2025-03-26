@@ -1,14 +1,14 @@
 {
     "camera_view_range": "fit",
-    "tilemap_offset": [0, -1],
+    "tilemap_offset": [0, 0],
     "sprites": {
-        "player": {"pos": [3, 4]},
-        "throwables": [{"pos": [1, 2], "type": "WOOD"}],
+        "player": {"pos": [3, 5]},
+        "throwables": [{"pos": [1, 3], "type": "WOOD"}],
         "portals": {
-            "GREEN": [{"pos": [7, 0], "orientation": "SOUTH"}, {"pos": [5, 8], "orientation": "EAST"}]
+            "GREEN": [{"pos": [7, 1], "orientation": "SOUTH"}, {"pos": [8, 9], "orientation": "EAST"}]
         },
-        "doors": [{"pos": [13, 0], "length": 6, "orientation": "VERTICAL"}],
-        "buttons": [{"pos": [12, 10], "linked_to": ["doors[0]"]}],
-        "finishes": [{"pos": [18, 5]}]
+        "doors": [{"pos": [13, 1], "length": 6, "orientation": "VERTICAL"}],
+        "buttons": [{"pos": [9, 12], "linked_to": ["doors[0]"]}],
+        "finishes": [{"pos": [18, 6]}]
     }
 }
