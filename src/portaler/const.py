@@ -51,8 +51,8 @@ DEFAULT_KEYBINDINGS = {
     Actions.LEFT: [pygame.K_LEFT, pygame.K_a],
     Actions.RIGHT: [pygame.K_RIGHT, pygame.K_d],
     Actions.DOWN: [pygame.K_DOWN, pygame.K_s],
-    Actions.JUMP: [pygame.K_UP, pygame.K_w],
-    Actions.INTERACT: [pygame.K_SPACE],
+    Actions.JUMP: [pygame.K_SPACE],
+    Actions.INTERACT: [pygame.K_e],
 }
 
 # reserve channels for sounds
