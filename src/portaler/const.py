@@ -23,7 +23,7 @@ WINDOW_RESOLUTION: tuple[int, int] = (
 )  # game resolution (might be different from the actual resolution of the window if resized)
 
 # FPS for different loops
-PHYSICS_FPS: int = 120  # TODO: make physics delta time indepedent because it currently isn't
+PHYSICS_FPS: int = 120
 RENDER_FPS: int = 60
 INPUT_FPS: int = 500
 

@@ -1,11 +1,6 @@
 import pygame
 
-from ..interfaces import (
-    DIRECTION_TO_ANGLE,
-    PhysicsType,
-    SpriteInitData,
-    SpritePhysicsData,
-)
+from ..interfaces import DIRECTION_TO_ANGLE, PhysicsType, SpriteInitData, SpritePhysicsData
 from .animation import ANIMATIONMYWAY
 from .physics import PhysicsSprite
 from .sprites_and_sounds import get_sfx
@@ -36,15 +31,18 @@ class Portal(PhysicsSprite):
         )  # -90  - alignment value, otherwise the portal is unaligned by 90 degrees (duh)
         self.animation = ANIMATIONMYWAY(
             f"portals/portal{data.properties['tunnel_id']}.png",
-            5,
+            12,
             frame_count=7,
             scale_factor=2,
             rotation=rotation,
         )
         self.sound = get_sfx("teleport.ogg")
 
+    def update_physics(self, dt: float) -> None:
+        super().update_physics(dt)
+        self.animation.update(dt)
+
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
-        self.animation.update(dt_since_physics)
         surface.blit(self.animation.get_frame(), new_rect)

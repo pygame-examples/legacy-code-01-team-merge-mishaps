@@ -12,15 +12,7 @@ class Player(PhysicsSprite):
 
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(
-            physics_type=PhysicsType.DYNAMIC,
-            weight=10,
-            horizontal_speed=30,
-            horizontal_air_speed=25,
-            friction=20,
-            air_friction=0.1,
-            jump_speed=55,
-            duck_speed=100,
-            yeet_force=1000,  # how strong the player can throw a box at you
+            physics_type=PhysicsType.DYNAMIC,  # Use the defaults
         )
         # sprite will be added to these groups later
         data.groups.extend(["physics", "render", "dynamic-physics", "actors"])

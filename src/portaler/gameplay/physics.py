@@ -9,14 +9,7 @@ if TYPE_CHECKING:
 
 import pygame
 
-from ..const import (
-    AIR_CONTROLS_REDUCTION,
-    GRAVITY,
-    MAX_SPEED,
-    TILE_SIZE,
-    TO_SECONDS,
-    YEET_UP_PERCENTAGE,
-)
+from ..const import AIR_CONTROLS_REDUCTION, GRAVITY, MAX_SPEED, TILE_SIZE, TO_SECONDS, YEET_UP_PERCENTAGE
 from ..interfaces import (
     Direction,
     PhysicsSpriteInterface,
@@ -206,16 +199,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         )
         self.picker_upper: PhysicsSprite | None = None  # the one picking up self
 
-        # latency compensation
-        # all inputs are polled faster than physics framerate and timestamped
-        # then the physics engine can use that timestamp to correct for time difference
-        # eg move the player just a wee bit more if he hit the left key a millisecond after the last frame
-        self.missed: pygame.Vector2 = (
-            pygame.Vector2()
-        )  # missed motion that needs to be caught up with (if dynamic)
-        self.missed_accel: pygame.Vector2 = (
-            pygame.Vector2()
-        )  # missed acceleration that needs to be caught up with (if dynamic)
+        # (Latency compensation removed. So unnecessary.)
 
         # Used to limit control command per physics frame.
         self.commands_used: dict[str, bool] = {}
@@ -282,7 +266,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         pass
 
     @protect
-    def left(self, dt: float = 1) -> None:
+    def left(self, dt: float) -> None:
         """If I am dynamic, try to move left until the next frame"""
         if not dt:
             return
@@ -296,7 +280,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 self.velocity.x += target_vel_d * AIR_CONTROLS_REDUCTION
 
     @protect
-    def right(self, dt: float = 1) -> None:
+    def right(self, dt: float) -> None:
         """If I am dynamic, try to move right until the next frame"""
         if not dt:
             return
@@ -310,28 +294,28 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 self.velocity.x += target_vel_d * AIR_CONTROLS_REDUCTION
 
     @protect
-    def jump(self, dt: float = 1) -> None:
+    def jump(self, dt: float) -> None:
         """If I am dynamic, try to jump"""
         if self.on_ground or self.coyote_time_left > 0:
-            self.velocity.y = -self.jump_speed * TO_SECONDS * dt
+            self.velocity.y = -self.jump_speed  # DO NOT USE dt HERE
             self.coyote_time_left = 0
             get_sfx("jump.ogg").play()
         # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
 
     @protect
-    def duck(self, dt: float = 1) -> None:
+    def duck(self, dt: float) -> None:
         """If I am dynamic, try to duck until the next frame"""
         # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
         self.ducking = True
         if not self.on_ground:
-            self.velocity.y = max(self.duck_speed * TO_SECONDS * dt, self.velocity.y, 1)
+            self.velocity.y = max(self.duck_speed, self.velocity.y, 1)  # DO NOT USE dt HERE
             if self.current_throwable:
                 self.current_throwable.duck()
             else:
                 get_sfx("slam.ogg").play()  # we don't need this playing twice
 
     @protect
-    def interact(self, dt: float = 1):
+    def interact(self, dt: float):
         """Interact with different objects"""
         # TODO: implement interacting with other things (prob buttons or sum like that, you know the drill)
         if self.throw(dt):
@@ -447,8 +431,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.velocity[axis] += self.gravity[axis] * dt
 
         center = pygame.Vector2(self.rect.center)
-        center[axis] += self.velocity[axis] * dt + self.missed[axis]
-        self.missed[axis] = 0
+        center[axis] += self.velocity[axis] * dt
         self.rect.center = center
 
         # which way I need to move if I'm colliding based on velocity

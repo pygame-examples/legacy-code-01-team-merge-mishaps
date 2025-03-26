@@ -199,13 +199,13 @@ class SpritePhysicsData:
     # no need for every sprite to use every bit of data
     physics_type: PhysicsType = PhysicsType.STATIC  # type of physics resolution to use
     weight: float = 10  # weight (not used RN)
-    yeet_force: float = 0.5  # flight speed (for dynamic sprites)
+    yeet_force: float = 1200  # flight speed (for dynamic sprites)
     horizontal_speed: float = 30  # walking speed (for dynamic sprites)
     horizontal_air_speed: float = 25  # movement speed for dynamic sprites that are in the air
     friction: float = 20  # amount by which acceleration changes (for dynamic sprites)
     air_friction: float = 0.1  # amount by which acceleration changes (for dynamic sprites) when in the air
-    jump_speed: float = 55  # jump speed (for dynamic sprites)
-    duck_speed: float = 100  # duck speed (for dynamic sprites)
+    jump_speed: float = 460.0  # jump speed (for dynamic sprites)
+    duck_speed: float = 833.0  # duck speed (for dynamic sprites)
     coyote_time: float = 0.25  # time within witch, you can jump after walking of the ground (in seconds)
     one_way: bool = False  # whether a static sprite collides downward
     orientation: Direction = Direction.NORTH  # which way a portal shoots / accepts sprites
