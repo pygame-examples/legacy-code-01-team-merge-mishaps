@@ -22,8 +22,15 @@ classifiers = [
 ]
 dependencies = ["pygame-ce"]
 
+[dependency-groups]
+dev = [
+    "ruff>=0.11.2",
+]
+
 [project.optional-dependencies]
-dev = ["ruff"]
+dev = [
+    # "mypy>=1.15.0",  # static type checking is useless with all of the errors
+]
 
 [project.urls]
 Homepage = "https://github.com/pygame-examples/legacy-code-01-team-merge-mishaps"
@@ -34,7 +41,6 @@ disable = ["all"]
 enable = ["attribute-defined-outside-init"]
 
 [tool.ruff]
-extend-exclude = ["pytmx"]
 line-length = 110
 
 [tool.ruff.lint]

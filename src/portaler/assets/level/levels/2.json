@@ -1,0 +1,13 @@
+{
+    "camera_view_range": "fit",
+    "sprites": {
+        "player": {"pos": [3, 5]},
+        "throwables": [],
+        "portals": {
+            "RED": [{"pos": [7, 0], "orientation": "NORTH"}, {"pos": [5, 8], "orientation": "NORTH"}]
+        },
+        "doors": [],
+        "buttons": [],
+        "finishes": [{"pos": [28, 2]}]
+    }
+}

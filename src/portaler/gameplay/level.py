@@ -3,7 +3,6 @@ from typing import Awaitable
 import pygame
 from pygame.typing import RectLike
 
-from ..assets import LEVELS
 from ..const import TILE_SIZE
 from ..interfaces import (
     Axis,
@@ -14,7 +13,6 @@ from ..interfaces import (
     SpriteInitData,
     ThrowableType,
 )
-from ..loaders import LevelLoader
 from .block import Block, OneWayBlock, ThrowableBlock
 from .button import Button, FinishButton
 from .camera import Camera
@@ -43,15 +41,11 @@ class Level(GameLevelInterface):
         }
         self.game: GameInterface = game
 
-        # -1 for test map
-        # self.level_count = -1
-        # self.level_count = 0
-        self.level_count = 0
+        # 0 for test map
+        self.level_count = 1
 
         # Currently the only thing overwritten by the level loader
         self.groups["render"].view_range = pygame.FRect(0, 0, 1088, 320)
-
-        self.loader = LevelLoader(self, LEVELS, "base")
 
     def init(self):
         """
@@ -63,7 +57,12 @@ class Level(GameLevelInterface):
         # TODO: implement level loading. Remember the note above
         # TODO: i left some spritesheets for tiles in sprites folder
 
-        if self.level_count == -1:  # look how tidy it is in here, better not ruin it 😊
+        from .. import loaders  # TODO: fix ridiculous circular dependency
+
+        loaders.LevelLoader("1").load(self)
+        return
+
+        if self.level_count == 0:  # look how tidy it is in here, better not ruin it 😊
             self.spawn_player(pos=(3, 5))
             # ---------------------- walls/floors ----------------------
             self.spawn_wall((1, 8), (32, 1))
@@ -91,7 +90,7 @@ class Level(GameLevelInterface):
             self.spawn_button((23, 7), [door1])
 
         # uhhh, yk, this should probably be done through a level editor, but...
-        elif self.level_count == 0:
+        elif self.level_count == 1:
             # based on assets/ideas/idea1.png
 
             self.groups["render"].view_range = pygame.FRect(0, 0, 640, 320)
@@ -117,7 +116,7 @@ class Level(GameLevelInterface):
 
             self.spawn_finish((18, 5))
 
-        elif self.level_count == 1:
+        elif self.level_count == 2:
             # based on assets/ideas/idea4.png
             # slightly modified though
 
@@ -246,7 +245,7 @@ class Level(GameLevelInterface):
 
         return button
 
-    def spawn_wall(self, pos, size):
+    def spawn_wall(self, pos, size, surface: pygame.Surface):
         wall = self.spawn(
             Block,
             SpriteInitData(
@@ -257,6 +256,7 @@ class Level(GameLevelInterface):
                     size[1] * TILE_SIZE,
                 ),
                 level=self,
+                properties={"surface": surface},
             ),
         )
         return wall

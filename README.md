@@ -50,8 +50,6 @@ uvx pre-commit install
 ### Guide to the source code
 Might be slightly™ out of date
 ```
-pytmx/  - copied source code of a library pytmx used for loading Tiled files with intention of easier tampering/implementing mising features.    
-    project_loader.py  – example of this "tampering"
 game/  - main directory... not a lot to say here
     assets/  - ...
         levels/  - tiled levels go here
