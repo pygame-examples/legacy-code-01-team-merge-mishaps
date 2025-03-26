@@ -24,7 +24,10 @@ from .sprites_and_sounds import get_sfx
 
 # WHAT IN THE WORLD IS THAT DESCRIPTION
 def apply_friction(velocity: pygame.Vector2 | float, friction: float, dt: float):
-    """Apply friction in place to the given velocity vector. If velocity is a float, then it won't be updated in-place"""
+    """Apply friction in place to the given velocity vector.
+
+    If velocity is a float, then it won't be updated in-place.
+    """
     # Delta-time corrected friction is hard :(
     # This *should* be the exact formula
     # velocity *= (1 - friction)**dt
@@ -86,7 +89,9 @@ def clip_rect_to_portal(
 ) -> pygame.FRect:
     """Clips a rect to only what you would see if the rect entered a portal"""
     collision_rect = collision_rect.copy()
-    collision_offset = 4  # to avoid accidental colision with the floor below the protal because I HAVE NO CLUE WHERE THAT ISSUE EVEN STEMS FROM
+    # to avoid accidental colision with the floor below the portal
+    # because I HAVE NO CLUE WHERE THAT ISSUE EVEN STEMS FROM
+    collision_offset = 4
 
     if direction == Direction.NORTH:
         # only show rect above top  ?????
@@ -244,7 +249,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             return self.current_portal
         if self.portal_state == self.PortalState.EXIT:
             return self.twin_portal
-        # I'm assuming it was supposed to be PortalState.Exit in the second if statement and not PortalState.Enter??? - Aiden
+        # I'm assuming it was supposed to be PortalState.Exit in
+        # the second if statement and not PortalState.Enter??? - Aiden
         return None
 
     def trigger(self, other: SpriteInterface) -> None:
@@ -259,9 +265,11 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         If i am a triggerable object.
 
-        Called when this sprite stops being touched by a dynamic physics object. Called every frame i am not touched    <- DIABOLICAL wording
+        Called when this sprite stops being touched by a dynamic physics object.
+        Called every frame i am not touched    <- DIABOLICAL wording
 
-        Other is the sprite that untriggered me. For activation objects: activated only when a button (or something else) activates it
+        Other is the sprite that untriggered me.
+        For activation objects: activated only when a button (or something else) activates it
         """
         pass
 
@@ -405,7 +413,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Called internally
         """
 
-        # TODO: we should be able to skip by more one pixel (max of all offsets pushing out of the collision)   -- WHAT DOES THAT EVEN MEAN, THAT IS NOT A COMPREHENSABLE COMMENT
+        # TODO: we should be able to skip by more one pixel (max of all offsets pushing out of the collision)
+        # -- WHAT DOES THAT EVEN MEAN, THAT IS NOT A COMPREHENSIBLE COMMENT
         def must_move():
             # Part of me that is inside a portal does not collide
             collision_rect = self.clipped_collision_rect()
@@ -527,7 +536,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
     def exit_portal(self) -> None:
         """
-        State changes when a sprite switches from entering a portal to exiting a different portal (Now it accounts for portals being of different orientations :D)
+        State changes when a sprite switches from entering a portal to exiting a different portal
+        (Now it accounts for portals being of different orientations :D)
 
         Called internally.
         """
@@ -646,9 +656,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         if self.picker_upper:
             distance_to = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
-            if (
-                distance_to.length() > 2 * TILE_SIZE
-            ):  # if the picker_upper is too far away (went through the portal for example) teleport to the picker_upper
+            if distance_to.length() > 2 * TILE_SIZE:
+                # if the picker_upper is too far away (went through the portal for example)
+                # then teleport to the picker_upper
                 self.pos = self.picker_upper.pos
             else:  # otherwise make this cool magnet effect
                 if distance_to.length() > TILE_SIZE // 4:
@@ -677,9 +687,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.commands_used.clear()
 
         if self.physics_type == PhysicsType.DYNAMIC:
-            self.update_throwable(
-                dt
-            )  # Note: Make sure to do any velocity modifications before handle_dynamic_collision otherwise weird stuff happen - Aiden
+            # Note: Make sure to do any velocity modifications before handle_dynamic_collision
+            # otherwise weird stuff happen - Aiden
+            self.update_throwable(dt)
             self.handle_dynamic_collision(1, dt)
             self.handle_dynamic_collision(0, dt)
             self.on_ground = self._test_if_on_ground()
@@ -716,7 +726,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Except all of the above is interpolated
         """
         new_rect = self.rect.copy()
-        # only draw the part of the sprite that is above the 'bottom' of the portal (if we are inside one) (only applies to dynamic objects)
+        # only draw the part of the sprite that is above the 'bottom' of the portal (if we are inside one)
+        # (only applies to dynamic objects)
         clip_rect = self.interpolated_cliprect(dt_since_physics)
         new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
         surface.blit(self.image.subsurface(clip_rect), new_rect)

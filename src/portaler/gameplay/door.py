@@ -3,13 +3,7 @@ from math import ceil
 import pygame
 
 from ..const import DOOR_CHANNEL
-from ..interfaces import (
-    Axis,
-    PhysicsType,
-    SpriteInitData,
-    SpriteInterface,
-    SpritePhysicsData,
-)
+from ..interfaces import Axis, PhysicsType, SpriteInitData, SpriteInterface, SpritePhysicsData
 from .physics import PhysicsSprite
 from .sprites_and_sounds import get_image, get_sfx
 
@@ -17,8 +11,10 @@ from .sprites_and_sounds import get_image, get_sfx
 class Door(PhysicsSprite):
     def __init__(self, data: SpriteInitData):
         """
-        A mechanical obstacle, designed to be impenetrable by any means. The only way to bypass this restricting beam of metal is to
-        activate a button, wired up specifically to supress this beast and allow others to pass through previously unpassable barrier.
+        A mechanical obstacle, designed to be impenetrable by any means.
+        The only way to bypass this restricting beam of metal is to
+        activate a button, wired up specifically to supress this beast and
+        allow others to pass through previously unpassable barrier.
         """
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.ACTIVATED,
@@ -85,7 +81,7 @@ class Door(PhysicsSprite):
             door_surface.blit(self.segments["middle"], pos)
 
         # rotate the bar, so it appears as if the whole thing is lowering
-        # could this have been implemented better? Probably yes. But i don't care, if it works - don't touch it
+        # could this have been implemented better? Probably yes. But i don't care, if it works don't touch it
         door_surface = pygame.transform.rotate(door_surface, 180)
 
         # draw head and base

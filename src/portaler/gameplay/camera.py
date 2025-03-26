@@ -44,7 +44,8 @@ class Camera(pygame.sprite.LayeredUpdates):
             if cam.height > self.view_range.height:
                 cam.centery = self.view_range.centery
 
-        # Offset the camera to the center of the screen and round it, because there are sprites with fractional position
+        # Offset the camera to the center of the screen and round it,
+        # because there are sprites with fractional position
         # and due to rounding errors, they would appear jittery
         offset = round(pygame.Vector2(cam.topleft))
         # This doesn't seem to be the case for now, but if that's the case, use the code above.

@@ -202,9 +202,9 @@ class Level(GameLevelInterface):
                 level=self,
                 properties={
                     "orientation": orientation1,
-                    "tunnel_id": str(
-                        portal_color.value
-                    ),  # it's important to keep this as a string, because... uhh.. idk, something about Rob's wrath or whatever
+                    "tunnel_id": str(portal_color.value),
+                    # it's important to keep this as a string, because...
+                    # uhh.. idk, something about Rob's wrath or whatever
                 },
             ),
         )
@@ -237,7 +237,7 @@ class Level(GameLevelInterface):
                     pos[1] * TILE_SIZE,
                     2 * TILE_SIZE,
                     TILE_SIZE,
-                ),  # the button will always stay on the ground lookign up, unless someone wants to change that
+                ),  # the button will always stay on the ground looking up unless someone wants to change that
                 level=self,
                 properties={"linked-to": linked_to},
             ),
