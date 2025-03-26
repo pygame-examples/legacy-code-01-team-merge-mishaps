@@ -57,6 +57,7 @@ class Door(PhysicsSprite):
             )
 
         self.middle_rect = self.rect.copy()
+        self.duration = 1.5  # How long it takes to open fully
 
         spritesheet = get_image("pressure-door.png")
         self.segments = {  # the entire door will be drawn by segments
@@ -69,6 +70,14 @@ class Door(PhysicsSprite):
         }
 
         self.sound = get_sfx("pressure-door.ogg")
+
+    def update_physics(self, dt: float) -> None:
+        super().update_physics(dt)
+        # change height depending on the state
+        total = self.max_height - self.min_height
+        offset = total * dt / self.duration
+        self.current_height += offset if self.state != "opening" else -offset
+        self.current_height = min(max(self.current_height, self.min_height), self.max_height)
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         door_surface = pygame.Surface(self.image_size, pygame.SRCALPHA)
@@ -93,13 +102,6 @@ class Door(PhysicsSprite):
             door_surface.blit(self.segments["light-green"], self.base_rect)
         else:
             door_surface.blit(self.segments["light-red"], self.base_rect)
-
-        # change height depending on the state
-        if self.state == "opening":
-            self.current_height -= self.segments["middle"].height * dt_since_physics
-        else:
-            self.current_height += self.segments["middle"].height * dt_since_physics
-        self.current_height = min(max(self.current_height, self.min_height), self.max_height)
 
         if self.min_height < self.current_height < self.max_height:
             if not pygame.mixer.Channel(DOOR_CHANNEL).get_busy():
