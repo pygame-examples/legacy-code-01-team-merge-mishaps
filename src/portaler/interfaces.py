@@ -207,7 +207,7 @@ class SpritePhysicsData:
     ground_damping: float = 0.0001  # damping of 0.9 means 10% velocity is lost per second
     air_damping: float = 0.8
     jump_speed: float = 460.0  # jump speed (for dynamic sprites)
-    duck_speed: float = 833.0  # duck speed (for dynamic sprites)
+    duck_speed: float = 550.0  # duck speed (for dynamic sprites)
     coyote_time: float = 0.25  # time within witch, you can jump after walking of the ground (in seconds)
     one_way: bool = False  # whether a static sprite collides downward
     orientation: Direction = Direction.NORTH  # which way a portal shoots / accepts sprites

@@ -14,6 +14,7 @@ class Player(PhysicsSprite):
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.DYNAMIC,  # Use the defaults
             weight=100.0,
+            air_damping=0.002,
         )
         # sprite will be added to these groups later
         data.groups.extend(["physics", "render", "dynamic-physics", "actors"])

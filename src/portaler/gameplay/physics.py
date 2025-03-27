@@ -181,7 +181,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.coyote_time_left: float = 0  # see above
         self.on_ground: bool = False  # whether sprite is touching ground (if dynamic)
         self.one_way: bool = physics_data.one_way  # whether sprite only collides downward (if static)
-        self.ducking: bool = False  # whether sprite is ducking (if dynamic)
         self.facing: pygame.Vector2 = pygame.Vector2(1, 0)  # the direction the sprite should be facing
 
         self.min_distance: int = 40  # minimum distance to pick up something
@@ -300,7 +299,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
     @protect
     def duck(self, dt: float) -> None:
         """If I am dynamic, try to duck until the next frame"""
-        self.ducking = True
         if not self.on_ground:
             self.velocity.y = max(self.duck_speed, self.velocity.y, 1)  # DO NOT USE dt HERE
             if self.current_throwable:
@@ -399,19 +397,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Called internally
         """
 
-        # TODO: we should be able to skip by more one pixel (max of all offsets pushing out of the collision)
-        # -- WHAT DOES THAT EVEN MEAN, THAT IS NOT A COMPREHENSIBLE COMMENT
-        def must_move():
-            # Part of me that is inside a portal does not collide
-            collision_rect = self.clipped_collision_rect()
-            for sprite in self.level.get_group("static-physics"):
-                # only collide with one_way when going down or ducking
-                if sprite.one_way and (self.velocity.y < 0 or self.ducking):
-                    continue
-                if sprite.collision_rect.colliderect(collision_rect):
-                    return True
-            return False
-
         if self.current_portal:
             self.handle_position_in_portal()
             self.handle_dynamic_collision_inside_portal(axis, dt)
@@ -436,7 +421,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         # move me out of collision
         moved: bool = False
-        while must_move():
+        while self._test_if_on_ground(0.0):
             self.rect[axis] += offset
             # Don't collide with stuff overlapping with portals when moving into or out of the portal
             if (
@@ -655,21 +640,20 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                     self.velocity += impulse / self.weight
                     self.picker_upper.velocity -= impulse / self.picker_upper.weight
 
-    def _test_if_on_ground(self):
+    def _test_if_on_ground(self, tolerance: float = 0.5):
         collision_rect = self.clipped_collision_rect()
-        collision_rect.y += 0.5
-
+        collision_rect.y += tolerance
+        if self.portal_state != self.PortalState.OUT and self.current_portal.orientation == Direction.NORTH:
+            return False
         for sprite in self.level.get_group("static-physics"):
-            # only collide with one_way when going down or ducking
-            if sprite.one_way and (self.velocity.y < 0 or self.ducking):
+            if sprite.one_way and (self.velocity.y < 0 or self.facing.y > 0):
+                # skip one way if moving up or player presses down
                 continue
-
             if sprite.collision_rect.colliderect(collision_rect):
-                if self.portal_state != self.PortalState.OUT:
-                    if self.current_portal.orientation == Direction.NORTH:
-                        return False
+                if sprite.one_way and self.rect.bottom > sprite.rect.top + 6.0:
+                    # inside one way platform but not on top of it (note: tunneling issues)
+                    continue
                 return True
-
         return False
 
     def update_physics(self, dt) -> None:
@@ -685,13 +669,13 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.handle_dynamic_collision(0, dt)
             self.on_ground = self._test_if_on_ground()
             if self.on_ground:
-                self.ducking = False
                 self.velocity[1] = 0
                 self.velocity[0] *= self.ground_damping**dt
                 self.coyote_time_left = self.coyote_time
             else:
                 # A bit unrealistic, that there's no vertical damping.
-                self.velocity[0] *= self.air_damping**dt
+                if not self.facing:  # HACK: stop air movement for player
+                    self.velocity[0] *= self.air_damping**dt
                 self.coyote_time_left -= dt
 
             self.get_facing()  # get the direction the object is facing

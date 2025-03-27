@@ -29,7 +29,7 @@ INPUT_FPS: int = 500
 
 GRAVITY: tuple[int, int] = (0, 1000)  # acceleration for Physics sprites
 MAX_SPEED: float = 2000  # max speed of physics sprites
-AIR_CONTROLS_REDUCTION = 0.2  # how much control a dynamic physics object has when moving in the air
+AIR_CONTROLS_REDUCTION = 0.4  # how much control a dynamic physics object has when moving in the air
 HORIZONTAL_YEET_ANGLE = 15  # angle of elevation for horizontal yeets
 
 
