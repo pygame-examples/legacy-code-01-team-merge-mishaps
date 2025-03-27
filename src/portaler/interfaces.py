@@ -119,6 +119,7 @@ class GameLevelInterface(GameStateInterface, ABC):
     groups: dict[str, pygame.sprite.AbstractGroup]
     game: GameInterface
     level_count: int
+    _surface: pygame.Surface | None = None
 
     def spawn(
         self,
@@ -161,7 +162,9 @@ class GameLevelInterface(GameStateInterface, ABC):
 
         dt_since_physics is how much time since the last physics update and is used for position interpolation
         """
-        surface: pygame.Surface = pygame.Surface(size)  # TODO: surface caching
+        surface = self._surface
+        if surface is None or surface.size != size:
+            self._surface = surface = pygame.Surface(size)
         self.get_group("render").draw(surface, dt_since_physics)
         return surface
 
