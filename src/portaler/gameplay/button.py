@@ -84,5 +84,5 @@ class FinishButton(PhysicsSprite):
 
         next_level = Level(self.data.level.game)
         next_level.level_count = self.data.level.level_count + 1
-        next_level.init()
         self.data.level.game.state_stack.append(next_level)
+        next_level.init()
