@@ -13,6 +13,7 @@ class Player(PhysicsSprite):
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(
             physics_type=PhysicsType.DYNAMIC,  # Use the defaults
+            weight=100.0,
         )
         # sprite will be added to these groups later
         data.groups.extend(["physics", "render", "dynamic-physics", "actors"])

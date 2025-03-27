@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 import pygame
 
-from ..const import AIR_CONTROLS_REDUCTION, GRAVITY, MAX_SPEED, TILE_SIZE, TO_SECONDS, YEET_UP_PERCENTAGE
+from ..const import AIR_CONTROLS_REDUCTION, GRAVITY, MAX_SPEED, TILE_SIZE, YEET_UP_PERCENTAGE
 from ..interfaces import (
     Direction,
     PhysicsSpriteInterface,
@@ -20,22 +20,6 @@ from ..interfaces import (
 )
 from .sprite import Sprite
 from .sprites_and_sounds import get_sfx
-
-
-# WHAT IN THE WORLD IS THAT DESCRIPTION
-def apply_friction(velocity: pygame.Vector2 | float, friction: float, dt: float):
-    """Apply friction in place to the given velocity vector.
-
-    If velocity is a float, then it won't be updated in-place.
-    """
-    # Delta-time corrected friction is hard :(
-    # This *should* be the exact formula
-    # velocity *= (1 - friction)**dt
-    # This is supposed to be approximation using implicit euler method
-    velocity /= 1 + friction * dt
-    # And this is with explicit euler method
-    # velocity -= velocity * friction * dt
-    return velocity
 
 
 def is_aligned_with_portal(
@@ -177,13 +161,15 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.gravity: pygame.Vector2 = pygame.Vector2(GRAVITY)  # pixels/second squared (I think)
         self.yeet_force: float = physics_data.yeet_force  # how hard the sprite is thrown (if dynamic)
         self.horizontal_speed: float = (
-            physics_data.horizontal_speed * TO_SECONDS
+            physics_data.horizontal_speed
         )  # how fast the sprite walks right and left (if dynamic)
         self.horizontal_air_speed: float = (
-            physics_data.horizontal_air_speed * TO_SECONDS
+            physics_data.horizontal_air_speed
         )  # how fast the sprite walks in the air (while jumping)
-        self.friction: float = physics_data.friction  # how quickly the sprite slows down (if dynamic)
-        self.air_friction: float = physics_data.air_friction  # see above, but applied when in the air
+        self.ground_damping: float = (
+            physics_data.ground_damping
+        )  # how quickly the sprite slows down (if dynamic)
+        self.air_damping: float = physics_data.air_damping  # see above, but applied when in the air
         self.weight: float = physics_data.weight  # unused atm
         self.jump_speed: float = physics_data.jump_speed  # initial jump velocity (if dynamic)
         self.duck_speed: float = physics_data.duck_speed  # initial downward duck velocity (if dynamic)
@@ -278,10 +264,11 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """If I am dynamic, try to move left until the next frame"""
         if not dt:
             return
+        # DO NOT USE dt HERE
         if self.on_ground:
-            self.velocity.x = -self.horizontal_speed * dt
+            self.velocity.x = -self.horizontal_speed
         else:
-            target_vel_d = -self.horizontal_air_speed * dt - self.velocity.x
+            target_vel_d = -self.horizontal_air_speed - self.velocity.x
             if (
                 target_vel_d < self.velocity.x
             ):  # Do not slow down when moving faster than walking speed in the air
@@ -292,10 +279,11 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """If I am dynamic, try to move right until the next frame"""
         if not dt:
             return
+        # DO NOT USE dt HERE
         if self.on_ground:
-            self.velocity.x = self.horizontal_speed * dt
+            self.velocity.x = self.horizontal_speed
         else:
-            target_vel_d = self.horizontal_air_speed * dt - self.velocity.x
+            target_vel_d = self.horizontal_air_speed - self.velocity.x
             if (
                 target_vel_d > self.velocity.x
             ):  # Do not slow down when moving faster than walking speed in the air
@@ -308,12 +296,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.velocity.y = -self.jump_speed  # DO NOT USE dt HERE
             self.coyote_time_left = 0
             get_sfx("jump.ogg").play()
-        # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
 
     @protect
     def duck(self, dt: float) -> None:
         """If I am dynamic, try to duck until the next frame"""
-        # (Probably not needed)TODO: use lost_time to approximate jump position and velocity
         self.ducking = True
         if not self.on_ground:
             self.velocity.y = max(self.duck_speed, self.velocity.y, 1)  # DO NOT USE dt HERE
@@ -444,9 +430,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.rect.center = center
 
         # which way I need to move if I'm colliding based on velocity
-        offset: int = 1
+        offset: float = 0.1
         if self.velocity[axis] > 0:
-            offset = -1
+            offset *= -1
 
         # move me out of collision
         moved: bool = False
@@ -615,9 +601,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 + pygame.Vector2(
                     self.facing.x * (yeet_force - up_part),
                     up_part * (self.facing.y - 1),
-                )
-                * TO_SECONDS
-                * dt
+                )  # DO NOT USE dt HERE
             )
             self.current_throwable.picker_upper = None
             self.current_throwable = None
@@ -662,7 +646,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 self.pos = self.picker_upper.pos
             else:  # otherwise make this cool magnet effect
                 if distance_to.length() > TILE_SIZE // 4:
-                    self.velocity = distance_to * 2000 * dt
+                    spring_force: float = 10000
+                    rel_velocity = self.velocity - self.picker_upper.velocity
+                    # Considering only damping, how long it takes to lose half of the relative velocity
+                    damping_impulse = -rel_velocity * dt * 1000
+                    # self.velocity = rel_velocity + self.picker_upper.velocity
+                    impulse = distance_to * spring_force * dt + damping_impulse
+                    self.velocity += impulse / self.weight
+                    self.picker_upper.velocity -= impulse / self.picker_upper.weight
 
     def _test_if_on_ground(self):
         collision_rect = self.clipped_collision_rect()
@@ -696,11 +687,11 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if self.on_ground:
                 self.ducking = False
                 self.velocity[1] = 0
-                apply_friction(self.velocity, self.friction, dt)
+                self.velocity[0] *= self.ground_damping**dt
                 self.coyote_time_left = self.coyote_time
             else:
-                # A bit unrealistic, that there's no horizontal friction.
-                self.velocity[0] = apply_friction(self.velocity[0], self.air_friction, dt)
+                # A bit unrealistic, that there's no vertical damping.
+                self.velocity[0] *= self.air_damping**dt
                 self.coyote_time_left -= dt
 
             self.get_facing()  # get the direction the object is facing
