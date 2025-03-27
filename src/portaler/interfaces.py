@@ -161,8 +161,7 @@ class GameLevelInterface(GameStateInterface, ABC):
 
         dt_since_physics is how much time since the last physics update and is used for position interpolation
         """
-        surface: pygame.Surface = pygame.Surface(size).convert()
-        surface.fill("black")
+        surface: pygame.Surface = pygame.Surface(size)  # TODO: surface caching
         self.get_group("render").draw(surface, dt_since_physics)
         return surface
 

@@ -17,5 +17,4 @@ class Menu(GameStateInterface):
         return super().update_physics(dt)
 
     def render(self, dt_since_physics):
-        print("render with extra", dt_since_physics)
-        return pygame.Surface(WINDOW_RESOLUTION).convert()
+        return pygame.Surface(WINDOW_RESOLUTION)
