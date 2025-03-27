@@ -303,7 +303,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
     @protect
     def interact(self, dt: float) -> None:
         """Interact with different objects"""
-        # TODO: implement interacting with other things (prob buttons or sum like that, you know the drill)
         if self.throw(dt):
             return
         if self.pick_up():
@@ -542,14 +541,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.current_throwable = None
         return True
 
-    def interact_with(self):
-        """
-        Interact with objects that support interactions
-        """
-        # TODO: implement
-        # NOTE: no need implementing, i kinda ignored this and did it my way (sorry)
-        return False
-
     def find_closest_throwable(self) -> tuple[PhysicsSprite | None, float]:
         """Finds the closest throwable object and its distance.
 
@@ -663,6 +654,3 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         new_rect.center = center[0], center[1]
         assert self.image is not None
         surface.blit(self.image.subsurface(clip_rect), new_rect)
-
-
-# TODO: Tilemap static object (probably in a separate file)
