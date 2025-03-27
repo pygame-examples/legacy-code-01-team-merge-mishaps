@@ -193,33 +193,32 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.out_portal: PhysicsSprite | None = None  # which portal I am exiting
         self.portal_state: PhysicsSprite.PortalState = self.PortalState.OUT  # what portal state I am in
 
-    @property
-    def full_clip_rect(self):
-        """
-        Rect used if drawing entire sprite.
-
-        NOT interpolated, do NOT use without interpolation in render or draw code
-        """
-        return self.image.get_rect()
-
-    @property
-    def clip_rect(self):
-        """
-        Rect amount actually drawn.
-
-        NOT interpolated, do NOT use without interpolation in render or draw code
-        """
-        clipped = self.full_clip_rect.copy()
-        if self.portal_state == self.PortalState.ENTER:
-            clipped = clip_rect_to_portal(
-                self.rect, self.engaged_portal.rect, self.engaged_portal.orientation
-            )
-            clipped.center -= pygame.Vector2(self.rect.topleft)
-        elif self.portal_state == self.PortalState.EXIT:
-            clipped = clip_rect_to_portal(self.rect, self.out_portal.rect, self.out_portal.orientation)
-            clipped.center -= pygame.Vector2(self.rect.topleft)
-        clipped.center -= self.rect.center
+    def interpolated_clip_rect(self, dt_since_physics: float) -> pygame.FRect:
+        """Use this clip rect during render calls"""
+        if self.portal_state == self.PortalState.OUT:
+            return self.image.get_frect()
+        assert self.engaged_portal is not None
+        collision_rect = self.rect.copy()
+        collision_rect.center = self.interpolated_pos(dt_since_physics)
+        clipped = clip_rect_to_portal(
+            collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation
+        )
+        clipped.move_ip(-collision_rect.x, -collision_rect.y)
         return clipped
+
+    def clipped_collision_rect(self):
+        """
+        Collision rect used in actual collision checking.
+
+        Areas that are inside portals are clipped off.
+        """
+        collision_rect = self.collision_rect.copy()
+        for portal in self.level.get_group("portal-physics"):
+            if is_inside_portal(collision_rect, portal.collision_rect, portal.orientation):
+                collision_rect = clip_rect_to_portal(
+                    collision_rect, portal.collision_rect, portal.orientation
+                )
+        return collision_rect
 
     @property
     def engaged_portal(self) -> PhysicsSprite | None:
@@ -312,37 +311,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """Use this position during render calls"""
         pos = self.pos + self.velocity * dt_since_physics
         return pos[0], pos[1]
-
-    def interpolated_cliprect(self, dt_since_physics: float) -> pygame.FRect:
-        """Use this clip rect during render calls"""
-        clipped = self.full_clip_rect
-        collision_rect = self.rect.copy()
-        collision_rect.center = self.interpolated_pos(dt_since_physics)
-        if self.portal_state == self.PortalState.ENTER:
-            assert self.engaged_portal is not None
-            clipped = clip_rect_to_portal(
-                collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation
-            )
-            clipped.center -= pygame.Vector2(collision_rect.topleft)
-        elif self.portal_state == self.PortalState.EXIT:
-            assert self.out_portal is not None
-            clipped = clip_rect_to_portal(collision_rect, self.out_portal.rect, self.out_portal.orientation)
-            clipped.center -= pygame.Vector2(collision_rect.topleft)
-        return clipped
-
-    def clipped_collision_rect(self):
-        """
-        Collision rect used in actual collision checking.
-
-        Areas that are inside portals are clipped off.
-        """
-        collision_rect = self.collision_rect.copy()
-        for portal in self.level.get_group("portal-physics"):
-            if is_inside_portal(collision_rect, portal.collision_rect, portal.orientation):
-                collision_rect = clip_rect_to_portal(
-                    collision_rect, portal.collision_rect, portal.orientation
-                )
-        return collision_rect
 
     def handle_dynamic_collision_inside_portal(self, axis: int, dt: float) -> None:
         """Extra collision handling when inside a portal
@@ -649,8 +617,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         new_rect = self.rect.copy()
         # only draw the part of the sprite that is above the 'bottom' of the portal (if we are inside one)
         # (only applies to dynamic objects)
-        clip_rect = self.interpolated_cliprect(dt_since_physics)
+        clip_rect = self.interpolated_clip_rect(dt_since_physics)
         center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
         new_rect.center = center[0], center[1]
-        assert self.image is not None
         surface.blit(self.image.subsurface(clip_rect), new_rect)

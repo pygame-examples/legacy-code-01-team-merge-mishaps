@@ -14,6 +14,7 @@ class Sprite(pygame.sprite.Sprite, SpriteInterface):
     """
 
     rect: pygame.FRect
+    image: pygame.Surface
 
     def __init__(self, data: SpriteInitData):
         super().__init__()

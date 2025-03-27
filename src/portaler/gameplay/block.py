@@ -47,7 +47,6 @@ class OneWayBlock(PhysicsSprite):
         self.image = pygame.transform.scale_by(self.image, scale_factor).convert_alpha()
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
-        assert self.image is not None
         surface.blit(self.image, self.rect.move(-offset))
 
 

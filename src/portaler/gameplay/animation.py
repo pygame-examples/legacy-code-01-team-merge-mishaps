@@ -21,8 +21,8 @@ class ANIMATIONMYWAY:
         self.frames = self._get_animation(
             spritesheet_path, single_frame_rect, frame_count, scale_factor, rotation
         )
-        self.time_since_last_framce_change = 0
-        self.current_time = 0
+        self.time_since_last_framce_change = 0.0
+        self.current_time = 0.0
         self.fps = fps
         self.spf = 1 / self.fps
         self.current_frame_idx = 0

@@ -66,7 +66,7 @@ class Level(GameLevelInterface):
         player = self.spawn(
             Player,
             SpriteInitData(
-                rect=(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE),
+                rect=pygame.FRect(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE),
                 level=self,
             ),
             True,
@@ -126,7 +126,7 @@ class Level(GameLevelInterface):
         button = self.spawn(
             Button,
             SpriteInitData(
-                rect=(
+                rect=FRect(
                     pos[0] * TILE_SIZE,
                     pos[1] * TILE_SIZE,
                     2 * TILE_SIZE,
@@ -203,5 +203,7 @@ class Level(GameLevelInterface):
     def spawn_finish(self, pos):
         return self.spawn(
             FinishButton,
-            SpriteInitData(rect=(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), level=self),
+            SpriteInitData(
+                rect=FRect(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), level=self
+            ),
         )
