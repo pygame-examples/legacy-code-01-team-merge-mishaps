@@ -48,7 +48,7 @@ class OneWayBlock(PhysicsSprite):
         scale_factor = data.rect[2] // self.image.width
         self.image = pygame.transform.scale_by(self.image, scale_factor).convert_alpha()
 
-    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float):
+    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         new_rect = self.rect.copy()
         new_rect.center = new_rect.center - offset
         surface.blit(self.image, new_rect)

@@ -8,7 +8,7 @@ class ANIMATIONMYWAY:
         self,
         spritesheet_path: str,
         fps: int,
-        single_frame_rect: pygame.Rect = (0, 0, -1, -1),
+        single_frame_rect: pygame.typing.RectLike = (0, 0, -1, -1),
         frame_count: int = -1,
         loop_type="wrap",
         scale_factor: int = 1,
@@ -31,21 +31,22 @@ class ANIMATIONMYWAY:
     def _get_animation(
         self,
         spritesheet_path: str,
-        frame_rect: pygame.Rect,
+        frame_rect: pygame.typing.RectLike,
         frame_count: int,
         scale_factor: int,
         rotation: int,
     ):
         spritesheet = get_image(spritesheet_path)
+        frame_rect = pygame.Rect(frame_rect)
 
-        if frame_count == -1 and frame_rect == (0, 0, -1, -1):
+        if frame_count == -1 and frame_rect == pygame.Rect(0, 0, -1, -1):
             raise Exception(
                 "invalid animation information! specify either a single frame rect or a number of frames!"
             )
 
         if frame_count == -1:  # if no frame count was given, iterate through the whole spritesheet
             frame_count = spritesheet.height // frame_rect.height
-        elif frame_rect == (
+        elif frame_rect == pygame.Rect(
             0,
             0,
             -1,

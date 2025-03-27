@@ -6,7 +6,7 @@ I tried to keep it as simple as possible.
 
 import asyncio
 from collections import deque
-from typing import Awaitable
+from typing import Coroutine
 
 import pygame
 
@@ -26,7 +26,7 @@ class Game(GameInterface):
 
     """Main Game.  Gets passed to Game states"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # NO MILLISCEOND UNITS! (seconds only)
         super().__init__()
         self.running: bool = False  # whether the game is running the main loop
@@ -52,7 +52,7 @@ class Game(GameInterface):
         for task in self.needs_canceled:
             task.cancel()
 
-    def add_task(self, task: Awaitable) -> None:
+    def add_task(self, task: Coroutine) -> None:
         """Add async task to the main loop"""
         self.needs_canceled.append(self.tg.create_task(task))
 

@@ -45,7 +45,7 @@ class Level(GameLevelInterface):
         self.level_count = 1
 
         # Currently the only thing overwritten by the level loader
-        self.groups["render"].view_range = pygame.FRect(0, 0, 1088, 320)
+        self.camera.view_range = pygame.FRect(0, 0, 1088, 320)
 
     def init(self):
         """
@@ -57,9 +57,6 @@ class Level(GameLevelInterface):
         from .. import loaders  # TODO: fix ridiculous circular dependency
 
         loaders.LevelLoader(str(self.level_count)).load(self)
-
-    def set_camera_view(self, view: RectLike):
-        self.groups["render"].view_range = pygame.FRect(view)
 
     def add_task(self, task: Awaitable) -> None:
         """Adds task to main game loop"""

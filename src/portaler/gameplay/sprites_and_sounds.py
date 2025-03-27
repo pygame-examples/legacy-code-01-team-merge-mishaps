@@ -10,14 +10,13 @@ import pygame
 
 from ..assets import SFX_DIRECTORY, SPRITES_DIRECTORY
 
-spritesheets = {}
-sfx = {}
+spritesheets: dict[str, pygame.Surface] = {}
+sfx: dict[str, pygame.Sound] = {}
 
 
 def get_image(path: str) -> pygame.Surface:
     if path not in spritesheets:
         spritesheets[path] = pygame.image.load(SPRITES_DIRECTORY / path).convert_alpha()
-
     return spritesheets[path]
 
 
@@ -26,8 +25,7 @@ def clear_spritesheets() -> None:  # when chaning a level, idk
     spritesheets = {}
 
 
-def get_sfx(path: str) -> pygame.mixer.Sound:
+def get_sfx(path: str) -> pygame.Sound:
     if path not in sfx:
-        sfx[path] = pygame.mixer.Sound(SFX_DIRECTORY / path)
-
+        sfx[path] = pygame.Sound(SFX_DIRECTORY / path)
     return sfx[path]

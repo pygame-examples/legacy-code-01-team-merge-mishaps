@@ -1,11 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from enum import Enum
 from functools import wraps
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from types import FunctionType
 
 import pygame
 
@@ -82,45 +79,35 @@ def clip_rect_to_portal(
     # to avoid accidental colision with the floor below the portal
     # because I HAVE NO CLUE WHERE THAT ISSUE EVEN STEMS FROM
     collision_offset = 4
+    overlap = 0.0
 
     if direction == Direction.NORTH:
         # only show rect above top  ?????
-        overlap = 0
         if collision_rect.bottom > portal_rect.bottom:
             overlap = min(
-                collision_rect.bottom - portal_rect.bottom + collision_offset,
-                collision_rect.height,
+                collision_rect.bottom - portal_rect.bottom + collision_offset, collision_rect.height
             )
         collision_rect.height -= overlap
 
     if direction == Direction.SOUTH:
         # only show rect below bottom  ?????
-        overlap = 0
         if collision_rect.top < portal_rect.top:
-            overlap = min(
-                portal_rect.top - collision_rect.top + collision_offset,
-                collision_rect.height,
-            )
+            overlap = min(portal_rect.top - collision_rect.top + collision_offset, collision_rect.height)
         collision_rect.top += overlap
         collision_rect.height -= overlap
 
     if direction == Direction.EAST:
         # only show rect right of right  ?????
-        overlap = 0
         if collision_rect.left < portal_rect.left:
-            overlap = min(
-                portal_rect.left - collision_rect.left + collision_offset,
-                collision_rect.height,
-            )
+            overlap = min(portal_rect.left - collision_rect.left + collision_offset, collision_rect.height)
 
         collision_rect.width -= overlap
         collision_rect.left += overlap
 
     if direction == Direction.WEST:
         # only show rect left of left  ?????
-        overlap = 0
         if collision_rect.right > portal_rect.right:
-            overlap = min(collision_rect.right - portal_rect.right + 2, collision_rect.height)
+            overlap = min(collision_rect.right - portal_rect.right + collision_offset, collision_rect.height)
         collision_rect.width -= overlap
     return collision_rect
 
@@ -130,7 +117,7 @@ def get_axis_of_direction(direction: Direction) -> int:
     return int(direction in {Direction.NORTH, Direction.SOUTH})
 
 
-def protect(fn: FunctionType):
+def protect(fn: Callable[[PhysicsSprite, float], None]):
     """
     Simple wrapper for control command functions to avoid calling them multiple times a physics frame.
     """
@@ -201,8 +188,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.commands_used: dict[str, bool] = {}
 
         # portal handling
-        self.in_portal: PhysicsSpriteInterface | None = None  # which portal I am entering
-        self.out_portal: PhysicsSpriteInterface | None = None  # which portal I am exiting
+        self.in_portal: PhysicsSprite | None = None  # which portal I am entering
+        self.out_portal: PhysicsSprite | None = None  # which portal I am exiting
         self.portal_state: PhysicsSprite.PortalState = self.PortalState.OUT  # what portal state I am in
 
     @property
@@ -234,7 +221,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         return clipped
 
     @property
-    def engaged_portal(self) -> PhysicsSpriteInterface | None:
+    def engaged_portal(self) -> PhysicsSprite | None:
         """Which portal sprite is currently "inside" (entering or exiting) or None"""
         if self.portal_state == self.PortalState.ENTER:
             return self.in_portal
@@ -321,9 +308,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.pick_up():
             return
 
-    def interpolated_pos(self, dt_since_physics: float) -> pygame.Vector2:
+    def interpolated_pos(self, dt_since_physics: float) -> tuple[float, float]:
         """Use this position during render calls"""
-        return self.pos + self.velocity * dt_since_physics
+        pos = self.pos + self.velocity * dt_since_physics
+        return pos[0], pos[1]
 
     def interpolated_cliprect(self, dt_since_physics: float) -> pygame.FRect:
         """Use this clip rect during render calls"""
@@ -331,13 +319,13 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         collision_rect = self.rect.copy()
         collision_rect.center = self.interpolated_pos(dt_since_physics)
         if self.portal_state == self.PortalState.ENTER:
+            assert self.engaged_portal is not None
             clipped = clip_rect_to_portal(
-                collision_rect,
-                self.engaged_portal.rect,
-                self.engaged_portal.orientation,
+                collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation
             )
             clipped.center -= pygame.Vector2(collision_rect.topleft)
         elif self.portal_state == self.PortalState.EXIT:
+            assert self.out_portal is not None
             clipped = clip_rect_to_portal(collision_rect, self.out_portal.rect, self.out_portal.orientation)
             clipped.center -= pygame.Vector2(collision_rect.topleft)
         return clipped
@@ -361,6 +349,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         Called internally.
         """
+        assert self.engaged_portal is not None
+        assert self.in_portal is not None
+        assert self.out_portal is not None
         # If I've gone through the enter portal, switch to the exit one
         if self.portal_state == self.PortalState.ENTER and is_through_portal(
             self.collision_rect,
@@ -404,7 +395,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         center = pygame.Vector2(self.rect.center)
         center[axis] += self.velocity[axis] * dt
-        self.rect.center = center
+        self.rect.center = center[0], center[1]
 
         # which way I need to move if I'm colliding based on velocity
         offset: float = 0.1
@@ -453,7 +444,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                     if portal is not self:
                         sprite.enter_portal(self, portal)
 
-    def enter_portal(self, portal: PhysicsSpriteInterface, twin: PhysicsSpriteInterface) -> None:
+    def enter_portal(self, portal: PhysicsSprite, twin: PhysicsSprite) -> None:
         """
         State changes when a sprite enters a portal
 
@@ -471,6 +462,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         Called internally.
         """
+        assert self.out_portal is not None
+        assert self.in_portal is not None
         # move the sprite to behind the exit portal
         if self.out_portal.orientation == Direction.NORTH:
             self.velocity = pygame.Vector2(0, min(-self.velocity.length(), -350))
@@ -522,14 +515,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         closest_throwable, distance = self.find_closest_throwable()
         if closest_throwable is None:
-            return
+            return False
         if distance <= self.min_distance and not self.current_throwable:
             self.current_throwable = closest_throwable
             self.current_throwable.picker_upper = self
             return True
         return False
 
-    def throw(self, dt: float) -> None:
+    def throw(self, dt: float) -> bool:
         """
         Throws the current object held
         """
@@ -564,8 +557,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         If no throwables, the sprite is None and distance is infinity.
         """
         # Forgive me for the atrocity I have commited here
-        throwables: pygame.sprite.AbstractGroup | None = self.level.get_group("throwable-physics")
-        throwables = set(throwables) if throwables else set()
+        group: pygame.sprite.AbstractGroup | None = self.level.get_group("throwable-physics")
+        throwables = set(group) if group else set()
         closest_throwable = None
         closest_distance = float("inf")
         for throwable in throwables:
@@ -656,7 +649,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self,
         surface: pygame.Surface,
         offset: pygame.Vector2,
-        dt_since_physics: float = 0,
+        dt_since_physics: float,
     ) -> None:
         """
         Draw sprite.image at sprite.rect, excluding area not in sprite.clip_rect

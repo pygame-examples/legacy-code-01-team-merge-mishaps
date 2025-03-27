@@ -29,7 +29,7 @@ dev = [
 
 [project.optional-dependencies]
 dev = [
-    # "mypy>=1.15.0",  # static type checking is useless with all of the errors
+    "mypy>=1.15.0",
 ]
 
 [project.urls]

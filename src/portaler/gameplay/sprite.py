@@ -26,14 +26,14 @@ class Sprite(pygame.sprite.Sprite, SpriteInterface):
         return self.rect.center
 
     @pos.setter
-    def pos(self, value: str | float | SequenceLike[float] | pygame.Vector2) -> None:
-        self.rect.center = pygame.Vector2(value)
+    def pos(self, value: SequenceLike[float]) -> None:
+        self.rect.center = value[0], value[1]
 
     @property
     def collision_rect(self):
         return self.rect.copy()
 
-    def interpolated_pos(self, dt_since_physics) -> tuple[float, float]:
+    def interpolated_pos(self, dt_since_physics: float) -> tuple[float, float]:
         return self.pos
 
     def draw(self, surface, offset) -> None:

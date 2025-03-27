@@ -16,10 +16,15 @@ from abc import ABC, abstractmethod
 from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Awaitable, Callable
+from types import EllipsisType
+from typing import Any, Callable, Coroutine, TypeVar, cast, overload
 
 import pygame
-from pygame.typing import RectLike, SequenceLike
+from pygame.typing import SequenceLike
+
+from .gameplay.camera import Camera
+
+_T = TypeVar("_T")
 
 
 class WindowScale(Enum):
@@ -88,15 +93,15 @@ class GameInterface:
     async def run(self) -> None:
         pass
 
-    def add_task(self, task: Awaitable) -> None:
+    def add_task(self, task: Coroutine) -> None:
         pass
 
 
-class GameStateInterface:
+class GameStateInterface(ABC):
     def init(self) -> None:
         pass
 
-    def add_task(self, task: Awaitable) -> None:
+    def add_task(self, task: Coroutine) -> None:
         pass
 
     def on_enter(self) -> None:
@@ -111,6 +116,7 @@ class GameStateInterface:
     async def update_physics(self, dt: float) -> None:
         pass
 
+    @abstractmethod
     async def render(self, size: tuple[int, int], dt_since_physics: float) -> pygame.Surface:
         pass
 
@@ -130,16 +136,24 @@ class GameLevelInterface(GameStateInterface, ABC):
         """Spawn a new sprite"""
         sprite = cls(data)
         if target:
-            self.get_group("render").set_target(sprite)
+            self.camera.set_target(sprite)
         return sprite
 
-    def get_group(self, group_name: str) -> pygame.sprite.AbstractGroup | None:
+    @overload
+    def get_group(self, group_name: str, /) -> pygame.sprite.AbstractGroup: ...
+    @overload
+    def get_group(self, group_name: str, default: _T, /) -> pygame.sprite.AbstractGroup | _T: ...
+    def get_group(
+        self, group_name: str, default: _T | EllipsisType = ..., /
+    ) -> pygame.sprite.AbstractGroup | _T:
         """
         Get a sprite group from a string
 
         Returns None if group does not exist
         """
-        return self.groups.get(group_name)
+        if default is Ellipsis:
+            return self.groups[group_name]
+        return self.groups.get(group_name, default)
 
     def add_to_groups(self, sprite: SpriteInterface, *groups: str) -> None:
         """
@@ -152,9 +166,9 @@ class GameLevelInterface(GameStateInterface, ABC):
                 sprite
             )  # somehow creates a new group ????
 
-    @abstractmethod
-    def set_camera_view(self, view: RectLike):
-        pass
+    @property
+    def camera(self) -> Camera:
+        return cast(Camera, self.get_group("render"))
 
     async def render(self, size: tuple[int, int], dt_since_physics: float) -> pygame.Surface:
         """
@@ -165,7 +179,7 @@ class GameLevelInterface(GameStateInterface, ABC):
         surface = self._surface
         if surface is None or surface.size != size:
             self._surface = surface = pygame.Surface(size)
-        self.get_group("render").draw(surface, dt_since_physics)
+        self.camera.draw(surface, dt_since_physics)
         return surface
 
     async def update_actors(self, dt):
@@ -184,7 +198,7 @@ class GameLevelInterface(GameStateInterface, ABC):
 class SpriteInitData:
     # Object used to init sprites with
     # Add stuff here as necessary
-    rect: RectLike  # initial position and size of sprite
+    rect: pygame.Rect | pygame.FRect  # initial position and size of sprite
     level: GameLevelInterface  # level that holds sprite
     target: bool = False  # whether the camera should follow the sprite
     groups: list[str] = field(default_factory=list)  # level groups to add sprite to
@@ -239,7 +253,8 @@ class SpriteInterface(ABC):
     def update_physics(self, dt) -> None:
         pass
 
-    def interpolated_pos(self, dt_since_physics: float) -> None:
+    @abstractmethod
+    def interpolated_pos(self, dt_since_physics: float) -> tuple[float, float]:
         pass
 
     def draw(self, surface: pygame.Surface, dt_since_physics: float) -> None:

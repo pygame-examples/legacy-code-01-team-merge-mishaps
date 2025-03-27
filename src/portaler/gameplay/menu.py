@@ -1,6 +1,3 @@
-import pygame
-
-from ..const import WINDOW_RESOLUTION
 from ..interfaces import GameStateInterface
 
 
@@ -13,8 +10,9 @@ class Menu(GameStateInterface):
 
     def __init__(self): ...
 
-    def update_physics(self, dt):
+    async def update_physics(self, dt: float):
         return super().update_physics(dt)
 
-    def render(self, dt_since_physics):
-        return pygame.Surface(WINDOW_RESOLUTION)
+    async def render(self, size: tuple[int, int], dt_since_physics: float):
+        # surface = pygame.Surface(size)
+        pass

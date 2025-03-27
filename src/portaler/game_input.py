@@ -37,7 +37,7 @@ class InputState:
         self.clear()
         self.updated = False
 
-    def _update(self, inp: SequenceLike[bool], dct: dict[Actions, int]):
+    def _update(self, inp: SequenceLike[bool], dct: dict[Actions, bool]):
         for action in self.bound_keys:
             if not dct[action]:
                 dct[action] = any(inp[key] for key in self.bound_keys[action])

@@ -110,13 +110,14 @@ class LevelLoader:
         if "portals" in data:
             for color, pair in data["portals"].items():
                 portal_color = PortalColor[color]
-                assert len(pair) == 2
-                args = []
-                for portal in pair:
-                    orientation = Direction[portal["orientation"]]
-                    pos = portal["pos"]
-                    args.extend((pos, orientation))
-                trigger_lookup[f"portals[{color}]"] = target.spawn_portal_pair(*args, portal_color)
+                portal_a, portal_b = pair
+                trigger_lookup[f"portals[{color}]"] = target.spawn_portal_pair(
+                    portal_a["pos"],
+                    Direction[portal_a["orientation"]],
+                    portal_b["pos"],
+                    Direction[portal_b["orientation"]],
+                    portal_color,
+                )
         if "doors" in data:
             for i, door in enumerate(data["doors"]):
                 pos = door["pos"]
@@ -156,6 +157,6 @@ class LevelLoader:
         else:
             x, y, width, height = camera_view_tile_range
         camera_view_range = pygame.FRect(x * TILE_SIZE, y * TILE_SIZE, width * TILE_SIZE, height * TILE_SIZE)
-        target.set_camera_view(camera_view_range)
+        target.camera.view_range = camera_view_range
         camera_scale = data.get("camera_scale", 1.0)
-        target.get_group("render").scale = camera_scale
+        target.camera.scale = camera_scale

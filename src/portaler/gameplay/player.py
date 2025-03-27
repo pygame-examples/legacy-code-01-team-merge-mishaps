@@ -23,8 +23,8 @@ class Player(PhysicsSprite):
         scale_factor = data.rect[2] // 16  # 16 is the width of the unscaled player sprite
         self.image = pygame.transform.scale_by(get_image("player.png"), scale_factor).convert_alpha()
 
-        self.last_down_press = 0
-        self.timer = 0
+        self.last_down_press: float = 0.0
+        self.timer: float = 0.0
         self.double_press_time = 0.2  # 200 milliseconds
 
     def get_facing(self):  # player has a different way of calculating 'facing' value

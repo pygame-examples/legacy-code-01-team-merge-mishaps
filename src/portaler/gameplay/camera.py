@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pygame
 
-from .sprite import Sprite
+if TYPE_CHECKING:
+    from ..interfaces import SpriteInterface
 
 
 class Camera(pygame.sprite.LayeredUpdates):
@@ -12,12 +15,12 @@ class Camera(pygame.sprite.LayeredUpdates):
 
     def __init__(self) -> None:
         super().__init__()
-        self.target: Sprite | None = None
+        self.target: SpriteInterface | None = None
         self.offset = pygame.Vector2(0, 0)
         self.view_range: pygame.FRect | None = None
         self.scale: float = 1.0  # value greater than 1.0 is zoomed in
 
-    def draw(self, surface: pygame.Surface, dt: float) -> None:
+    def draw(self, surface: pygame.Surface, dt_since_physics: float) -> None:
         scale = self.scale
         drawing_surface = (
             surface
@@ -26,7 +29,7 @@ class Camera(pygame.sprite.LayeredUpdates):
         )
         cam = drawing_surface.get_frect(center=self.offset)
         if self.target is not None:
-            pos = self.target.interpolated_pos(dt) - self.offset
+            pos = self.target.interpolated_pos(dt_since_physics) - self.offset
             view_frect = drawing_surface.get_frect(center=(0, 0))
             view_frect.scale_by_ip(0.25)
             self.offset.x += min(pos.x - view_frect.left, 0) + max(pos.x - view_frect.right, 0)
@@ -53,10 +56,10 @@ class Camera(pygame.sprite.LayeredUpdates):
         # offset = pygame.Vector2(cam.topleft)  # maybe for now use the fixing one
 
         for sprite in self.sprites():
-            sprite.draw(drawing_surface, offset, dt)
+            sprite.draw(drawing_surface, offset, dt_since_physics)
         if scale != 1.0:
             pygame.transform.scale(drawing_surface, surface.size, surface)
 
-    def set_target(self, target: Sprite) -> None:
+    def set_target(self, target: SpriteInterface) -> None:
         self.target = target
         self.offset = pygame.Vector2(self.target.pos)
