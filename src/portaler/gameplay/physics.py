@@ -313,14 +313,12 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 get_sfx("slam.ogg").play()  # we don't need this playing twice
 
     @protect
-    def interact(self, dt: float):
+    def interact(self, dt: float) -> None:
         """Interact with different objects"""
         # TODO: implement interacting with other things (prob buttons or sum like that, you know the drill)
         if self.throw(dt):
             return
-        elif self.pick_up():
-            return
-        elif self.interact_with():
+        if self.pick_up():
             return
 
     def interpolated_pos(self, dt_since_physics: float) -> pygame.Vector2:
@@ -518,7 +516,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.out_portal = None
         self.portal_state = self.PortalState.OUT
 
-    def pick_up(self):
+    def pick_up(self) -> bool:
         """
         Finds closest throwable object and sets it as the current object picked up
         """
@@ -531,7 +529,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             return True
         return False
 
-    def throw(self, dt: float):
+    def throw(self, dt: float) -> None:
         """
         Throws the current object held
         """

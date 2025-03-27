@@ -54,9 +54,6 @@ class Level(GameLevelInterface):
         I would put map loading here.
         """
 
-        # TODO: implement level loading. Remember the note above
-        # TODO: i left some spritesheets for tiles in sprites folder
-
         from .. import loaders  # TODO: fix ridiculous circular dependency
 
         loaders.LevelLoader(str(self.level_count)).load(self)

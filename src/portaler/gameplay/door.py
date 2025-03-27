@@ -107,7 +107,6 @@ class Door(PhysicsSprite):
             if not pygame.mixer.Channel(DOOR_CHANNEL).get_busy():
                 pygame.mixer.Channel(DOOR_CHANNEL).play(self.sound)
                 # TODO: ANNOYING AHH SOUND, PLEASE MAKE A BETTER ONE
-                pass
         else:
             pygame.mixer.Channel(DOOR_CHANNEL).stop()
 

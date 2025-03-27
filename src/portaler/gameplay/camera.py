@@ -8,8 +8,6 @@ from .sprite import Sprite
 class Camera(pygame.sprite.LayeredUpdates):
     """
     Camera group, meant for following a specific sprite while rendering
-
-    TODO: add a screen shake for when objects collide >:]   - ??
     """
 
     def __init__(self) -> None:
