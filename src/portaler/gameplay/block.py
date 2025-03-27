@@ -22,7 +22,7 @@ class Block(PhysicsSprite):
 
 
 class OneWayBlock(PhysicsSprite):
-    """You can jump up through and duck down through this block"""
+    """You can jump up through and press down through this block"""
 
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(physics_type=PhysicsType.STATIC, one_way=True)
