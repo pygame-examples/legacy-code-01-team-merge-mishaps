@@ -1,14 +1,15 @@
 {
-    "camera_view_range": "fit",
+    "camera_view_tile_range": [0, 0, 34, 20],
     "camera_scale": 1.5,
     "sprites": {
-        "player": {"pos": [3, 5]},
+        "player": {"pos": [3, 6]},
         "throwables": [],
         "portals": {
-            "RED": [{"pos": [23, 18], "orientation": "NORTH"}, {"pos": [21, 10], "orientation": "NORTH"}]
+            "RED": [{"pos": [26, 18], "orientation": "NORTH"}, {"pos": [21, 12], "orientation": "NORTH"}]
         },
+        "one_way_blocks": [{"pos": [20, 9], "width": 5}, {"pos": [14, 13], "width": 5}],
         "doors": [],
         "buttons": [],
-        "finishes": [{"pos": [28, 2]}]
+        "finishes": [{"pos": [30, 3]}]
     }
 }

@@ -36,14 +36,16 @@ class Camera(pygame.sprite.LayeredUpdates):
 
         # Limit the camera within the boundary of the view_range
         if self.view_range is not None:
-            cam.left = max(cam.left, self.view_range.left)
-            cam.right = min(cam.right, self.view_range.right)
-            cam.top = max(cam.top, self.view_range.top)
-            cam.bottom = min(cam.bottom, self.view_range.bottom)
             if cam.width > self.view_range.width:
                 cam.centerx = self.view_range.centerx
+            else:
+                cam.left = max(cam.left, self.view_range.left)
+                cam.right = min(cam.right, self.view_range.right)
             if cam.height > self.view_range.height:
                 cam.centery = self.view_range.centery
+            else:
+                cam.top = max(cam.top, self.view_range.top)
+                cam.bottom = min(cam.bottom, self.view_range.bottom)
 
         # Offset the camera to the center of the screen and round it,
         # because there are sprites with fractional position
