@@ -17,30 +17,31 @@ class Camera(pygame.sprite.LayeredUpdates):
         self.target: Sprite | None = None
         self.offset = pygame.Vector2(0, 0)
         self.view_range: pygame.FRect | None = None
+        self.scale: float = 1.0  # value greater than 1.0 is zoomed in
 
     def draw(self, surface: pygame.Surface, dt: float = 1) -> None:
-        cam = surface.get_frect(center=self.offset)
+        scale = self.scale
+        drawing_surface = (
+            surface
+            if scale == 1.0
+            else pygame.Surface((round(surface.width / scale), round(surface.height / scale)))
+        )
+        cam = drawing_surface.get_frect(center=self.offset)
         if self.target is not None:
             pos = self.target.interpolated_pos(dt) - self.offset
-            view_frect = surface.get_frect(center=(0, 0))
+            view_frect = drawing_surface.get_frect(center=(0, 0))
             view_frect.scale_by_ip(0.25)
             self.offset.x += min(pos.x - view_frect.left, 0) + max(pos.x - view_frect.right, 0)
             self.offset.y += min(pos.y - view_frect.top, 0) + max(pos.y - view_frect.bottom, 0)
 
         # Limit the camera within the boundary of the view_range
         if self.view_range is not None:
-            if cam.left < self.view_range.left:
-                cam.left = self.view_range.left  # my PEP-8 brain is in denial
-            if cam.right > self.view_range.right:
-                cam.right = self.view_range.right
-            if cam.top < self.view_range.top:
-                cam.top = self.view_range.top
-            if cam.bottom > self.view_range.bottom:
-                cam.bottom = self.view_range.bottom
-
+            cam.left = max(cam.left, self.view_range.left)
+            cam.right = min(cam.right, self.view_range.right)
+            cam.top = max(cam.top, self.view_range.top)
+            cam.bottom = min(cam.bottom, self.view_range.bottom)
             if cam.width > self.view_range.width:
                 cam.centerx = self.view_range.centerx
-
             if cam.height > self.view_range.height:
                 cam.centery = self.view_range.centery
 
@@ -52,7 +53,9 @@ class Camera(pygame.sprite.LayeredUpdates):
         # offset = pygame.Vector2(cam.topleft)  # maybe for now use the fixing one
 
         for sprite in self.sprites():
-            sprite.draw(surface, offset, dt)
+            sprite.draw(drawing_surface, offset, dt)
+        if scale != 1.0:
+            pygame.transform.scale(drawing_surface, surface.size, surface)
 
     def set_target(self, target: Sprite) -> None:
         self.target = target

@@ -1,5 +1,6 @@
 {
     "camera_view_range": "fit",
+    "camera_scale": 2.0,
     "sprites": {
         "player": {"pos": [3, 5]},
         "throwables": [

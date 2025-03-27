@@ -1,5 +1,6 @@
 {
     "camera_view_range": [0, 0, 640, 480],
+    "camera_scale": 2.0,
     "tilemap_offset": [-1, -1],
     "sprites": {
         "player": {"pos": [3, 5]},

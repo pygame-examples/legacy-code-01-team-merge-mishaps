@@ -154,3 +154,5 @@ class LevelLoader:
             width = max([len(row) for row in tilemap])
             camera_view_range = pygame.Rect(0, 0, width * TILE_SIZE, height * TILE_SIZE)
         target.set_camera_view(camera_view_range)
+        camera_scale = data.get("camera_scale", 1.0)
+        target.get_group("render").scale = camera_scale
