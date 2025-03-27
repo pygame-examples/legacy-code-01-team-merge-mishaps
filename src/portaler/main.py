@@ -56,18 +56,25 @@ class Game(GameInterface):
         """Add async task to the main loop"""
         self.needs_canceled.append(self.tg.create_task(task))
 
+    async def update_input(self) -> None:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.quit()
+        await game_input.input_state.update()
+
     async def input_loop(self) -> None:
         """Loop that handles window-related input"""
         while self.running:
             start = time()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.quit()
-            await game_input.input_state.update()
+            await self.update_input()
             await asyncio.sleep(max(self.input_delay - (time() - start), 0))
 
     async def update_physics(self, steps: int = 1) -> None:
         """Update game physics. Called interally."""
+        if not game_input.input_state.updated:
+            # in case physics runs twice without input in between
+            await self.update_input()
+            # blame async for this issue
         dt = self.physics_delay / steps
         async with game_input.input_state:  # Hold lock for input to avoid interference with input_loop
             for _ in range(steps):

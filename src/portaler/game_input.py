@@ -20,6 +20,7 @@ class InputState:
 
         self.just_pressed: dict[Actions, bool] = dict(actions_map)
         self.just_pressed_view: dict[Actions, bool] = dict(actions_map)
+        self.updated: bool = False
 
     def get(self, action: Actions) -> bool:
         return self.pressed_view.get(action, False)
@@ -28,13 +29,13 @@ class InputState:
         return self.just_pressed_view.get(action, False)
 
     async def __aenter__(self):
-        await self.update()  # make sure it is updated at least once since it was last cleared
         async with self.lock:
             self.pressed_view.update(self.pressed)
             self.just_pressed_view.update(self.just_pressed)
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         self.clear()
+        self.updated = False
 
     def _update(self, inp: SequenceLike[bool], dct: dict[Actions, int]):
         for action in self.bound_keys:
@@ -47,6 +48,7 @@ class InputState:
 
     async def update(self):
         async with self.lock:
+            self.updated = True
             self._update(pygame.key.get_pressed(), self.pressed)
             self._update(pygame.key.get_just_pressed(), self.just_pressed)
 
