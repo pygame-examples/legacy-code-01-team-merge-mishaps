@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 import pygame
 
-from ..const import AIR_CONTROLS_REDUCTION, GRAVITY, MAX_SPEED, TILE_SIZE, YEET_UP_PERCENTAGE
+from ..const import AIR_CONTROLS_REDUCTION, GRAVITY, HORIZONTAL_YEET_ANGLE, MAX_SPEED, TILE_SIZE
 from ..interfaces import (
     Direction,
     PhysicsSpriteInterface,
@@ -593,11 +593,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         if self.current_throwable:
             yeet_force = self.yeet_force
-            up_part = yeet_force * YEET_UP_PERCENTAGE
-            impulse = pygame.Vector2(
-                self.facing.x * (yeet_force - up_part),
-                up_part * (self.facing.y - 1),
-            )  # DO NOT USE dt HERE
+            if self.facing:
+                if not self.facing.y:
+                    yeet_angle = -HORIZONTAL_YEET_ANGLE if self.facing.x > 0 else 180 + HORIZONTAL_YEET_ANGLE
+                else:
+                    yeet_angle = pygame.Vector2(self.facing.x, -self.facing.y).angle_to((1, 0))
+                impulse = pygame.Vector2(yeet_force, 0).rotate(yeet_angle)  # DO NOT USE dt HERE
+            else:
+                impulse = pygame.Vector2()
             self.current_throwable.velocity = self.velocity + impulse / self.current_throwable.weight
             self.velocity -= impulse / self.weight
             self.current_throwable.picker_upper = None
