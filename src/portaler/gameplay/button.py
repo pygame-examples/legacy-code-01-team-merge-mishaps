@@ -42,7 +42,7 @@ class Button(PhysicsSprite):
         new_rect.center = new_rect.center - offset
         surface.blit(self.states[self.state], new_rect)
 
-    def trigger(self, other: SpriteInterface):
+    def trigger(self, other: SpriteInterface | None):
         self.state = "triggered"
 
         if self.previous_state != self.state:
@@ -53,7 +53,7 @@ class Button(PhysicsSprite):
 
         self.previous_state = self.state
 
-    def untrigger(self, other: SpriteInterface):
+    def untrigger(self, other: SpriteInterface | None):
         self.state = "rest"
 
         if self.previous_state != self.state:
@@ -77,7 +77,7 @@ class FinishButton(PhysicsSprite):
         self.image = get_image("finish.png")
         self.data = data
 
-    def trigger(self, other: SpriteInterface):
+    def trigger(self, other: SpriteInterface | None):
         self.data.level.game.state_stack.pop()
 
         from .level import Level

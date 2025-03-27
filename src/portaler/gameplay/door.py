@@ -121,10 +121,10 @@ class Door(PhysicsSprite):
 
         surface.blit(door_surface, new_rect)
 
-    def trigger(self, other: SpriteInterface):
+    def trigger(self, other: SpriteInterface | None):
         self.state = "opening"
 
-    def untrigger(self, other: SpriteInterface):
+    def untrigger(self, other: SpriteInterface | None):
         self.state = "closing"
 
     @property

@@ -247,7 +247,10 @@ class SpriteInterface(ABC):
 
 
 class PhysicsSpriteInterface(SpriteInterface, ABC):
-    def trigger(self, other: SpriteInterface) -> None:
+    def trigger(self, other: SpriteInterface | None) -> None:
+        pass
+
+    def untrigger(self, other: SpriteInterface | None) -> None:
         pass
 
     def left(self) -> None:
