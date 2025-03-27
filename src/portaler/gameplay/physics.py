@@ -592,17 +592,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Throws the current object held
         """
         if self.current_throwable:
-            yeet_force = (
-                self.yeet_force / self.current_throwable.weight if self.current_throwable.weight else 0
-            )
+            yeet_force = self.yeet_force
             up_part = yeet_force * YEET_UP_PERCENTAGE
-            self.current_throwable.velocity = (
-                self.velocity
-                + pygame.Vector2(
-                    self.facing.x * (yeet_force - up_part),
-                    up_part * (self.facing.y - 1),
-                )  # DO NOT USE dt HERE
-            )
+            impulse = pygame.Vector2(
+                self.facing.x * (yeet_force - up_part),
+                up_part * (self.facing.y - 1),
+            )  # DO NOT USE dt HERE
+            self.current_throwable.velocity = self.velocity + impulse / self.current_throwable.weight
+            self.velocity -= impulse / self.weight
             self.current_throwable.picker_upper = None
             self.current_throwable = None
             return True

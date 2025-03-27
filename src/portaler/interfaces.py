@@ -199,7 +199,7 @@ class SpritePhysicsData:
     # no need for every sprite to use every bit of data
     physics_type: PhysicsType = PhysicsType.STATIC  # type of physics resolution to use
     weight: float = 10  # weight (not used RN)
-    yeet_force: float = 2500  # flight speed (for dynamic sprites)
+    yeet_force: float = 3000  # flight speed (for dynamic sprites)
     horizontal_speed: float = 250  # walking speed (for dynamic sprites)
     horizontal_air_speed: float = 208  # movement speed for dynamic sprites that are in the air
     ground_damping: float = 0.0001  # damping of 0.9 means 10% velocity is lost per second
