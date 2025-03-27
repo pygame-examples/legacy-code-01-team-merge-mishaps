@@ -28,6 +28,7 @@ class InputState:
         return self.just_pressed_view.get(action, False)
 
     async def __aenter__(self):
+        await self.update()  # make sure it is updated at least once since it was last cleared
         async with self.lock:
             self.pressed_view.update(self.pressed)
             self.just_pressed_view.update(self.just_pressed)
