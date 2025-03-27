@@ -13,37 +13,32 @@ class InputState:
         self.lock = Lock()
         self.bound_keys = bound_keys
 
+        actions_map = dict.fromkeys(Actions, False)
         # dict[key type, how many times the key was pressed]
-        self.pressed: dict[Actions, int] = {}
-        self.pressed_view: dict[Actions, int] = {}  # Accessed by physics step.
+        self.pressed: dict[Actions, bool] = dict(actions_map)
+        self.pressed_view: dict[Actions, bool] = dict(actions_map)  # Accessed by physics step.
 
-        self.just_pressed: dict[Actions, int] = {}
-        self.just_pressed_view: dict[Actions, int] = {}
+        self.just_pressed: dict[Actions, bool] = dict(actions_map)
+        self.just_pressed_view: dict[Actions, bool] = dict(actions_map)
 
-    def get(self, action: Actions):
-        return self.pressed_view.get(action, 0)
+    def get(self, action: Actions) -> bool:
+        return self.pressed_view.get(action, False)
 
-    def get_just(self, action: Actions):
-        return self.just_pressed_view.get(action, 0)
+    def get_just(self, action: Actions) -> bool:
+        return self.just_pressed_view.get(action, False)
 
     async def __aenter__(self):
         async with self.lock:
             self.pressed_view.update(self.pressed)
-            self.pressed.clear()
             self.just_pressed_view.update(self.just_pressed)
-            self.just_pressed.clear()
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        self.pressed_view.clear()
-        self.just_pressed_view.clear()
+        self.clear()
 
     def _update(self, inp: SequenceLike[bool], dct: dict[Actions, int]):
         for action in self.bound_keys:
-            if action not in dct:
-                dct[action] = 0
-            for key in self.bound_keys[action]:
-                if inp[key]:
-                    dct[action] += 1
+            if not dct[action]:
+                dct[action] = any(inp[key] for key in self.bound_keys[action])
 
     async def update_just_pressed(self, inp: SequenceLike[bool]):
         async with self.lock:
@@ -53,6 +48,10 @@ class InputState:
         async with self.lock:
             self._update(pygame.key.get_pressed(), self.pressed)
             self._update(pygame.key.get_just_pressed(), self.just_pressed)
+
+    def clear(self):
+        self.pressed.update(dict.fromkeys(Actions, False))
+        self.just_pressed.update(dict.fromkeys(Actions, False))
 
 
 input_state = InputState(DEFAULT_KEYBINDINGS)
