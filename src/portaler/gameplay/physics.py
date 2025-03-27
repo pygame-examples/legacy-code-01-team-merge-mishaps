@@ -8,6 +8,7 @@ import pygame
 
 from ..const import AIR_CONTROLS_REDUCTION, GRAVITY, HORIZONTAL_YEET_ANGLE, MAX_SPEED, TILE_SIZE
 from ..interfaces import (
+    DIRECTION_TO_ANGLE,
     Direction,
     PhysicsSpriteInterface,
     PhysicsType,
@@ -465,37 +466,35 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         assert self.out_portal is not None
         assert self.in_portal is not None
         # move the sprite to behind the exit portal
-        if self.out_portal.orientation == Direction.NORTH:
-            self.velocity = pygame.Vector2(0, min(-self.velocity.length(), -350))
-            if get_axis_of_direction(self.in_portal.orientation):
+        orientation = self.out_portal.orientation
+        self.velocity = pygame.Vector2(self.velocity.length(), 0).rotate(DIRECTION_TO_ANGLE[orientation])
+        in_portal_axis = get_axis_of_direction(self.in_portal.orientation)
+        if orientation == Direction.NORTH:
+            if in_portal_axis:
                 self.rect.left = self.out_portal.rect.left + self.rect.left - self.in_portal.rect.left
             else:
                 self.rect.left = self.out_portal.rect.left + self.in_portal.rect.bottom - self.rect.bottom
-            self.rect.top = self.out_portal.rect.bottom - 2
-
-        if self.out_portal.orientation == Direction.SOUTH:
-            self.velocity = pygame.Vector2(0, self.velocity.length())
-            if get_axis_of_direction(self.in_portal.orientation):
+            self.rect.top = self.out_portal.rect.bottom - 1
+        elif orientation == Direction.SOUTH:
+            if in_portal_axis:
                 self.rect.left = self.out_portal.rect.left + self.rect.left - self.in_portal.rect.left
             else:
                 self.rect.left = self.out_portal.rect.left + self.in_portal.rect.bottom - self.rect.bottom
             self.rect.bottom = self.out_portal.rect.top + 1
-
-        if self.out_portal.orientation == Direction.EAST:
-            self.velocity = pygame.Vector2(self.velocity.length(), 0)
-            if get_axis_of_direction(self.in_portal.orientation):
+        elif orientation == Direction.EAST:
+            if in_portal_axis:
                 self.rect.top = self.out_portal.rect.top + self.in_portal.rect.right - self.rect.right
             else:
                 self.rect.top = self.out_portal.rect.top + self.rect.top - self.in_portal.rect.top
             self.rect.right = self.out_portal.rect.left + 1
-
-        if self.out_portal.orientation == Direction.WEST:
-            self.velocity = pygame.Vector2(-self.velocity.length(), 0)
-            if get_axis_of_direction(self.in_portal.orientation):
+        elif orientation == Direction.WEST:
+            if in_portal_axis:
                 self.rect.top = self.out_portal.rect.top + self.in_portal.rect.right - self.rect.right
             else:
                 self.rect.top = self.out_portal.rect.top + self.rect.top - self.in_portal.rect.top
             self.rect.left = self.out_portal.rect.right - 1
+        else:
+            raise ValueError(orientation)
 
         self.portal_state = self.PortalState.EXIT
 
@@ -526,22 +525,22 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         Throws the current object held
         """
-        if self.current_throwable:
-            yeet_force = self.yeet_force
-            if self.facing:
-                if not self.facing.y:
-                    yeet_angle = -HORIZONTAL_YEET_ANGLE if self.facing.x > 0 else 180 + HORIZONTAL_YEET_ANGLE
-                else:
-                    yeet_angle = pygame.Vector2(self.facing.x, -self.facing.y).angle_to((1, 0))
-                impulse = pygame.Vector2(yeet_force, 0).rotate(yeet_angle)  # DO NOT USE dt HERE
+        if not self.current_throwable:
+            return False
+        yeet_force = self.yeet_force
+        if self.facing:
+            if not self.facing.y:
+                yeet_angle = -HORIZONTAL_YEET_ANGLE if self.facing.x > 0 else 180 + HORIZONTAL_YEET_ANGLE
             else:
-                impulse = pygame.Vector2()
-            self.current_throwable.velocity = self.velocity + impulse / self.current_throwable.weight
-            self.velocity -= impulse / self.weight
-            self.current_throwable.picker_upper = None
-            self.current_throwable = None
-            return True
-        return False
+                yeet_angle = pygame.Vector2(self.facing.x, -self.facing.y).angle_to((1, 0))
+            impulse = pygame.Vector2(yeet_force, 0).rotate(yeet_angle)  # DO NOT USE dt HERE
+        else:
+            impulse = pygame.Vector2()
+        self.current_throwable.velocity = self.velocity + impulse / self.current_throwable.weight
+        self.velocity -= impulse / self.weight
+        self.current_throwable.picker_upper = None
+        self.current_throwable = None
+        return True
 
     def interact_with(self):
         """

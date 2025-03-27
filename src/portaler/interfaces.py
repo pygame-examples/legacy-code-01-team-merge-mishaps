@@ -15,7 +15,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import deque
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, auto
 from types import EllipsisType
 from typing import Any, Callable, Coroutine, TypeVar, cast, overload
 
@@ -27,19 +27,13 @@ from .gameplay.camera import Camera
 _T = TypeVar("_T")
 
 
-class WindowScale(Enum):
-    INTEGER = 1
-    STRETCH = 2
-    DOUBLE_LETTER = 3
-
-
 class PhysicsType(Enum):
-    STATIC = 1  # Dynamic sprites collide with and stay off of
-    DYNAMIC = 2  # "character" sprite.  Walks, jumps, etc.
-    TRIGGER = 3  # Can message certain sprites when they collide with it
-    KINEMATIC = 4  # Not messed with by physics engine
-    PORTAL = 5  # PORTAL!!!!!
-    ACTIVATED = 6  # TRIGGER objects interact with these
+    STATIC = auto()  # Dynamic sprites collide with and stay off of
+    DYNAMIC = auto()  # "character" sprite.  Walks, jumps, etc.
+    TRIGGER = auto()  # Can message certain sprites when they collide with it
+    KINEMATIC = auto()  # Not messed with by physics engine
+    PORTAL = auto()  # PORTAL!!!!!
+    ACTIVATED = auto()  # TRIGGER objects interact with these
 
 
 class Axis(Enum):
@@ -48,6 +42,7 @@ class Axis(Enum):
 
 
 class ThrowableType(Enum):
+    # values correspond to the spritesheet
     IRON = 0
     WOOD = 1
     GOLD = 2
@@ -61,12 +56,12 @@ THROWABLE_TYPE_INTO_WEIGHT = {
 
 
 class PortalColor(Enum):
-    GREEN = 1
-    YELLOW = 2
-    RED = 3
-    BLUE = 4
-    BEIGE = 5
-    CYAN = 6
+    GREEN = auto()
+    YELLOW = auto()
+    RED = auto()
+    BLUE = auto()
+    BEIGE = auto()
+    CYAN = auto()
 
 
 class Direction(Enum):
@@ -77,8 +72,9 @@ class Direction(Enum):
 
 
 DIRECTION_TO_ANGLE = {
-    Direction.NORTH: 90,
-    Direction.SOUTH: 270,
+    # Please note pygame's inverted y axis
+    Direction.NORTH: 270,
+    Direction.SOUTH: 90,
     Direction.EAST: 0,
     Direction.WEST: 180,
 }

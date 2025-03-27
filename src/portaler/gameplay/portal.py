@@ -26,9 +26,7 @@ class Portal(PhysicsSprite):
         )
         super().__init__(data, physics_data)
 
-        rotation = (
-            DIRECTION_TO_ANGLE[self.orientation] - 90
-        )  # -90  - alignment value, otherwise the portal is unaligned by 90 degrees (duh)
+        rotation = -DIRECTION_TO_ANGLE[self.orientation] - 90  # it works
         self.animation = ANIMATIONMYWAY(
             f"portals/portal{data.properties['tunnel_id']}.png",
             12,
