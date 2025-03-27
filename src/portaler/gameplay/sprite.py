@@ -36,5 +36,5 @@ class Sprite(pygame.sprite.Sprite, SpriteInterface):
     def interpolated_pos(self, dt_since_physics: float) -> tuple[float, float]:
         return self.pos
 
-    def draw(self, surface, offset) -> None:
+    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         pass

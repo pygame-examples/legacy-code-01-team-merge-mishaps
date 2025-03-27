@@ -257,7 +257,7 @@ class SpriteInterface(ABC):
     def interpolated_pos(self, dt_since_physics: float) -> tuple[float, float]:
         pass
 
-    def draw(self, surface: pygame.Surface, dt_since_physics: float) -> None:
+    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         pass
 
 

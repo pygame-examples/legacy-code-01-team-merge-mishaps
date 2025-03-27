@@ -1,7 +1,7 @@
-from typing import Awaitable
+from typing import Coroutine
 
 import pygame
-from pygame.typing import RectLike
+from pygame import FRect
 
 from ..const import TILE_SIZE
 from ..interfaces import (
@@ -58,7 +58,7 @@ class Level(GameLevelInterface):
 
         loaders.LevelLoader(str(self.level_count)).load(self)
 
-    def add_task(self, task: Awaitable) -> None:
+    def add_task(self, task: Coroutine) -> None:
         """Adds task to main game loop"""
         self.game.add_task(task)
 
@@ -84,7 +84,7 @@ class Level(GameLevelInterface):
         portal_w = 3 * TILE_SIZE
         portal_h = TILE_SIZE
 
-        rect1 = (
+        rect1 = FRect(
             (pos1[0] * TILE_SIZE, pos1[1] * TILE_SIZE, portal_w, portal_h)
             if orientation1 in [Direction.NORTH, Direction.SOUTH]
             else (pos1[0] * TILE_SIZE, pos1[1] * TILE_SIZE, portal_h, portal_w)
@@ -103,7 +103,7 @@ class Level(GameLevelInterface):
             ),
         )
 
-        rect2 = (
+        rect2 = FRect(
             (pos2[0] * TILE_SIZE, pos2[1] * TILE_SIZE, portal_w, portal_h)
             if orientation2 in [Direction.NORTH, Direction.SOUTH]
             else (pos2[0] * TILE_SIZE, pos2[1] * TILE_SIZE, portal_h, portal_w)
@@ -143,7 +143,7 @@ class Level(GameLevelInterface):
         wall = self.spawn(
             Block,
             SpriteInitData(
-                rect=(
+                rect=FRect(
                     pos[0] * TILE_SIZE,
                     pos[1] * TILE_SIZE,
                     size[0] * TILE_SIZE,
@@ -159,7 +159,7 @@ class Level(GameLevelInterface):
         throwable = self.spawn(
             ThrowableBlock,
             SpriteInitData(
-                rect=(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE),
+                rect=FRect(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE),
                 level=self,
                 properties={"id": throwable_type.value},
             ),
@@ -171,7 +171,7 @@ class Level(GameLevelInterface):
         block = self.spawn(
             OneWayBlock,
             SpriteInitData(
-                rect=(
+                rect=FRect(
                     pos[0] * TILE_SIZE,
                     pos[1] * TILE_SIZE,
                     width * TILE_SIZE,
@@ -183,7 +183,7 @@ class Level(GameLevelInterface):
         return block
 
     def spawn_door(self, pos, length: int, orientation: Axis):
-        rect = (
+        rect = FRect(
             (pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, 2 * TILE_SIZE, length * TILE_SIZE)
             if orientation is not Axis.HORIZONTAL
             else (

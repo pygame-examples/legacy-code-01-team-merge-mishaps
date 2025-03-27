@@ -20,7 +20,7 @@ class Camera(pygame.sprite.LayeredUpdates):
         self.view_range: pygame.FRect | None = None
         self.scale: float = 1.0  # value greater than 1.0 is zoomed in
 
-    def draw(self, surface: pygame.Surface, dt_since_physics: float) -> None:
+    def draw(self, surface: pygame.Surface, dt_since_physics: float) -> None:  # type: ignore[override]
         scale = self.scale
         drawing_surface = (
             surface

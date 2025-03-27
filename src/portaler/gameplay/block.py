@@ -16,9 +16,7 @@ class Block(PhysicsSprite):
         self.surface = data.properties["surface"]
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float):
-        new_rect = self.rect.copy()
-        new_rect.center = new_rect.center - offset
-        surface.blit(self.surface, new_rect)
+        surface.blit(self.surface, self.rect.move(-offset))
 
 
 class OneWayBlock(PhysicsSprite):
@@ -29,7 +27,7 @@ class OneWayBlock(PhysicsSprite):
         data.groups.extend(["render", "physics", "static-physics"])
         super().__init__(data, physics_data)
 
-        width = data.rect[2] // TILE_SIZE
+        width = int(data.rect[2] / TILE_SIZE)
         self.image = pygame.Surface(
             (width * 16, 16), pygame.SRCALPHA
         )  # this forgotten SRCALPHA flag costed me 30 mins of debugging >:[
@@ -49,9 +47,8 @@ class OneWayBlock(PhysicsSprite):
         self.image = pygame.transform.scale_by(self.image, scale_factor).convert_alpha()
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
-        new_rect = self.rect.copy()
-        new_rect.center = new_rect.center - offset
-        surface.blit(self.image, new_rect)
+        assert self.image is not None
+        surface.blit(self.image, self.rect.move(-offset))
 
 
 class ThrowableBlock(PhysicsSprite):

@@ -660,7 +660,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         # only draw the part of the sprite that is above the 'bottom' of the portal (if we are inside one)
         # (only applies to dynamic objects)
         clip_rect = self.interpolated_cliprect(dt_since_physics)
-        new_rect.center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
+        center = self.interpolated_pos(dt_since_physics) + pygame.Vector2(clip_rect.topleft) - offset
+        new_rect.center = center[0], center[1]
+        assert self.image is not None
         surface.blit(self.image.subsurface(clip_rect), new_rect)
 
 

@@ -38,9 +38,7 @@ class Button(PhysicsSprite):
         }
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
-        new_rect = self.rect.copy()
-        new_rect.center = new_rect.center - offset
-        surface.blit(self.states[self.state], new_rect)
+        surface.blit(self.states[self.state], self.rect.move(-offset))
 
     def trigger(self, other: SpriteInterface | None):
         self.state = "triggered"

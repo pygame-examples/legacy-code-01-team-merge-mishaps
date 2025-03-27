@@ -115,10 +115,7 @@ class Door(PhysicsSprite):
             door_surface = pygame.transform.rotate(door_surface, -90)
 
         # blit everything onto the screen
-        new_rect = self.rect.copy()
-        new_rect.center = new_rect.center - offset
-
-        surface.blit(door_surface, new_rect)
+        surface.blit(door_surface, self.rect.move(-offset))
 
     def trigger(self, other: SpriteInterface | None):
         self.state = "opening"
