@@ -136,7 +136,7 @@ def protect(fn: FunctionType):
     """
 
     @wraps(fn)
-    def inner(self, dt: float = 1):
+    def inner(self, dt: float) -> None:
         if not self.commands_used.get(fn.__name__, False):
             self.commands_used[fn.__name__] = True
             fn(self, dt)
