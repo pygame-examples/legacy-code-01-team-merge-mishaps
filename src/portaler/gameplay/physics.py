@@ -429,7 +429,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             return False
         # move me out of collision
         moved: bool = False
-        while self._test_if_on_ground(0.0):
+        while self.is_colliding_static():
             self.rect[axis] += offset
             self.velocity[axis] = 0
             moved = True
@@ -462,6 +462,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 and is_entering_portal(self.orientation, sprite.velocity)
             ):
                 for portal in self.level.get_group(self.tunnel_id):
+                    # Find twin
                     if portal is not self:
                         sprite.enter_portal(self, portal)
 
@@ -537,6 +538,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         Finds closest throwable object and sets it as the current object picked up
         """
         closest_throwable, distance = self.find_closest_throwable()
+        if closest_throwable is None:
+            return
         if distance <= self.min_distance and not self.current_throwable:
             self.current_throwable = closest_throwable
             self.current_throwable.picker_upper = self
@@ -572,60 +575,69 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         # NOTE: no need implementing, i kinda ignored this and did it my way (sorry)
         return False
 
-    def find_closest_throwable(self):
-        """
-        Finds the closest throwable object
+    def find_closest_throwable(self) -> tuple[PhysicsSprite | None, float]:
+        """Finds the closest throwable object and its distance.
+
+        If no throwables, the sprite is None and distance is infinity.
         """
         # Forgive me for the atrocity I have commited here
-        throwables = self.level.get_group("throwable-physics").sprites()
-        if not len(throwables):
-            return None, 0
-        closest_throwable = throwables[0]
-        closest_distance = (pygame.Vector2(self.pos) - pygame.Vector2(closest_throwable.pos)).length()
+        throwables: pygame.sprite.AbstractGroup | None = self.level.get_group("throwable-physics")
+        throwables = set(throwables) if throwables else set()
+        closest_throwable = None
+        closest_distance = float("inf")
         for throwable in throwables:
             current_distance = (pygame.Vector2(self.pos) - pygame.Vector2(throwable.pos)).length()
             if current_distance < closest_distance:
                 closest_throwable = throwable
                 closest_distance = current_distance
-
         return closest_throwable, closest_distance
 
     def update_throwable(self, dt: float) -> None:
         """
         makes the picked up object follow the one who picked up the object
         """
-        if self.picker_upper:
-            distance_to = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
-            if distance_to.length() > 2 * TILE_SIZE:
-                # if the picker_upper is too far away (went through the portal for example)
-                # then teleport to the picker_upper
-                self.pos = self.picker_upper.pos
-            else:  # otherwise make this cool magnet effect
-                if distance_to.length() > TILE_SIZE // 4:
-                    spring_force: float = 10000
-                    rel_velocity = self.velocity - self.picker_upper.velocity
-                    # Considering only damping, how long it takes to lose half of the relative velocity
-                    damping_impulse = -rel_velocity * dt * 1000
-                    # self.velocity = rel_velocity + self.picker_upper.velocity
-                    impulse = distance_to * spring_force * dt + damping_impulse
-                    self.velocity += impulse / self.weight
-                    self.picker_upper.velocity -= impulse / self.picker_upper.weight
+        if not self.picker_upper:
+            return
+        offset = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
+        if offset.length() > 2 * TILE_SIZE:
+            # if the picker_upper is too far away (went through the portal for example)
+            # then teleport to the picker_upper
+            # TODO: better way?
+            self.pos = self.picker_upper.pos
+        elif offset.length() > TILE_SIZE // 4:
+            # otherwise make this cool magnet effect
+            spring_force: float = 10_000  # stronger pull
+            damping_force: float = 1_000  # reduce jittering, whipping
+            rel_velocity = self.velocity - self.picker_upper.velocity
+            damping_impulse = -rel_velocity * dt * damping_force
+            # self.velocity = rel_velocity + self.picker_upper.velocity
+            impulse = offset * spring_force * dt + damping_impulse
+            self.velocity += impulse / self.weight
+            self.picker_upper.velocity -= impulse / self.picker_upper.weight
 
-    def _test_if_on_ground(self, tolerance: float = 0.5):
+    def is_colliding_static(self, offset: pygame.typing.Point = (0.0, 0.0)) -> bool:
         collision_rect = self.clipped_collision_rect()
-        collision_rect.y += tolerance
+        collision_rect.move_ip(offset)
         for sprite in self.level.get_group("static-physics"):
-            if sprite.one_way and (self.velocity.y < 0 or self.facing.y > 0):
-                # skip one way if moving up or player presses down
+            one_way_collide_margin = 5.0  # How 'deep' a one way platform can collide with the player
+            min_one_way_velocity = 100.0  # The lowest velocity at which a player can manually go down through
+            if sprite.one_way and (
+                self.velocity.y < 0 or (self.facing.y > 0 and self.velocity.y < min_one_way_velocity)
+            ):
+                # skip one way if moving up
+                # or player presses down AND velocity is low (so that it almost always collides at least once)
                 continue
             if sprite.collision_rect.colliderect(collision_rect):
-                if sprite.one_way and self.collision_rect.bottom > sprite.collision_rect.top + 5.0:
-                    # inside one way platform but not on top of it (note: tunneling issues)
+                if (
+                    sprite.one_way
+                    and self.collision_rect.bottom > sprite.collision_rect.top + one_way_collide_margin
+                ):
+                    # inside one way platform but not on top of it
                     continue
                 return True
         return False
 
-    def update_physics(self, dt) -> None:
+    def update_physics(self, dt: float) -> None:
         """Update this sprite's physics"""
         # Restore previous commands
         self.commands_used.clear()
@@ -636,7 +648,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.update_throwable(dt)
             self.handle_dynamic_collision(1, dt)
             self.handle_dynamic_collision(0, dt)
-            self.on_ground = self._test_if_on_ground()
+            self.on_ground = self.is_colliding_static((0.0, 0.5))
             if self.on_ground:
                 self.velocity[1] = 0
                 self.velocity[0] *= self.ground_damping**dt
@@ -646,7 +658,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 if not self.facing:  # HACK: stop air movement for player
                     self.velocity[0] *= self.air_damping**dt
                 self.coyote_time_left -= dt
-
             self.get_facing()  # get the direction the object is facing
 
         if self.physics_type == PhysicsType.TRIGGER:
@@ -654,7 +665,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.physics_type == PhysicsType.PORTAL:
             self.handle_portal_collision()
 
-    def get_facing(self):
+    def get_facing(self) -> None:
         self.facing.x = sign(self.velocity.x)
         self.facing.y = sign(self.velocity.y)
 

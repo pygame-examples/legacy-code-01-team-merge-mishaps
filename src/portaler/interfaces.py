@@ -133,7 +133,7 @@ class GameLevelInterface(GameStateInterface, ABC):
             self.get_group("render").set_target(sprite)
         return sprite
 
-    def get_group(self, group_name: str) -> pygame.sprite.AbstractGroup:
+    def get_group(self, group_name: str) -> pygame.sprite.AbstractGroup | None:
         """
         Get a sprite group from a string
 

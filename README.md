@@ -44,7 +44,6 @@ uvx pre-commit install
 - [x] make this README more beautiful
 - [ ] implement some cool levels, most probably puzzles (definatelly not a ripoff of portal 2, noooooo)
 - [ ] learn how to read TODOs inside code, because someone probably left something important there
-- [ ] fix an error where when there are no interactables in the level, it raises some exception if you press E
 
 
 ### Guide to the source code
