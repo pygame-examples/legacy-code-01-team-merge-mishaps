@@ -147,14 +147,14 @@ class LevelLoader:
 
     def load_config(self, target: level.Level) -> None:
         data = self.data
-        camera_view_range = data.get("camera_view_tile_range", "fit")
-        if camera_view_range == "fit":
+        camera_view_tile_range = data.get("camera_view_tile_range", "fit")
+        if camera_view_tile_range == "fit":
             tilemap = data["tilemap"]
             height = len(tilemap)
             width = max([len(row) for row in tilemap])
             x = y = 0
         else:
-            x, y, width, height = camera_view_range
+            x, y, width, height = camera_view_tile_range
         camera_view_range = pygame.FRect(x * TILE_SIZE, y * TILE_SIZE, width * TILE_SIZE, height * TILE_SIZE)
         target.set_camera_view(camera_view_range)
         camera_scale = data.get("camera_scale", 1.0)
