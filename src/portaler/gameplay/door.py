@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 from math import ceil
+from typing import ClassVar
+from weakref import WeakSet
 
 import pygame
 
@@ -9,6 +13,9 @@ from .sprites_and_sounds import get_image, get_sfx
 
 
 class Door(PhysicsSprite):
+    # goofy implementation so that sound works with multiple doors
+    sounding_doors: ClassVar[WeakSet[Door]] = WeakSet()
+
     def __init__(self, data: SpriteInitData):
         """
         A mechanical obstacle, designed to be impenetrable by any means.
@@ -33,7 +40,8 @@ class Door(PhysicsSprite):
         self.max_height = (
             data.rect[3] if self.orientation == Axis.VERTICAL else data.rect[2]
         )  # how big can the door opening be?
-        self.min_height = 0  # how small can the door opening be?
+        # HACK: -32 is such that the door is completely open
+        self.min_height = -32  # how small can the door opening be?
         self.current_height = self.max_height  # currently CLOSED
         self.image_size = (
             self.rect.size if self.orientation == Axis.VERTICAL else (self.rect.h, self.rect.w)
@@ -57,7 +65,7 @@ class Door(PhysicsSprite):
             )
 
         self.middle_rect = self.rect.copy()
-        self.duration = 1.5  # How long it takes to open fully
+        self.duration = 1.0  # How long it takes to open fully
 
         spritesheet = get_image("pressure-door.png")
         self.segments = {  # the entire door will be drawn by segments
@@ -70,6 +78,7 @@ class Door(PhysicsSprite):
         }
 
         self.sound = get_sfx("pressure-door.ogg")
+        self.sound.set_volume(0.25)  # very annoying sound
 
     def update_physics(self, dt: float) -> None:
         super().update_physics(dt)
@@ -78,6 +87,7 @@ class Door(PhysicsSprite):
         offset = total * dt / self.duration
         self.current_height += offset if self.state != "opening" else -offset
         self.current_height = min(max(self.current_height, self.min_height), self.max_height)
+        # TODO: fix bug where player can use closing door to clip through walls
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         door_surface = pygame.Surface(self.image_size, pygame.SRCALPHA)
@@ -104,11 +114,15 @@ class Door(PhysicsSprite):
             door_surface.blit(self.segments["light-red"], self.base_rect)
 
         if self.min_height < self.current_height < self.max_height:
-            if not pygame.mixer.Channel(DOOR_CHANNEL).get_busy():
-                pygame.mixer.Channel(DOOR_CHANNEL).play(self.sound)
-                # TODO: ANNOYING AHH SOUND, PLEASE MAKE A BETTER ONE
+            self.sounding_doors.add(self)
         else:
-            pygame.mixer.Channel(DOOR_CHANNEL).stop()
+            self.sounding_doors.discard(self)
+        if not self.sounding_doors:
+            pygame.Channel(DOOR_CHANNEL).stop()
+        elif not pygame.Channel(DOOR_CHANNEL).get_busy():
+            # Keep playing sound continuously
+            pygame.Channel(DOOR_CHANNEL).play(self.sound)
+            # TODO: ANNOYING AHH SOUND, PLEASE MAKE A BETTER ONE
 
         # rotate the thing
         if self.orientation == Axis.HORIZONTAL:
