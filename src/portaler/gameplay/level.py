@@ -42,7 +42,7 @@ class Level(GameLevelInterface):
         self.game: GameInterface = game
 
         # 0 for test map
-        self.level_count = 1
+        self.level_count = 4
 
         # Currently the only thing overwritten by the level loader
         self.camera.view_range = pygame.FRect(0, 0, 1088, 320)
