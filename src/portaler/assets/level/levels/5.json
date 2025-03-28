@@ -9,11 +9,11 @@
             {"pos": [15, 8], "type": "GOLD"}
         ],
         "portals": {
-            "CYAN": [{"pos": [2, 16], "orientation": "EAST"}, {"pos": [2, 2], "orientation": "SOUTH"}],
+            "CYAN": [{"pos": [2, 16], "orientation": "EAST"}, {"pos": [14, 2], "orientation": "SOUTH"}],
             "YELLOW": [{"pos": [2, 9], "orientation": "EAST"}, {"pos": [17, 8], "orientation": "WEST"}]
         },
         "one_way_blocks": [
-            {"pos": [6, 7], "width": 6},
+            {"pos": [8, 7], "width": 4},
             {"pos": [8, 10], "width": 2},
             {"pos": [10, 13], "width": 2},
             {"pos": [8, 16], "width": 2}

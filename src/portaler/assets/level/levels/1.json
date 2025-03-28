@@ -8,8 +8,9 @@
         "portals": {
             "GREEN": [{"pos": [6, 2], "orientation": "SOUTH"}, {"pos": [8, 10], "orientation": "EAST"}]
         },
+        "one_way_blocks": [{"pos": [16, 8], "width": 3}],
         "doors": [{"pos": [13, 2], "length": 6, "orientation": "VERTICAL"}],
         "buttons": [{"pos": [9, 13], "linked_to": ["doors[0]"]}],
-        "finishes": [{"pos": [17, 6]}]
+        "finishes": [{"pos": [16, 12]}]
     }
 }
