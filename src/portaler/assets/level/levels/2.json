@@ -1,8 +1,9 @@
 {
     "camera_view_tile_range": [0, 0, 34, 20],
     "camera_scale": 1.5,
+    "tilemap_offset": [-1, -1],
     "sprites": {
-        "player": {"pos": [3, 6]},
+        "player": {"pos": [2, 6]},
         "throwables": [],
         "portals": {
             "RED": [{"pos": [26, 18], "orientation": "NORTH"}, {"pos": [21, 12], "orientation": "NORTH"}]
