@@ -294,10 +294,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """If I am dynamic, try to duck until the next frame"""
         if not self.on_ground:
             self.velocity.y = max(self.duck_speed, self.velocity.y, 1)  # DO NOT USE dt HERE
-            if self.current_throwable:
-                self.current_throwable.duck()
-            else:
-                get_sfx("slam.ogg").play()  # we don't need this playing twice
+            get_sfx("slam.ogg").play()
 
     @protect
     def interact(self, dt: float) -> None:
