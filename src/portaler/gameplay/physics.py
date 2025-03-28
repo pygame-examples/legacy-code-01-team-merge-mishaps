@@ -582,7 +582,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.update_throwable(dt)
             self.handle_dynamic_collision(1, dt)
             self.handle_dynamic_collision(0, dt)
-            self.on_ground = self.is_colliding_static((0.0, 0.5))
+            self.on_ground = self.is_colliding_static((0.0, 0.5)) and not (
+                self.engaged_portal is not None and self.engaged_portal.orientation == Direction.NORTH
+            )
             if self.on_ground:
                 self.velocity[1] = 0
                 self.velocity[0] *= self.ground_damping**dt
