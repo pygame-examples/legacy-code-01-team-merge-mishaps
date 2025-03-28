@@ -503,7 +503,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             impulse = pygame.Vector2(yeet_force, 0).rotate(yeet_angle)  # DO NOT USE dt HERE
         else:
             impulse = pygame.Vector2()
-        self.current_throwable.velocity = self.velocity + impulse / self.current_throwable.weight
+        self.current_throwable.velocity += impulse / self.current_throwable.weight
         self.velocity -= impulse / self.weight
         self.current_throwable.picker_upper = None
         self.current_throwable = None
@@ -541,7 +541,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         elif offset.length() > TILE_SIZE // 4:
             # otherwise make this cool magnet effect
             spring_force: float = 10_000  # stronger pull
-            damping_force: float = 1_000  # reduce jittering, whipping
+            damping_force: float = 2_000  # reduce jittering, whipping
             rel_velocity = self.velocity - self.picker_upper.velocity
             damping_impulse = -rel_velocity * dt * damping_force
             # self.velocity = rel_velocity + self.picker_upper.velocity
