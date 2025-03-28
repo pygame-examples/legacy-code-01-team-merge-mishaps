@@ -34,11 +34,10 @@ class Player(PhysicsSprite):
         )
 
     def act(self, dt: float):
-        if input_state.get(Actions.LEFT):
-            self.left(dt)
-
-        if input_state.get(Actions.RIGHT):
+        if self.facing.x > 0:
             self.right(dt)
+        elif self.facing.x < 0:
+            self.left(dt)
 
         if input_state.get(Actions.JUMP):
             self.jump(dt)

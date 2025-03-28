@@ -159,7 +159,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         )  # how fast the sprite walks right and left (if dynamic)
         self.horizontal_air_speed: float = (
             physics_data.horizontal_air_speed
-        )  # how fast the sprite walks in the air (while jumping)
+        )  # how fast the sprite accelerates up to (from 0) while in the air
+        self.horizontal_air_acceleration: float = (
+            physics_data.horizontal_air_acceleration
+        )  # how fast sprite accelerates in air
         self.ground_damping: float = (
             physics_data.ground_damping
         )  # how quickly the sprite slows down (if dynamic)
@@ -260,26 +263,26 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.on_ground:
             self.velocity.x = -self.horizontal_speed
         else:
-            target_vel_d = -self.horizontal_air_speed - self.velocity.x
-            if (
-                target_vel_d < self.velocity.x
-            ):  # Do not slow down when moving faster than walking speed in the air
-                self.velocity.x += target_vel_d * AIR_CONTROLS_REDUCTION
+            if -self.horizontal_air_speed < self.velocity.x:
+                self.velocity.x = max(
+                    -self.horizontal_air_speed,
+                    self.velocity.x - self.horizontal_air_acceleration * dt * AIR_CONTROLS_REDUCTION,
+                )
 
     @protect
     def right(self, dt: float) -> None:
         """If I am dynamic, try to move right until the next frame"""
         if not dt:
             return
-        # DO NOT USE dt HERE
         if self.on_ground:
+            # DO NOT USE dt HERE
             self.velocity.x = self.horizontal_speed
         else:
-            target_vel_d = self.horizontal_air_speed - self.velocity.x
-            if (
-                target_vel_d > self.velocity.x
-            ):  # Do not slow down when moving faster than walking speed in the air
-                self.velocity.x += target_vel_d * AIR_CONTROLS_REDUCTION
+            if self.horizontal_air_speed > self.velocity.x:
+                self.velocity.x = min(
+                    self.horizontal_air_speed,
+                    self.velocity.x + self.horizontal_air_acceleration * dt * AIR_CONTROLS_REDUCTION,
+                )
 
     @protect
     def jump(self, dt: float) -> None:
@@ -591,7 +594,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                 self.coyote_time_left = self.coyote_time
             else:
                 # A bit unrealistic, that there's no vertical damping.
-                if not self.facing:  # HACK: stop air movement for player
+                if sign(self.facing[0]) != sign(self.velocity[0]):
                     self.velocity[0] *= self.air_damping**dt
                 self.coyote_time_left -= dt
             self.get_facing()  # get the direction the object is facing

@@ -213,8 +213,9 @@ class SpritePhysicsData:
     weight: float = 10  # weight (not used RN)
     yeet_force: float = 7000  # force (for dynamic sprites)
     horizontal_speed: float = 250  # walking speed (for dynamic sprites)
-    horizontal_air_speed: float = 208  # movement speed for dynamic sprites that are in the air
-    ground_damping: float = 0.0001  # damping of 0.9 means 10% velocity is lost per second
+    horizontal_air_speed: float = 100  # movement speed for dynamic sprites that are in the air
+    horizontal_air_acceleration: float = 2000  # acceleration for dynamic sprites that are in the air
+    ground_damping: float = 0.0000001  # damping of 0.9 means 10% velocity is lost per second
     air_damping: float = 0.8
     jump_speed: float = 460.0  # jump speed (for dynamic sprites)
     duck_speed: float = 550.0  # duck speed (for dynamic sprites)
