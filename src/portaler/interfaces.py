@@ -51,7 +51,7 @@ class ThrowableType(Enum):
 THROWABLE_TYPE_INTO_WEIGHT = {
     ThrowableType.IRON.value: 50,
     ThrowableType.WOOD.value: 20,
-    ThrowableType.GOLD.value: 200,
+    ThrowableType.GOLD.value: 125,
 }
 
 
@@ -211,11 +211,14 @@ class SpritePhysicsData:
     # no need for every sprite to use every bit of data
     physics_type: PhysicsType = PhysicsType.STATIC  # type of physics resolution to use
     weight: float = 10  # weight (not used RN)
-    yeet_force: float = 7000  # force (for dynamic sprites)
-    horizontal_speed: float = 250  # walking speed (for dynamic sprites)
+    yeet_force: float = 12000  # force (for dynamic sprites)
+    horizontal_ground_speed: float = 250  # max walking speed (for dynamic sprites)
+    horizontal_ground_acceleration: float = (
+        4000  # acceleration for dynamic sprites that are on the ground (affects 'pulling' strength)
+    )
+    ground_damping: float = 1e-10  # damping of 0.9 means 10% velocity is lost per second
     horizontal_air_speed: float = 100  # movement speed for dynamic sprites that are in the air
     horizontal_air_acceleration: float = 2000  # acceleration for dynamic sprites that are in the air
-    ground_damping: float = 0.0000001  # damping of 0.9 means 10% velocity is lost per second
     air_damping: float = 0.8
     jump_speed: float = 460.0  # jump speed (for dynamic sprites)
     duck_speed: float = 550.0  # duck speed (for dynamic sprites)

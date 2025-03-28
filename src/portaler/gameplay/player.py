@@ -27,7 +27,7 @@ class Player(PhysicsSprite):
         self.timer: float = 0.0
         self.double_press_time = 0.2  # 200 milliseconds
 
-    def get_facing(self):  # player has a different way of calculating 'facing' value
+    def update_facing(self):  # player has a different way of calculating 'facing' value
         self.facing.x = input_state.get(Actions.RIGHT) - input_state.get(Actions.LEFT)
         self.facing.y = input_state.get(Actions.DOWN) - (
             input_state.get(Actions.UP) or input_state.get(Actions.JUMP)

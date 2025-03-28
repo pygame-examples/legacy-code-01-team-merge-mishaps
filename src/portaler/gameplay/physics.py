@@ -154,9 +154,12 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         )  # Separated from gravity, to not apply gravity when on ground.
         self.gravity: pygame.Vector2 = pygame.Vector2(GRAVITY)  # pixels/second squared (I think)
         self.yeet_force: float = physics_data.yeet_force  # how hard the sprite is thrown (if dynamic)
-        self.horizontal_speed: float = (
-            physics_data.horizontal_speed
-        )  # how fast the sprite walks right and left (if dynamic)
+        self.horizontal_ground_speed: float = (
+            physics_data.horizontal_ground_speed
+        )  # how fast the sprite walks up to, right and left (if dynamic), on ground
+        self.horizontal_ground_acceleration: float = (
+            physics_data.horizontal_ground_acceleration
+        )  # how fast sprite accelerates on ground
         self.horizontal_air_speed: float = (
             physics_data.horizontal_air_speed
         )  # how fast the sprite accelerates up to (from 0) while in the air
@@ -178,7 +181,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.coyote_time_left: float = 0  # see above
         self.on_ground: bool = False  # whether sprite is touching ground (if dynamic)
         self.one_way: bool = physics_data.one_way  # whether sprite only collides downward (if static)
-        self.facing: pygame.Vector2 = pygame.Vector2(1, 0)  # the direction the sprite should be facing
+        self.facing: pygame.Vector2 = (
+            pygame.Vector2()
+        )  # the direction the sprite is manually facing (usually <0, 0> for non-player sprites)
 
         self.min_distance: int = 40  # minimum distance to pick up something
         self.current_throwable: PhysicsSprite | None = (
@@ -257,31 +262,30 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
     @protect
     def left(self, dt: float) -> None:
         """If I am dynamic, try to move left until the next frame"""
-        if not dt:
-            return
-        # DO NOT USE dt HERE
-        if self.on_ground:
-            self.velocity.x = -self.horizontal_speed
-        else:
-            if -self.horizontal_air_speed < self.velocity.x:
-                self.velocity.x = max(
-                    -self.horizontal_air_speed,
-                    self.velocity.x - self.horizontal_air_acceleration * dt * AIR_CONTROLS_REDUCTION,
-                )
+        self._move(dt, -1)
 
     @protect
     def right(self, dt: float) -> None:
         """If I am dynamic, try to move right until the next frame"""
+        self._move(dt, 1)
+
+    def _move(self, dt: float, sign: int) -> None:
         if not dt:
             return
         if self.on_ground:
             # DO NOT USE dt HERE
-            self.velocity.x = self.horizontal_speed
+            if self.horizontal_ground_speed > sign * self.velocity.x:
+                self.velocity.x = sign * min(
+                    self.horizontal_ground_speed,
+                    sign * self.velocity.x
+                    + self.horizontal_ground_acceleration * dt * AIR_CONTROLS_REDUCTION,
+                )
+            # self.velocity.x = sign * self.horizontal_ground_speed
         else:
-            if self.horizontal_air_speed > self.velocity.x:
-                self.velocity.x = min(
+            if self.horizontal_air_speed > sign * self.velocity.x:
+                self.velocity.x = sign * min(
                     self.horizontal_air_speed,
-                    self.velocity.x + self.horizontal_air_acceleration * dt * AIR_CONTROLS_REDUCTION,
+                    sign * self.velocity.x + self.horizontal_air_acceleration * dt * AIR_CONTROLS_REDUCTION,
                 )
 
     @protect
@@ -500,7 +504,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             impulse = pygame.Vector2(yeet_force, 0).rotate(yeet_angle)  # DO NOT USE dt HERE
         else:
             impulse = pygame.Vector2()
-        self.current_throwable.velocity += impulse / self.current_throwable.weight
+        # HACK: halve x impulse because it is too powerful
+        self.current_throwable.velocity.x += impulse.x * 0.5 / self.current_throwable.weight
+        # HACK: don't inherit old y velocity so that jump + throw is more consistent
+        self.current_throwable.velocity.y = impulse.y / self.current_throwable.weight
         self.velocity -= impulse / self.weight
         self.current_throwable.picker_upper = None
         self.current_throwable = None
@@ -590,23 +597,26 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.on_ground = self.is_colliding_static(1, 0.5)
             if self.on_ground:
                 self.velocity[1] = 0
-                self.velocity[0] *= self.ground_damping**dt
+                if sign(self.facing[0]) != sign(self.velocity[0]):
+                    self.velocity[0] *= self.ground_damping**dt
                 self.coyote_time_left = self.coyote_time
             else:
                 # A bit unrealistic, that there's no vertical damping.
                 if sign(self.facing[0]) != sign(self.velocity[0]):
                     self.velocity[0] *= self.air_damping**dt
                 self.coyote_time_left -= dt
-            self.get_facing()  # get the direction the object is facing
+            self.update_facing()  # get the direction the object is facing
 
         if self.physics_type == PhysicsType.TRIGGER:
             self.handle_trigger_collision()
         if self.physics_type == PhysicsType.PORTAL:
             self.handle_portal_collision()
 
-    def get_facing(self) -> None:
-        self.facing.x = sign(self.velocity.x)
-        self.facing.y = sign(self.velocity.y)
+    def update_facing(self) -> None:
+        """Update self.facing.
+
+        Base behavior: don't change self.facing.
+        """
 
     def draw(
         self,
