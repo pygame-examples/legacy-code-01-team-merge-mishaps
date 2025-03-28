@@ -367,12 +367,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.velocity[axis] > 0:
             offset *= -1
 
-        # Don't collide with stuff overlapping with portals when moving into or out of the portal
-        if self.engaged_portal is not None and get_axis_of_direction(self.engaged_portal.orientation) == axis:
-            return False
         # move me out of collision
         moved: bool = False
-        while self.is_colliding_static():
+        while self.is_colliding_static(axis):
             self.rect[axis] += offset
             self.velocity[axis] = 0
             moved = True
@@ -546,9 +543,17 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.velocity += impulse / self.weight
             self.picker_upper.velocity -= impulse / self.picker_upper.weight
 
-    def is_colliding_static(self, offset: pygame.typing.Point = (0.0, 0.0)) -> bool:
+    def is_colliding_static(self, axis: int, offset: float = 0.0) -> bool:
         collision_rect = self.clipped_collision_rect()
-        collision_rect.move_ip(offset)
+        collision_rect[axis] += offset
+        # Don't collide with stuff overlapping with portals when moving into or out of the portal
+        if self.engaged_portal is not None:
+            if get_axis_of_direction(self.engaged_portal.orientation) == axis:
+                return False
+            if is_aligned_with_portal(
+                collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation
+            ):
+                return False
         for sprite in self.level.get_group("static-physics"):
             one_way_collide_margin = 5.0  # How 'deep' a one way platform can collide with the player
             min_one_way_velocity = 100.0  # The lowest velocity at which a player can manually go down through
@@ -579,9 +584,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.update_throwable(dt)
             self.handle_dynamic_collision(1, dt)
             self.handle_dynamic_collision(0, dt)
-            self.on_ground = self.is_colliding_static((0.0, 0.5)) and not (
-                self.engaged_portal is not None and self.engaged_portal.orientation == Direction.NORTH
-            )
+            self.on_ground = self.is_colliding_static(1, 0.5)
             if self.on_ground:
                 self.velocity[1] = 0
                 self.velocity[0] *= self.ground_damping**dt
