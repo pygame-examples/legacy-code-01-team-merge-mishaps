@@ -537,7 +537,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.picker_upper is None:
             return
         offset = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
-        max_distance = TILE_SIZE * 2
+        max_distance = TILE_SIZE * 1.0
         if offset.length() > max_distance:
             # Throwable is released if it is too far
             self.picker_upper.current_throwable = None
@@ -554,7 +554,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         damping_impulse = -rel_velocity * dt * damping_force
         impulse = offset * spring_force * dt + damping_impulse
         self.velocity += impulse / self.weight
-        self.picker_upper.velocity -= impulse / self.picker_upper.weight
+        opposite_impulse = -impulse / self.picker_upper.weight
+        # Cap opposite impulse so that player cannot 'hang' from its throwable (for one-way platforms)
+        opposite_impulse[1] = max(-GRAVITY[1] * dt * 0.9, opposite_impulse[1])
+        self.picker_upper.velocity += opposite_impulse
 
     def is_colliding_static(self, axis: int, offset: float = 0.0) -> bool:
         collision_rect = self.clipped_collision_rect()
