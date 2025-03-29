@@ -1,21 +1,21 @@
 {
-    "camera_view_tile_range": [0, 0, 40, 20],
+    "camera_view_tile_range": [0, 0, 34, 20],
     "camera_scale": 1.5,
     "tilemap_offset": [-1, -1],
     "sprites": {
-        "player": {"pos": [2, 6]},
-        "throwables": [],
+        "player": {"pos": [8, 6]},
+        "throwables": [{"pos": [23, 3], "type": "GOLD"}],
         "portals": {
             "BEIGE": [{"pos": [21, 18], "orientation": "NORTH"}, {"pos": [1, 11], "orientation": "EAST"}],
             "RED": [{"pos": [27, 18], "orientation": "NORTH"}, {"pos": [1, 5], "orientation": "EAST"}],
             "BLUE": [{"pos": [23, 16], "orientation": "WEST"}, {"pos": [19, 6], "orientation": "WEST"}],
             "YELLOW": [{"pos": [20, 9], "orientation": "SOUTH"}, {"pos": [16, 1], "orientation": "WEST"}],
             "GREEN": [{"pos": [29, 1], "orientation": "SOUTH"}, {"pos": [18, 1], "orientation": "EAST"}],
-            "CYAN": [{"pos": [20, 5], "orientation": "NORTH"}, {"pos": [23, 6], "orientation": "EAST"}]
+            "CYAN": [{"pos": [20, 5], "orientation": "NORTH"}, {"pos": [20, 1], "orientation": "SOUTH"}]
         },
-        "one_way_blocks": [],
-        "doors": [],
-        "buttons": [],
-        "finishes": [{"pos": [33, 3]}]
+        "one_way_blocks": [{"pos": [23, 4], "width": 1}],
+        "doors": [{"pos": [4, 16], "length": 3, "orientation": "VERTICAL"}],
+        "buttons": [{"pos": [4, 13], "linked_to": ["doors[0]"]}],
+        "finishes": [{"pos": [2, 18]}]
     }
 }
