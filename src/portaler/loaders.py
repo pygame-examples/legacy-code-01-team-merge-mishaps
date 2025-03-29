@@ -104,44 +104,46 @@ class LevelLoader:
     def load_sprites(self, target: level.Level) -> None:  # noqa: C901  (shush)
         data = self.data["sprites"]
         trigger_lookup: dict[str, PhysicsSpriteInterface] = {}
+        # NOTE: The order in which these are loaded affects the order in which they are drawn
+        if "one_way_blocks" in data:
+            for i, block in enumerate(data["one_way_blocks"]):
+                pos = block["pos"]
+                width = block["width"]
+                target.spawn_one_way_block(pos, width)
         if "player" in data:
             player_data = data["player"]
-            trigger_lookup["player"] = target.spawn_player(player_data["pos"])
+            target.spawn_player(player_data["pos"])
+        if "throwables" in data:
+            for i, throwable in enumerate(data["throwables"]):
+                pos = throwable["pos"]
+                throwable_type = ThrowableType[throwable["type"]]
+                target.spawn_throwable(pos, throwable_type)
         if "portals" in data:
             for color, pair in data["portals"].items():
                 portal_color = PortalColor[color]
                 portal_a, portal_b = pair
-                trigger_lookup[f"portals[{color}]"] = target.spawn_portal_pair(
+                target.spawn_portal_pair(
                     portal_a["pos"],
                     Direction[portal_a["orientation"]],
                     portal_b["pos"],
                     Direction[portal_b["orientation"]],
                     portal_color,
                 )
+        if "finishes" in data:
+            for i, finish in enumerate(data["finishes"]):
+                pos = finish["pos"]
+                trigger_lookup[f"finishes[{i}]"] = target.spawn_finish(pos)
         if "doors" in data:
             for i, door in enumerate(data["doors"]):
                 pos = door["pos"]
                 length = door["length"]
                 orientation = Axis[door["orientation"]]
                 trigger_lookup[f"doors[{i}]"] = target.spawn_door(pos, length, orientation)
-        if "throwables" in data:
-            for i, throwable in enumerate(data["throwables"]):
-                pos = throwable["pos"]
-                throwable_type = ThrowableType[throwable["type"]]
-                trigger_lookup[f"throwables[{i}]"] = target.spawn_throwable(pos, throwable_type)
-        if "finishes" in data:
-            for i, finish in enumerate(data["finishes"]):
-                pos = finish["pos"]
-                trigger_lookup[f"finishes[{i}]"] = target.spawn_finish(pos)
-        if "one_way_blocks" in data:
-            for i, block in enumerate(data["one_way_blocks"]):
-                pos = block["pos"]
-                width = block["width"]
-                trigger_lookup[f"one_way_blocks[{i}]"] = target.spawn_one_way_block(pos, width)
         if "buttons" in data:
             for i, button in enumerate(data["buttons"]):
                 pos = button["pos"]
                 linked_to_array = button["linked_to"]
+                # NOTE: requires trigger_lookup to be complete (except later buttons)
                 linked_to = [trigger_lookup[trigger] for trigger in linked_to_array]
                 trigger_lookup[f"buttons[{i}]"] = target.spawn_button(pos, linked_to)
         # TODO: explode when unknown key
