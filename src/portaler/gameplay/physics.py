@@ -549,9 +549,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             return
         # otherwise make this cool magnet effect
         spring_force: float = 10_000  # stronger pull
-        damping_force: float = 2_000  # reduce jittering, whipping
-        rel_velocity = self.velocity - self.picker_upper.velocity
-        damping_impulse = -rel_velocity * dt * damping_force
+        damping_coefficient: float = 1_000  # reduce jittering, whipping
+        damping_impulse = (self.picker_upper.velocity - self.velocity) * (damping_coefficient * dt)
         impulse = offset * spring_force * dt + damping_impulse
         self.velocity += impulse / self.weight
         opposite_impulse = -impulse / self.picker_upper.weight
