@@ -3,12 +3,15 @@
     "camera_scale": 2.0,
     "tilemap_offset": [-1, -1],
     "sprites": {
-        "player": {"pos": [3, 5]},
-        "throwables": [{"pos": [1, 2], "type": "WOOD"}],
+        "player": {"pos": [3, 11]},
+        "throwables": [{"pos": [9, 7], "type": "WOOD"}],
         "portals": {
             "GREEN": [{"pos": [6, 2], "orientation": "SOUTH"}, {"pos": [8, 10], "orientation": "EAST"}]
         },
-        "one_way_blocks": [{"pos": [16, 8], "width": 3}],
+        "one_way_blocks": [
+            {"pos": [1, 10], "width": 5},
+            {"pos": [14, 10], "width": 5}
+        ],
         "doors": [{"pos": [13, 2], "length": 6, "orientation": "VERTICAL"}],
         "buttons": [{"pos": [9, 13], "linked_to": ["doors[0]"]}],
         "finishes": [{"pos": [16, 12]}]
