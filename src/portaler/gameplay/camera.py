@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from ..interfaces import SpriteInterface
 
 
-class Camera(pygame.sprite.LayeredUpdates):
+class Camera(pygame.sprite.Group):
     """
     Camera group, meant for following a specific sprite while rendering
     """
