@@ -597,7 +597,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.on_ground = self.is_colliding_static(1, 0.5)
             if self.on_ground:
                 self.velocity[1] = 0
-                if sign(self.facing[0]) != sign(self.velocity[0]):
+                if (
+                    sign(self.facing[0]) != sign(self.velocity[0])
+                    or abs(self.velocity[0]) > self.horizontal_ground_speed
+                ):
                     self.velocity[0] *= self.ground_damping**dt
                 self.coyote_time_left = self.coyote_time
             else:
