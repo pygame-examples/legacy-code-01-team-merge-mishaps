@@ -330,7 +330,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.in_portal.collision_rect,
             self.in_portal.orientation,
         ):
-            self.exit_portal()
+            self.teleport_portal()
             return
         # If I've turned around when inside the exit portal, swap the enter and exit portals
         if self.portal_state == self.PortalState.EXIT and is_entering_portal(
@@ -342,7 +342,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if not is_inside_portal(
             self.collision_rect, self.engaged_portal.collision_rect, self.engaged_portal.orientation
         ):
-            self.abort_portal()
+            self.exit_portal()
             return
         return
 
@@ -423,7 +423,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.out_portal = out_portal
         self.portal_state = self.PortalState.ENTER
 
-    def exit_portal(self) -> None:
+    def teleport_portal(self) -> None:
         """
         State changes when a sprite switches from entering a portal to exiting a different portal
         (Now it accounts for portals being of different orientations :D)
@@ -464,9 +464,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             # Teleport current throwable
             if self.current_throwable.in_portal is not self.in_portal:
                 self.current_throwable.enter_portal(self.in_portal, self.out_portal)
-            self.current_throwable.exit_portal()
+            self.current_throwable.teleport_portal()
 
-    def abort_portal(self) -> None:
+    def exit_portal(self) -> None:
         """
         State changes when I leave the portal completely
 
