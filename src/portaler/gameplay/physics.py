@@ -422,7 +422,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.in_portal = portal
         self.out_portal = twin
         self.portal_state = self.PortalState.ENTER
-        get_sfx("teleport.ogg").play()  # play the portal enter sound
 
     def exit_portal(self) -> None:
         """
@@ -463,8 +462,8 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.rect.left = self.out_portal.rect.right - 1
         else:
             raise ValueError(orientation)
-
         self.portal_state = self.PortalState.EXIT
+        get_sfx("teleport.ogg").play()  # play the portal teleport sound
 
     def abort_portal(self) -> None:
         """
