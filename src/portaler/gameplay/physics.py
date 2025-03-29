@@ -413,14 +413,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
                     if portal is not self:
                         sprite.enter_portal(self, portal)
 
-    def enter_portal(self, portal: PhysicsSprite, twin: PhysicsSprite) -> None:
+    def enter_portal(self, in_portal: PhysicsSprite, out_portal: PhysicsSprite) -> None:
         """
         State changes when a sprite enters a portal
 
         Called internally.
         """
-        self.in_portal = portal
-        self.out_portal = twin
+        self.in_portal = in_portal
+        self.out_portal = out_portal
         self.portal_state = self.PortalState.ENTER
 
     def exit_portal(self) -> None:
