@@ -492,7 +492,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         Throws the current object held
         """
-        if not self.current_throwable:
+        if self.current_throwable is None:
             return False
         yeet_force = self.yeet_force
         if self.facing:
@@ -533,24 +533,27 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         makes the picked up object follow the one who picked up the object
         """
-        if not self.picker_upper:
+        if self.picker_upper is None:
             return
         offset = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
-        if offset.length() > 2 * TILE_SIZE:
-            # if the picker_upper is too far away (went through the portal for example)
-            # then teleport to the picker_upper
-            # TODO: better way?
-            self.pos = self.picker_upper.pos
-        elif offset.length() > TILE_SIZE // 4:
-            # otherwise make this cool magnet effect
-            spring_force: float = 10_000  # stronger pull
-            damping_force: float = 2_000  # reduce jittering, whipping
-            rel_velocity = self.velocity - self.picker_upper.velocity
-            damping_impulse = -rel_velocity * dt * damping_force
-            # self.velocity = rel_velocity + self.picker_upper.velocity
-            impulse = offset * spring_force * dt + damping_impulse
-            self.velocity += impulse / self.weight
-            self.picker_upper.velocity -= impulse / self.picker_upper.weight
+        max_distance = TILE_SIZE * 2
+        if offset.length() > max_distance:
+            # Throwable is released if it is too far
+            self.picker_upper.current_throwable = None
+            self.picker_upper = None
+            return
+        leeway = TILE_SIZE // 4
+        if offset.length() <= leeway:
+            # Give some leeway offset for pulling
+            return
+        # otherwise make this cool magnet effect
+        spring_force: float = 10_000  # stronger pull
+        damping_force: float = 2_000  # reduce jittering, whipping
+        rel_velocity = self.velocity - self.picker_upper.velocity
+        damping_impulse = -rel_velocity * dt * damping_force
+        impulse = offset * spring_force * dt + damping_impulse
+        self.velocity += impulse / self.weight
+        self.picker_upper.velocity -= impulse / self.picker_upper.weight
 
     def is_colliding_static(self, axis: int, offset: float = 0.0) -> bool:
         collision_rect = self.clipped_collision_rect()
