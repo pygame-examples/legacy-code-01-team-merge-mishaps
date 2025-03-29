@@ -20,7 +20,11 @@ class Block(PhysicsSprite):
 
 
 class OneWayBlock(PhysicsSprite):
-    """You can jump up through and press down through this block"""
+    """You can jump up through and press down through this block.
+
+    The height of it's rect is smaller than other blocks because it is thinner.
+    The height affects the thickness of the platform for collision purposes.
+    """
 
     def __init__(self, data: SpriteInitData):
         physics_data = SpritePhysicsData(physics_type=PhysicsType.STATIC, one_way=True)

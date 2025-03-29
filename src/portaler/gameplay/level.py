@@ -42,7 +42,7 @@ class Level(GameLevelInterface):
         self.game: GameInterface = game
 
         # 0 for test map
-        self.level_count = 4
+        self.level_count = 5
 
         # Currently the only thing overwritten by the level loader
         self.camera.view_range = pygame.FRect(0, 0, 1088, 320)
@@ -175,8 +175,8 @@ class Level(GameLevelInterface):
                     pos[0] * TILE_SIZE,
                     pos[1] * TILE_SIZE,
                     width * TILE_SIZE,
-                    TILE_SIZE,
-                ),
+                    0.0001 * TILE_SIZE,  # Height/depth/thickness of platform (thinner than one tile)
+                ),  # can be arbitrarily thin because we have platform anti-tunneling
                 level=self,
             ),
         )

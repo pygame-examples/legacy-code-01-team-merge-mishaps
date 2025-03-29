@@ -370,17 +370,20 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.rect.center = center[0], center[1]
 
         # which way I need to move if I'm colliding based on velocity
-        offset: float = 0.1
+        offset_step: float = 0.1  # (>0.0) how precise collision resolution is
         if self.velocity[axis] > 0:
-            offset *= -1
+            offset_step *= -1
 
         # move me out of collision
-        moved: bool = False
-        while self.is_colliding_static(axis):
-            self.rect[axis] += offset
-            self.velocity[axis] = 0
-            moved = True
-        return moved
+        offset: float = 0.0
+        while self.is_colliding_static(axis, dt, offset):
+            offset += offset_step
+        if offset == 0.0:
+            # No collision
+            return False
+        self.velocity[axis] = 0.0
+        self.rect[axis] += offset
+        return True
 
     def handle_trigger_collision(self) -> None:
         """
@@ -558,34 +561,47 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         opposite_impulse[1] = max(-GRAVITY[1] * dt * 0.9, opposite_impulse[1])
         self.picker_upper.velocity += opposite_impulse
 
-    def is_colliding_static(self, axis: int, offset: float = 0.0) -> bool:
+    def is_colliding_static(self, axis: int, dt: float, offset: float = 0.0) -> bool:
+        """Check if I am colliding with a static object along the given axis, when moved by offset.
+
+        Uses dt in order to prevent tunneling.
+        """
         collision_rect = self.clipped_collision_rect()
         collision_rect[axis] += offset
-        # Don't collide with stuff overlapping with portals when moving into or out of the portal
-        if self.engaged_portal is not None:
-            if get_axis_of_direction(self.engaged_portal.orientation) == axis:
-                return False
-            if is_aligned_with_portal(
+
+        if self.engaged_portal is not None and (
+            # Don't collide on portal axis when moving into or out of the portal
+            get_axis_of_direction(self.engaged_portal.orientation) == axis
+            # Don't collide perpendicularly when within the sides of portal
+            or is_aligned_with_portal(
                 collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation
-            ):
-                return False
+            )
+        ):
+            return False
         for sprite in self.level.get_group("static-physics"):
-            one_way_collide_margin = 5.0  # How 'deep' a one way platform can collide with the player
-            min_one_way_velocity = 100.0  # The lowest velocity at which a player can manually go down through
-            if sprite.one_way and (
-                self.velocity.y < 0 or (self.facing.y > 0 and self.velocity.y < min_one_way_velocity)
-            ):
-                # skip one way if moving up
-                # or player presses down AND velocity is low (so that it almost always collides at least once)
+            if not sprite.collision_rect.colliderect(collision_rect):
                 continue
-            if sprite.collision_rect.colliderect(collision_rect):
-                if (
-                    sprite.one_way
-                    and self.collision_rect.bottom > sprite.collision_rect.top + one_way_collide_margin
-                ):
-                    # inside one way platform but not on top of it
-                    continue
+            if not sprite.one_way:
                 return True
+            if axis == 0:
+                # Never collide horizontally with one way platforms
+                continue
+            y_velocity = self.velocity.y
+            if y_velocity < 0:
+                # skip one way if moving up
+                continue
+            min_one_way_velocity = 100.0  # The lowest velocity at which a player can manually go down through
+            if self.facing.y > 0 and y_velocity < min_one_way_velocity:
+                # player presses down
+                # AND velocity is low (forces fast falling speeds to collide at least once)
+                continue
+            # NOTE: one way platforms are thinner (shorter) than normal tiles for obvious reasons
+            if self.collision_rect.bottom > sprite.collision_rect.bottom:
+                # inside platform tile rect but too low to get on top
+                if self.collision_rect.bottom - y_velocity * dt > sprite.collision_rect.bottom:
+                    # (anti-tunneling) previous position was also too low to get on top
+                    continue
+            return True
         return False
 
     def update_physics(self, dt: float) -> None:
@@ -599,7 +615,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             self.update_throwable(dt)
             self.handle_dynamic_collision(1, dt)
             self.handle_dynamic_collision(0, dt)
-            self.on_ground = self.is_colliding_static(1, 0.5)
+            self.on_ground = self.is_colliding_static(1, dt, 0.5)
             if self.on_ground:
                 self.velocity[1] = 0
                 if (
