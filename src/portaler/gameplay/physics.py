@@ -432,38 +432,39 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         assert self.out_portal is not None
         assert self.in_portal is not None
+        if self.picker_upper is not None and self.picker_upper.engaged_portal is not self.out_portal:
+            # Do not teleport if picker upper has not already teleported
+            return
+        out_orientation = self.out_portal.orientation
+        self.velocity = pygame.Vector2(self.velocity.length(), 0).rotate(DIRECTION_TO_ANGLE[out_orientation])
         # move the sprite to behind the exit portal
-        orientation = self.out_portal.orientation
-        self.velocity = pygame.Vector2(self.velocity.length(), 0).rotate(DIRECTION_TO_ANGLE[orientation])
-        in_portal_axis = get_axis_of_direction(self.in_portal.orientation)
-        if orientation == Direction.NORTH:
-            if in_portal_axis:
-                self.rect.left = self.out_portal.rect.left + self.rect.left - self.in_portal.rect.left
+        if get_axis_of_direction(out_orientation) == 0:
+            self.rect.top = self.out_portal.rect.top + (
+                self.rect.top - self.in_portal.rect.top
+                if get_axis_of_direction(self.in_portal.orientation) == 0
+                else self.in_portal.rect.right - self.rect.right
+            )
+            if out_orientation == Direction.WEST:
+                self.rect.left = self.out_portal.rect.right - 1
             else:
-                self.rect.left = self.out_portal.rect.left + self.in_portal.rect.bottom - self.rect.bottom
-            self.rect.top = self.out_portal.rect.bottom - 1
-        elif orientation == Direction.SOUTH:
-            if in_portal_axis:
-                self.rect.left = self.out_portal.rect.left + self.rect.left - self.in_portal.rect.left
-            else:
-                self.rect.left = self.out_portal.rect.left + self.in_portal.rect.bottom - self.rect.bottom
-            self.rect.bottom = self.out_portal.rect.top + 1
-        elif orientation == Direction.EAST:
-            if in_portal_axis:
-                self.rect.top = self.out_portal.rect.top + self.in_portal.rect.right - self.rect.right
-            else:
-                self.rect.top = self.out_portal.rect.top + self.rect.top - self.in_portal.rect.top
-            self.rect.right = self.out_portal.rect.left + 1
-        elif orientation == Direction.WEST:
-            if in_portal_axis:
-                self.rect.top = self.out_portal.rect.top + self.in_portal.rect.right - self.rect.right
-            else:
-                self.rect.top = self.out_portal.rect.top + self.rect.top - self.in_portal.rect.top
-            self.rect.left = self.out_portal.rect.right - 1
+                self.rect.right = self.out_portal.rect.left + 1
         else:
-            raise ValueError(orientation)
+            self.rect.left = self.out_portal.rect.left + (
+                self.rect.left - self.in_portal.rect.left
+                if get_axis_of_direction(self.in_portal.orientation) == 1
+                else self.in_portal.rect.bottom - self.rect.bottom
+            )
+            if out_orientation == Direction.NORTH:
+                self.rect.top = self.out_portal.rect.bottom - 1
+            else:
+                self.rect.bottom = self.out_portal.rect.top + 1
         self.portal_state = self.PortalState.EXIT
         get_sfx("teleport.ogg").play()  # play the portal teleport sound
+        if self.current_throwable is not None:
+            # Teleport current throwable
+            if self.current_throwable.in_portal is not self.in_portal:
+                self.current_throwable.enter_portal(self.in_portal, self.out_portal)
+            self.current_throwable.exit_portal()
 
     def abort_portal(self) -> None:
         """
