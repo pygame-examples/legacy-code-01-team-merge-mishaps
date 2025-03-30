@@ -26,6 +26,8 @@ from .gameplay.camera import Camera
 
 _T = TypeVar("_T")
 
+_S = TypeVar("_S", bound=type["SpriteInterface"])
+
 
 class PhysicsType(Enum):
     STATIC = auto()  # Dynamic sprites collide with and stay off of
@@ -125,15 +127,16 @@ class GameLevelInterface(GameStateInterface, ABC):
 
     def spawn(
         self,
-        cls: Callable[[SpriteInitData], SpriteInterface],
+        cls: _S,
         data: SpriteInitData,
         target: bool = False,
-    ) -> SpriteInterface:
+    ) -> _S:
         """Spawn a new sprite"""
+        # TODO: why does this exist
         sprite = cls(data)
         if target:
             self.camera.set_target(sprite)
-        return sprite
+        return sprite  # type: ignore[return-value]
 
     @overload
     def get_group(self, group_name: str, /) -> pygame.sprite.AbstractGroup: ...

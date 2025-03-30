@@ -42,7 +42,7 @@ class Level(GameLevelInterface):
         self.game: GameInterface = game
 
         # 0 for test map
-        self.level_count = 5
+        self.level_count = 3
 
         # Currently the only thing overwritten by the level loader
         self.camera.view_range = pygame.FRect(0, 0, 1088, 320)
@@ -182,7 +182,7 @@ class Level(GameLevelInterface):
         )
         return block
 
-    def spawn_door(self, pos, length: int, orientation: Axis):
+    def spawn_door(self, pos, length: int, orientation: Axis, *, draw_head: bool = True):
         rect = FRect(
             (pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, 2 * TILE_SIZE, length * TILE_SIZE)
             if orientation is not Axis.HORIZONTAL
@@ -197,7 +197,7 @@ class Level(GameLevelInterface):
             Door,
             SpriteInitData(rect=rect, level=self, properties={"orientation": orientation}),
         )
-
+        door.draw_head = draw_head
         return door
 
     def spawn_finish(self, pos):

@@ -16,7 +16,7 @@ class Door(PhysicsSprite):
     # goofy implementation so that sound works with multiple doors
     sounding_doors: ClassVar[WeakSet[Door]] = WeakSet()
 
-    def __init__(self, data: SpriteInitData):
+    def __init__(self, data: SpriteInitData) -> None:
         """
         A mechanical obstacle, designed to be impenetrable by any means.
         The only way to bypass this restricting beam of metal is to
@@ -37,15 +37,17 @@ class Door(PhysicsSprite):
             scale_factor = data.rect[3] // 32
 
         self.state = "closing"  # possible states: "opening", "closing"
+        # HACK: apparently -32 needs to be added to each height
         self.max_height = (
             data.rect[3] if self.orientation == Axis.VERTICAL else data.rect[2]
-        )  # how big can the door opening be?
-        # HACK: -32 is such that the door is completely open
-        self.min_height = -32  # how small can the door opening be?
+        ) - 32  # how big can the door opening be?
+        self.min_height = 0 - 32  # how small can the door opening be?
         self.current_height = self.max_height  # currently CLOSED
         self.image_size = (
             self.rect.size if self.orientation == Axis.VERTICAL else (self.rect.h, self.rect.w)
         )  # we sill draw the thing vertically, then rotate it
+
+        self.draw_head = True  # whether to draw head of the door
 
         if data.properties["orientation"] == Axis.VERTICAL:
             self.head_rect = pygame.FRect(0, 0, self.rect.width, 16 * scale_factor)
@@ -104,7 +106,8 @@ class Door(PhysicsSprite):
         door_surface = pygame.transform.rotate(door_surface, 180)
 
         # draw head and base
-        door_surface.blit(self.segments["head"], self.head_rect)
+        if self.draw_head:
+            door_surface.blit(self.segments["head"], self.head_rect)
         door_surface.blit(self.segments["base"], self.base_rect)
 
         # draw lights indicating opening and closing
