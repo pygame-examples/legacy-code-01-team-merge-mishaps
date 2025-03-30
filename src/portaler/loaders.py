@@ -62,9 +62,10 @@ class LevelLoader:
         self.data["tilemap"] = [line.strip() for line in self.data["raw_tilemap"].split("\n")]
 
     def load(self, target: level.Level) -> None:
+        # NOTE: order matters, for rendering
         self.load_config(target)
-        self.load_tiles(target)
         self.load_sprites(target)
+        self.load_tiles(target)
 
     def load_tiles(self, target: level.Level) -> None:
         data = self.data["tilemap"]
