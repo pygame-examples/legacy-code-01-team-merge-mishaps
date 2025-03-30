@@ -376,8 +376,12 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         # move me out of collision
         offset: float = 0.0
+        max_offset = TILE_SIZE * 1.5  # Must be large enough to move out of stuck doors
         while self.is_colliding_static(axis, dt, offset):
             offset += offset_step
+            if abs(offset) > max_offset:
+                # Offset too large, possibly stuck in door
+                return False
         if offset == 0.0:
             # No collision
             return False
