@@ -1,0 +1,46 @@
+{
+    "camera_view_tile_range": [1, 0, 26, 20],
+    "camera_scale": 1.5,
+    "tilemap_offset": [-1, -1],
+    "sprites": {
+        "player": {"pos": [12, 6]},
+        "throwables": [
+            {"pos": [14, 6], "type": "WOOD"},
+            {"pos": [16, 6], "type": "IRON"},
+            {"pos": [18, 6], "type": "GOLD"}
+        ],
+        "portals": {
+            "YELLOW": [{"pos": [1, 16], "orientation": "EAST"}, {"pos": [15, 8], "orientation": "WEST"}],
+            "RED": [{"pos": [12, 8], "orientation": "SOUTH"}, {"pos": [12, 11], "orientation": "EAST"}],
+            "BLUE": [{"pos": [2, 18], "orientation": "NORTH"}, {"pos": [6, 4], "orientation": "WEST"}],
+            "GREEN": [{"pos": [3, 9], "orientation": "NORTH"}, {"pos": [2, 4], "orientation": "EAST"}],
+            "BEIGE": [{"pos": [8, 8], "orientation": "EAST"}, {"pos": [23, 4], "orientation": "WEST"}]
+        },
+        "one_way_blocks": [
+            {"pos": [13, 14], "width": 2},
+            {"pos": [12, 11], "width": 4},
+            {"pos": [4, 16], "width": 5},
+            {"pos": [7, 7], "width": 5},
+            {"pos": [20, 11], "width": 2},
+            {"pos": [17, 4], "width": 3},
+            {"pos": [22, 4], "width": 3},
+            {"pos": [2, 4], "width": 5},
+            {"pos": [10, 4], "width": 4}
+        ],
+        "doors": [
+            {"pos": [13, 14], "length": 5, "orientation": "VERTICAL", "draw_head": false},
+            {"pos": [3, 7], "length": 3, "orientation": "HORIZONTAL"},
+            {"pos": [19, 15], "length": 4, "orientation": "VERTICAL"},
+            {"pos": [22, 15], "length": 4, "orientation": "VERTICAL"},
+            {"pos": [20, 4], "length": 3, "orientation": "VERTICAL", "draw_head": false}
+        ],
+        "buttons": [
+            {"pos": [6, 15], "linked_to": ["doors[0]"]},
+            {"pos": [22, 10], "linked_to": ["doors[1]"]},
+            {"pos": [19, 13], "linked_to": ["doors[2]"]},
+            {"pos": [22, 13], "linked_to": ["doors[3]"]},
+            {"pos": [23, 3], "linked_to": ["doors[4]"]}
+        ],
+        "finishes": [{"pos": [25, 18]}]
+    }
+}
