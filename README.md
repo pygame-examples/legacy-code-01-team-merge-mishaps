@@ -9,12 +9,13 @@ Team two Merge Mishaps (times are in UTC):
 5) @Matiiss Monday, March 17, 2025 at 12:00 AM - Monday, March 24, 2025 at 12:00 AM
 6) @nuclear pasta Monday, March 24, 2025 at 12:00 AM - Monday, March 31, 2025 at 12:00 AM
 
-## Gameplay
+## Controls
 - To move use either WASD or arrow keys
-- To jump press W or up arrow key
-- To interact (pick up or throw) press SPACE
+- To jump press SPACE
 - To slam down double press S or down key
+- To interact (pick up or throw) press E
 - Aim your throws by pressing the keys in the direction of which you want to throw
+  - note: some directions might not work on certain keyboards depending on key rollover ability
 
 
 ## Development
