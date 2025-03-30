@@ -543,7 +543,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         If no throwables, the sprite is None and distance is infinity.
         """
         # Forgive me for the atrocity I have commited here
-        group: pygame.sprite.AbstractGroup | None = self.level.get_group("throwable-physics")
+        group: pygame.sprite.AbstractGroup | None = self.level.get_group("throwable-physics", None)
         throwables = set(group) if group else set()
         closest_throwable = None
         closest_distance = float("inf")
