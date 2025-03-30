@@ -31,7 +31,8 @@ class Door(PhysicsSprite):
         data.groups.extend(["physics", "render", "static-physics"])
         super().__init__(data, physics_data)
 
-        if data.properties["orientation"] == Axis.VERTICAL:
+        self.orientation = data.properties["orientation"]
+        if self.orientation == Axis.VERTICAL:
             scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
         else:
             scale_factor = data.rect[3] // 32
@@ -49,22 +50,18 @@ class Door(PhysicsSprite):
 
         self.draw_head = True  # whether to draw head of the door
 
-        if data.properties["orientation"] == Axis.VERTICAL:
-            self.head_rect = pygame.FRect(0, 0, self.rect.width, 16 * scale_factor)
-            self.base_rect = pygame.FRect(
-                0,
-                self.rect.height - 16 * scale_factor,
-                self.rect.width,
-                16 * scale_factor,
+        if self.orientation == Axis.VERTICAL:
+            head_rect = pygame.FRect(0, 0, self.rect.width, 16 * scale_factor)
+            base_rect = pygame.FRect(
+                0, self.rect.height - 16 * scale_factor, self.rect.width, 16 * scale_factor
             )
-        elif data.properties["orientation"] == Axis.HORIZONTAL:
-            self.head_rect = pygame.FRect(0, 0, 16 * scale_factor, self.rect.width)
-            self.base_rect = pygame.FRect(
-                0,
-                self.rect.width - 16 * scale_factor,
-                16 * scale_factor,
-                self.rect.width,
+        else:
+            head_rect = pygame.FRect(0, 0, 16 * scale_factor, self.rect.width)
+            base_rect = pygame.FRect(
+                0, self.rect.width - 16 * scale_factor, 16 * scale_factor, self.rect.width
             )
+        self.head_rect = head_rect
+        self.base_rect = base_rect
 
         self.middle_rect = self.rect.copy()
         self.duration = 1.0  # How long it takes to open fully
@@ -88,8 +85,7 @@ class Door(PhysicsSprite):
         total = self.max_height - self.min_height
         offset = total * dt / self.duration
         self.current_height += offset if self.state != "opening" else -offset
-        self.current_height = min(max(self.current_height, self.min_height), self.max_height)
-        # TODO: fix bug where player can use closing door to clip through walls
+        self.current_height = min(max(self.current_height, self.min_height), self.max_height + 0.01)
 
     def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
         door_surface = pygame.Surface(self.image_size, pygame.SRCALPHA)
@@ -129,7 +125,7 @@ class Door(PhysicsSprite):
 
         # rotate the thing
         if self.orientation == Axis.HORIZONTAL:
-            door_surface = pygame.transform.rotate(door_surface, -90)
+            door_surface = pygame.transform.rotate(door_surface, 90)
 
         # blit everything onto the screen
         surface.blit(door_surface, self.rect.move(-offset))
@@ -142,9 +138,18 @@ class Door(PhysicsSprite):
 
     @property
     def collision_rect(self):
-        return pygame.Rect(
-            self.rect.left + self.segments["middle"].width // 4,
-            self.rect.bottom - self.current_height - self.segments["tip"].height,
-            self.rect.width // 2,
-            self.current_height + self.segments["tip"].height,
-        )
+        if self.orientation == Axis.VERTICAL:
+            rect = pygame.Rect(
+                self.rect.left + self.segments["middle"].width // 4,
+                self.rect.bottom - self.current_height - self.segments["tip"].height,
+                self.rect.width // 2,
+                self.current_height + self.segments["tip"].height,
+            )
+        else:
+            rect = pygame.Rect(
+                self.rect.right - self.current_height - self.segments["tip"].height,
+                self.rect.top + self.segments["middle"].width // 4,
+                self.current_height + self.segments["tip"].height,
+                self.rect.height // 2,
+            )
+        return rect
