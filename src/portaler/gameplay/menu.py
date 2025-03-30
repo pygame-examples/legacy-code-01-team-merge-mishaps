@@ -8,7 +8,8 @@ class Menu(GameStateInterface):
     Only reason this exists is for testing ATM
     """
 
-    def __init__(self): ...
+    def __init__(self):
+        raise NotImplementedError
 
     async def update_physics(self, dt: float):
         return super().update_physics(dt)

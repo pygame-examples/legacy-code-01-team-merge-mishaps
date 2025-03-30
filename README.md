@@ -17,10 +17,24 @@ Team two Merge Mishaps (times are in UTC):
 - Aim your throws by pressing the keys in the direction of which you want to throw
   - note: some directions might not work on certain keyboards depending on key rollover ability
 
+## To run
+First, install `uv`.
+```
+pip install uv
+```
+Then, install dependencies and game.
+```
+uv sync
+```
+Run:
+```bash
+python main.py
+```
+
 
 ## Development
 Not sure what to do? Try looking for `TODO`s and do those.  
-Also check out `src/portaler/assets/ideas` for some level ideas.  
+Also check out `src/portaler/assets/ideas` for some level ideas.
 
 ### Environment setup
 #### With [`uv`](https://docs.astral.sh/uv/):
@@ -43,8 +57,9 @@ uvx pre-commit install
 
 ### The plan / some more TODOs
 - [x] make this README more beautiful
-- [ ] implement some cool levels, most probably puzzles (definatelly not a ripoff of portal 2, noooooo)
 - [ ] learn how to read TODOs inside code, because someone probably left something important there
+- [ ] menu
+- [ ] music
 
 
 ### Guide to the source code
