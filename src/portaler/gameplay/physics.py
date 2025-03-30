@@ -6,7 +6,14 @@ from functools import wraps
 
 import pygame
 
-from ..const import AIR_CONTROLS_REDUCTION, GRAVITY, HORIZONTAL_YEET_ANGLE, MAX_SPEED, TILE_SIZE
+from ..const import (
+    AIR_CONTROLS_REDUCTION,
+    GRAVITY,
+    HORIZONTAL_YEET_ANGLE,
+    MAX_COLLISION_OFFSET,
+    MAX_SPEED,
+    TILE_SIZE,
+)
 from ..interfaces import (
     DIRECTION_TO_ANGLE,
     Direction,
@@ -346,9 +353,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             return
         return
 
-    def handle_dynamic_collision(self, axis: int, dt: float) -> bool:
+    def update_position(self, axis: int, dt: float) -> None:
         """
-        Collision handling for dynamic sprites
+        Update position and do collision resolution.
 
         Called internally
         """
@@ -369,25 +376,35 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         center[axis] += self.velocity[axis] * dt
         self.rect.center = center[0], center[1]
 
+        offset = self.resolve_collision(axis, dt)
+        if offset == 0.0:
+            return
+        self.velocity[axis] = 0.0
+        self.rect[axis] += offset
+
+    def resolve_collision(self, axis: int, dt: float) -> float:
+        """
+        Find the offset to resolve a collision, for the given axis.
+        Both directions are checked, with the smallest offset being chosen.
+        Velocity direction is not taken into account.
+        An offset of 0.0 indicates no collision.
+
+        If the offset returned would be greater than MAX_COLLISION_OFFSET, 0.0 is returned instead.
+
+        Called internally
+        """
         # which way I need to move if I'm colliding based on velocity
-        offset_step: float = 0.1  # (>0.0) how precise collision resolution is
-        if self.velocity[axis] > 0:
-            offset_step *= -1
+        offset_step: float = 0.2  # (>0.0) how precise collision resolution is
 
         # move me out of collision
         offset: float = 0.0
-        max_offset = TILE_SIZE * 1.5  # Must be large enough to move out of stuck doors
-        while self.is_colliding_static(axis, dt, offset):
+        while offset <= MAX_COLLISION_OFFSET:
+            if not self.is_colliding_static(axis, dt, offset):
+                return offset
+            if not self.is_colliding_static(axis, dt, -offset):
+                return -offset
             offset += offset_step
-            if abs(offset) > max_offset:
-                # Offset too large, possibly stuck in door
-                return False
-        if offset == 0.0:
-            # No collision
-            return False
-        self.velocity[axis] = 0.0
-        self.rect[axis] += offset
-        return True
+        return 0.0  # Offset too large
 
     def handle_trigger_collision(self) -> None:
         """
@@ -614,11 +631,11 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.commands_used.clear()
 
         if self.physics_type == PhysicsType.DYNAMIC:
-            # Note: Make sure to do any velocity modifications before handle_dynamic_collision
+            # Note: Make sure to do any velocity modifications before update_position
             # otherwise weird stuff happen - Aiden
             self.update_throwable(dt)
-            self.handle_dynamic_collision(1, dt)
-            self.handle_dynamic_collision(0, dt)
+            self.update_position(1, dt)
+            self.update_position(0, dt)
             self.on_ground = self.is_colliding_static(1, dt, 0.5)
             if self.on_ground:
                 self.velocity[1] = 0

@@ -22,6 +22,8 @@ WINDOW_RESOLUTION: tuple[int, int] = (
     960,
 )  # game resolution (might be different from the actual resolution of the window if resized)
 
+TILE_SIZE = 32  # 32px
+
 # FPS for different loops
 PHYSICS_FPS: int = 120
 RENDER_FPS: int = 60
@@ -31,6 +33,9 @@ GRAVITY: tuple[int, int] = (0, 1000)  # acceleration for Physics sprites
 MAX_SPEED: float = 2000  # max speed of physics sprites
 AIR_CONTROLS_REDUCTION = 0.4  # how much control a dynamic physics object has when moving in the air
 HORIZONTAL_YEET_ANGLE: float = 15.0  # angle of elevation for horizontal yeets
+
+MAX_COLLISION_OFFSET = TILE_SIZE * 1.5  # largest offset used to resolve collisions
+# Must be large enough to get unstuck from closing door, small enough to not clip through tiles
 
 
 class Actions(Enum):  # ROB LITERALLY SAID NOT TO PUT ENUMS IN HERE LMAOO
@@ -59,9 +64,6 @@ DOOR_CHANNEL = 1
 BUTTON_CHANNEL = 2
 
 RESERVED_CHANNELS = [DOOR_CHANNEL, BUTTON_CHANNEL]
-
-
-TILE_SIZE = 32  # 32px
 
 
 ## Util functions ##
