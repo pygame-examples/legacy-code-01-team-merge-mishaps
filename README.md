@@ -17,15 +17,9 @@ Team two Merge Mishaps (times are in UTC):
 - Aim your throws by pressing the keys in the direction of which you want to throw
   - note: some directions might not work on certain keyboards depending on key rollover ability
 
+
 ## To run
-First, install `uv`.
-```
-pip install uv
-```
-Then, install dependencies and game.
-```
-uv sync
-```
+You must have `pygame-ce` installed.
 Run:
 ```bash
 python main.py
