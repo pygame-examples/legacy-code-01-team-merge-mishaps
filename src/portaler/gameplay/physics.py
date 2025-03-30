@@ -192,7 +192,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             pygame.Vector2()
         )  # the direction the sprite is manually facing (usually <0, 0> for non-player sprites)
 
-        self.min_distance: int = 40  # minimum distance to pick up something
+        self.max_holding_distance: float = TILE_SIZE * 1.0  # maximum distance to pick up something, carry it
         self.current_throwable: PhysicsSprite | None = (
             None  # the current think you're about to throw at someone        # bro made a gramatikal mistak
         )
@@ -507,7 +507,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         closest_throwable, distance = self.find_closest_throwable()
         if closest_throwable is None:
             return False
-        if distance <= self.min_distance and not self.current_throwable:
+        if distance <= self.max_holding_distance and not self.current_throwable:
             self.current_throwable = closest_throwable
             self.current_throwable.picker_upper = self
             return True
@@ -561,8 +561,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.picker_upper is None:
             return
         offset = pygame.Vector2(self.picker_upper.pos) - pygame.Vector2(self.pos)
-        max_distance = TILE_SIZE * 1.0
-        if offset.length() > max_distance:
+        if offset.length() > self.max_holding_distance:
             # Throwable is released if it is too far
             self.picker_upper.current_throwable = None
             self.picker_upper = None
