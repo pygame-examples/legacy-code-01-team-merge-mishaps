@@ -14,6 +14,7 @@ from ..interfaces import (
     SpriteInitData,
     ThrowableType,
 )
+from . import sprites_and_sounds
 from .block import Block, OneWayBlock, ThrowableBlock
 from .button import Button, FinishButton
 from .camera import Camera
@@ -222,3 +223,5 @@ class Level(GameLevelInterface):
     def handle_input(self, dt: float) -> None:
         if input_state.get_just(Actions.RESTART):
             self.restart()
+        if input_state.get_just(Actions.TOGGLE_MUTE):
+            sprites_and_sounds.mute = not sprites_and_sounds.mute

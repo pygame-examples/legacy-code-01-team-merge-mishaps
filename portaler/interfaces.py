@@ -17,7 +17,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from types import EllipsisType
-from typing import Any, Callable, Coroutine, TypeVar, cast, overload
+from typing import Any, Coroutine, TypeVar, cast, overload
 
 import pygame
 from pygame.typing import SequenceLike

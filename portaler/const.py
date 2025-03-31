@@ -47,6 +47,7 @@ class Actions(Enum):  # ROB LITERALLY SAID NOT TO PUT ENUMS IN HERE LMAOO
     JUMP = auto()
     INTERACT = auto()
     RESTART = auto()
+    TOGGLE_MUTE = auto()
 
 
 DEFAULT_KEYBINDINGS = {
@@ -61,6 +62,7 @@ DEFAULT_KEYBINDINGS = {
     Actions.JUMP: [pygame.K_SPACE],
     Actions.INTERACT: [pygame.K_e],
     Actions.RESTART: [pygame.K_r],
+    Actions.TOGGLE_MUTE: [pygame.K_m],
 }
 
 # reserve channels for sounds

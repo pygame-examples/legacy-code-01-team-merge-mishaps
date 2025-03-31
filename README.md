@@ -16,6 +16,7 @@ Team two Merge Mishaps (times are in UTC):
 - To interact (pick up or throw) press E
 - Aim your throws by pressing the keys in the direction of which you want to throw
   - note: some directions might not work on certain keyboards depending on key rollover ability
+- To toggle mute, press M
 
 
 ## To run
