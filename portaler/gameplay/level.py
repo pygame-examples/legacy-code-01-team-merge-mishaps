@@ -57,7 +57,7 @@ class Level(GameLevelInterface):
 
         from .. import loaders  # TODO: fix ridiculous circular dependency
 
-        if self.level_count > 6:
+        if self.level_count > 5:
             self.level_count = 1  # TODO: win screen
 
         loaders.LevelLoader(str(self.level_count)).load(self)
