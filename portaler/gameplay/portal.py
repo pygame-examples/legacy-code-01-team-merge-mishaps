@@ -3,7 +3,6 @@ import pygame
 from ..interfaces import DIRECTION_TO_ANGLE, PhysicsType, SpriteInitData, SpritePhysicsData
 from .animation import ANIMATIONMYWAY
 from .physics import PhysicsSprite
-from .sprites_and_sounds import get_sfx
 
 
 class Portal(PhysicsSprite):
@@ -34,7 +33,7 @@ class Portal(PhysicsSprite):
             scale_factor=2,
             rotation=rotation,
         )
-        self.sound = get_sfx("teleport.ogg")
+        self.sound_name = "teleport.ogg"
 
     def update_physics(self, dt: float) -> None:
         super().update_physics(dt)

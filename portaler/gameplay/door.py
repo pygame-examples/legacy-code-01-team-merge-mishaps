@@ -9,7 +9,7 @@ import pygame
 from ..const import DOOR_CHANNEL
 from ..interfaces import Axis, PhysicsType, SpriteInitData, SpriteInterface, SpritePhysicsData
 from .physics import PhysicsSprite
-from .sprites_and_sounds import get_image, get_sfx
+from .sprites_and_sounds import get_image, play_sound
 
 
 class Door(PhysicsSprite):
@@ -76,8 +76,7 @@ class Door(PhysicsSprite):
             "light-red": pygame.transform.scale_by(spritesheet.subsurface((32, 32, 32, 16)), scale_factor),
         }
 
-        self.sound = get_sfx("pressure-door.ogg")
-        self.sound.set_volume(0.25)  # very annoying sound
+        self.sound_name = "pressure-door.ogg"
 
     def update_physics(self, dt: float) -> None:
         super().update_physics(dt)
@@ -120,7 +119,7 @@ class Door(PhysicsSprite):
             pygame.Channel(DOOR_CHANNEL).stop()
         elif not pygame.Channel(DOOR_CHANNEL).get_busy():
             # Keep playing sound continuously
-            pygame.Channel(DOOR_CHANNEL).play(self.sound)
+            play_sound(self.sound_name, DOOR_CHANNEL, volume=0.25)
             # TODO: ANNOYING AHH SOUND, PLEASE MAKE A BETTER ONE
 
         # rotate the thing

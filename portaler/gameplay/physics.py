@@ -24,7 +24,7 @@ from ..interfaces import (
     SpritePhysicsData,
 )
 from .sprite import Sprite
-from .sprites_and_sounds import get_sfx
+from .sprites_and_sounds import play_sound
 
 
 def is_aligned_with_portal(
@@ -301,14 +301,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if self.on_ground or self.coyote_time_left > 0:
             self.velocity.y = -self.jump_speed  # DO NOT USE dt HERE
             self.coyote_time_left = 0
-            get_sfx("jump.ogg").play()
+            play_sound("jump.ogg")
 
     @protect
     def duck(self, dt: float) -> None:
         """If I am dynamic, try to duck until the next frame"""
         if not self.on_ground:
             self.velocity.y = max(self.duck_speed, self.velocity.y, 1)  # DO NOT USE dt HERE
-            get_sfx("slam.ogg").play()
+            play_sound("slam.ogg")
 
     @protect
     def interact(self, dt: float) -> None:
@@ -483,7 +483,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             else:
                 self.rect.bottom = self.out_portal.rect.top + 1
         self.portal_state = self.PortalState.EXIT
-        get_sfx("teleport.ogg").play()  # play the portal teleport sound
+        play_sound("teleport.ogg")
         if self.current_throwable is not None:
             # Teleport current throwable
             if self.current_throwable.in_portal is not self.in_portal:
