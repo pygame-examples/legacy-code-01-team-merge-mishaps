@@ -3,7 +3,8 @@ from typing import Coroutine
 import pygame
 from pygame import FRect
 
-from ..const import TILE_SIZE
+from ..const import TILE_SIZE, Actions
+from ..game_input import input_state
 from ..interfaces import (
     Axis,
     Direction,
@@ -60,6 +61,13 @@ class Level(GameLevelInterface):
             self.level_count = 1  # TODO: win screen
 
         loaders.LevelLoader(str(self.level_count)).load(self)
+
+    def restart(self):
+        """
+        Restart level.
+        """
+        self.empty_all()
+        self.init()
 
     def add_task(self, task: Coroutine) -> None:
         """Adds task to main game loop"""
@@ -210,3 +218,7 @@ class Level(GameLevelInterface):
                 rect=FRect(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), level=self
             ),
         )
+
+    def handle_input(self, dt: float) -> None:
+        if input_state.get_just(Actions.RESTART):
+            self.restart()

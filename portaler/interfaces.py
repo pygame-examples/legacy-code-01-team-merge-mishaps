@@ -108,6 +108,9 @@ class GameStateInterface(ABC):
     def on_exit(self) -> None:
         pass
 
+    def handle_input(self, dt: float) -> None:
+        pass
+
     async def update_actors(self, dt: float) -> None:
         pass
 
@@ -182,6 +185,8 @@ class GameLevelInterface(GameStateInterface, ABC):
         return surface
 
     async def update_actors(self, dt):
+        self.handle_input(dt)
+
         for sprite in self.get_group("actors"):
             sprite.act(dt)
 
@@ -191,6 +196,10 @@ class GameLevelInterface(GameStateInterface, ABC):
         """
         for sprite in self.get_group("physics"):
             sprite.update_physics(dt)
+
+    def empty_all(self):
+        for group in self.groups.values():
+            group.empty()
 
 
 @dataclass

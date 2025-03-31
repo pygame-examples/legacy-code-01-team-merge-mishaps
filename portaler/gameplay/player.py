@@ -29,7 +29,7 @@ class Player(PhysicsSprite):
 
     def update_facing(self):  # player has a different way of calculating 'facing' value
         self.facing.x = input_state.get(Actions.RIGHT) - input_state.get(Actions.LEFT)
-        self.facing.y = input_state.get(Actions.DOWN) - (
+        self.facing.y = input_state.get(Actions.IMMEDIATE_DOWN) - (
             input_state.get(Actions.UP) or input_state.get(Actions.JUMP)
         )
 
@@ -49,5 +49,8 @@ class Player(PhysicsSprite):
             if self.timer - self.last_down_press <= self.double_press_time:
                 self.duck(dt)
             self.last_down_press = self.timer
+
+        if input_state.get_just(Actions.IMMEDIATE_DOWN):
+            self.duck(dt)
 
         self.timer += dt
