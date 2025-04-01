@@ -349,6 +349,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         if not is_inside_portal(
             self.collision_rect, self.engaged_portal.collision_rect, self.engaged_portal.orientation
         ):
+            self.resolve_collision(get_axis_of_direction(self.engaged_portal.orientation), dt)  # fix clipping
             self.exit_portal()
             return
         return
@@ -375,14 +376,16 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         center = pygame.Vector2(self.rect.center)
         center[axis] += self.velocity[axis] * dt
         self.rect.center = center[0], center[1]
+        self.resolve_collision(axis, dt)
 
-        offset = self.resolve_collision(axis, dt)
+    def resolve_collision(self, axis: int, dt: float) -> None:
+        offset = self.collision_offset(axis, dt)
         if offset == 0.0:
             return
         self.velocity[axis] = 0.0
         self.rect[axis] += offset
 
-    def resolve_collision(self, axis: int, dt: float) -> float:
+    def collision_offset(self, axis: int, dt: float) -> float:
         """
         Find the offset to resolve a collision, for the given axis.
         Both directions are checked, with the smallest offset being chosen.
@@ -446,6 +449,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.in_portal = in_portal
         self.out_portal = out_portal
         self.portal_state = self.PortalState.ENTER
+        print("ENTER", self.engaged_portal.tunnel_id)
 
     def teleport_portal(self) -> None:
         """
@@ -496,6 +500,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         Called internally.
         """
+        print("EXIT", self.engaged_portal.tunnel_id)
         self.in_portal = None
         self.out_portal = None
         self.portal_state = self.PortalState.OUT
