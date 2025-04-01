@@ -9,6 +9,9 @@ Team two Merge Mishaps (times are in UTC):
 5) @Matiiss Monday, March 17, 2025 at 12:00 AM - Monday, March 24, 2025 at 12:00 AM
 6) @nuclear pasta Monday, March 24, 2025 at 12:00 AM - Monday, March 31, 2025 at 12:00 AM
 
+The jam has ended and the final state of the codebase for the jam is at [this tag](https://github.com/pygame-examples/legacy-code-01-team-merge-mishaps/releases/tag/game-jam-end).
+Any commits after the tag are not part of the jam.
+
 ## Controls
 - To move use either WASD or arrow keys
 - To jump press SPACE
