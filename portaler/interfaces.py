@@ -15,7 +15,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import deque
 from dataclasses import dataclass, field
-from enum import Enum, auto
+from enum import Enum, IntEnum, auto
 from types import EllipsisType
 from typing import Any, Coroutine, TypeVar, cast, overload
 
@@ -38,9 +38,13 @@ class PhysicsType(Enum):
     ACTIVATED = auto()  # TRIGGER objects interact with these
 
 
-class Axis(Enum):
+class Axis(IntEnum):
     HORIZONTAL = 0
     VERTICAL = 1
+
+    @property
+    def opposite(self) -> Axis:
+        return Axis(1 - self.value)
 
 
 class ThrowableType(Enum):
@@ -71,6 +75,14 @@ class Direction(Enum):
     SOUTH = (0, 1)
     EAST = (1, 0)
     WEST = (-1, 0)
+
+    @property
+    def opposite(self) -> Direction:
+        return Direction((-self.value[0], -self.value[1]))
+
+    @property
+    def axis(self) -> Axis:
+        return Axis.VERTICAL if self in {Direction.NORTH, Direction.SOUTH} else Axis.HORIZONTAL
 
 
 DIRECTION_TO_ANGLE = {

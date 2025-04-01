@@ -16,6 +16,7 @@ from ..const import (
 )
 from ..interfaces import (
     DIRECTION_TO_ANGLE,
+    Axis,
     Direction,
     PhysicsSpriteInterface,
     PhysicsType,
@@ -28,10 +29,10 @@ from .sprites_and_sounds import play_sound
 
 
 def is_aligned_with_portal(
-    collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction, tolerance: float = 0.0
+    collision_rect: pygame.FRect, portal_rect: pygame.FRect, axis: Axis, tolerance: float = 0.0
 ) -> bool:
     """Returns if a rect is aligned with the portal in its axis"""
-    if direction in {Direction.NORTH, Direction.SOUTH}:
+    if axis == Axis.VERTICAL:
         return (
             collision_rect.left > portal_rect.left - tolerance
             and collision_rect.right < portal_rect.right + tolerance
@@ -42,16 +43,16 @@ def is_aligned_with_portal(
     )
 
 
-def is_inside_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction) -> bool:
+def is_inside_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect, axis: Axis) -> bool:
     """Returns if a rect is inside a portal"""
     if not collision_rect.colliderect(portal_rect):
         return False
-    return is_aligned_with_portal(collision_rect, portal_rect, direction)
+    return is_aligned_with_portal(collision_rect, portal_rect, axis)
 
 
 def is_through_portal(collision_rect: pygame.FRect, portal_rect: pygame.FRect, direction: Direction) -> bool:
     """Returns if a rect is aligned and behind the back of a portal"""
-    if not is_aligned_with_portal(collision_rect, portal_rect, direction):
+    if not is_aligned_with_portal(collision_rect, portal_rect, direction.axis):
         return False
     if direction == Direction.NORTH:
         return collision_rect.top >= portal_rect.bottom - 1
@@ -118,11 +119,6 @@ def clip_rect_to_portal(
             overlap = min(collision_rect.right - portal_rect.right + collision_offset, collision_rect.height)
         collision_rect.width -= overlap
     return collision_rect
-
-
-def get_axis_of_direction(direction: Direction) -> int:
-    """Returns integer axis of a direction (0 for x, 1 for y)"""
-    return int(direction in {Direction.NORTH, Direction.SOUTH})
 
 
 def protect(fn: Callable[[PhysicsSprite, float], None]):
@@ -229,7 +225,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         collision_rect = self.collision_rect.copy()
         for portal in self.level.get_group("portal-physics"):
-            if is_inside_portal(collision_rect, portal.collision_rect, portal.orientation):
+            if is_inside_portal(collision_rect, portal.collision_rect, portal.orientation.axis):
                 collision_rect = clip_rect_to_portal(
                     collision_rect, portal.collision_rect, portal.orientation
                 )
@@ -323,7 +319,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         pos = self.pos + self.velocity * dt_since_physics
         return pos[0], pos[1]
 
-    def handle_dynamic_collision_inside_portal(self, axis: int, dt: float) -> None:
+    def handle_dynamic_collision_inside_portal(self, axis: Axis, dt: float) -> None:
         """Extra collision handling when inside a portal
 
         Called internally.
@@ -347,14 +343,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             return
         # If I'm not touching any portal, normalize state
         if not is_inside_portal(
-            self.collision_rect, self.engaged_portal.collision_rect, self.engaged_portal.orientation
+            self.collision_rect, self.engaged_portal.collision_rect, self.engaged_portal.orientation.axis
         ):
-            self.resolve_collision(get_axis_of_direction(self.engaged_portal.orientation), dt)  # fix clipping
+            self.resolve_collision(self.engaged_portal.orientation.axis, dt)  # fix clipping
             self.exit_portal()
             return
         return
 
-    def update_position(self, axis: int, dt: float) -> None:
+    def update_position(self, axis: Axis, dt: float) -> None:
         """
         Update position and do collision resolution.
 
@@ -378,14 +374,14 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.rect.center = center[0], center[1]
         self.resolve_collision(axis, dt)
 
-    def resolve_collision(self, axis: int, dt: float) -> None:
+    def resolve_collision(self, axis: Axis, dt: float) -> None:
         offset = self.collision_offset(axis, dt)
         if offset == 0.0:
             return
         self.velocity[axis] = 0.0
         self.rect[axis] += offset
 
-    def collision_offset(self, axis: int, dt: float) -> float:
+    def collision_offset(self, axis: Axis, dt: float) -> float:
         """
         Find the offset to resolve a collision, for the given axis.
         Both directions are checked, with the smallest offset being chosen.
@@ -432,7 +428,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         for sprite in self.level.get_group("dynamic-physics"):
             if (
                 sprite.portal_state == self.PortalState.OUT
-                and is_inside_portal(sprite.collision_rect, self.collision_rect, self.orientation)
+                and is_inside_portal(sprite.collision_rect, self.collision_rect, self.orientation.axis)
                 and is_entering_portal(self.orientation, sprite.velocity)
             ):
                 for portal in self.level.get_group(self.tunnel_id):
@@ -449,7 +445,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         self.in_portal = in_portal
         self.out_portal = out_portal
         self.portal_state = self.PortalState.ENTER
-        print("ENTER", self.engaged_portal.tunnel_id)
 
     def teleport_portal(self) -> None:
         """
@@ -466,10 +461,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         out_orientation = self.out_portal.orientation
         self.velocity = pygame.Vector2(self.velocity.length(), 0).rotate(DIRECTION_TO_ANGLE[out_orientation])
         # move the sprite to behind the exit portal
-        if get_axis_of_direction(out_orientation) == 0:
+        if out_orientation.axis == Axis.HORIZONTAL:
             self.rect.top = self.out_portal.rect.top + (
                 self.rect.top - self.in_portal.rect.top
-                if get_axis_of_direction(self.in_portal.orientation) == 0
+                if self.in_portal.orientation.axis == Axis.HORIZONTAL
                 else self.in_portal.rect.right - self.rect.right
             )
             if out_orientation == Direction.WEST:
@@ -479,7 +474,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         else:
             self.rect.left = self.out_portal.rect.left + (
                 self.rect.left - self.in_portal.rect.left
-                if get_axis_of_direction(self.in_portal.orientation) == 1
+                if self.in_portal.orientation.axis == Axis.VERTICAL
                 else self.in_portal.rect.bottom - self.rect.bottom
             )
             if out_orientation == Direction.NORTH:
@@ -500,7 +495,6 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
 
         Called internally.
         """
-        print("EXIT", self.engaged_portal.tunnel_id)
         self.in_portal = None
         self.out_portal = None
         self.portal_state = self.PortalState.OUT
@@ -586,7 +580,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         opposite_impulse[1] = max(-GRAVITY[1] * dt * 0.9, opposite_impulse[1])
         self.picker_upper.velocity += opposite_impulse
 
-    def is_colliding_static(self, axis: int, dt: float, offset: float = 0.0) -> bool:
+    def is_colliding_static(self, axis: Axis, dt: float, offset: float = 0.0) -> bool:
         """Check if I am colliding with a static object along the given axis, when moved by offset.
 
         Uses dt in order to prevent tunneling.
@@ -599,16 +593,16 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             if not sprite.one_way:
                 if self.engaged_portal is not None and (
                     # Don't collide on portal axis when moving into or out of the portal
-                    get_axis_of_direction(self.engaged_portal.orientation) == axis
+                    self.engaged_portal.orientation.axis == axis
                     # Don't collide perpendicularly when within the sides of portal
                     or is_aligned_with_portal(
-                        collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation
+                        collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation.axis
                     )
                 ):
                     # Check does not apply to one way platforms
                     continue
                 return True
-            if axis == 0:
+            if axis == Axis.HORIZONTAL:
                 # Never collide horizontally with one way platforms
                 continue
             y_velocity = self.velocity.y
@@ -638,9 +632,9 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
             # Note: Make sure to do any velocity modifications before update_position
             # otherwise weird stuff happen - Aiden
             self.update_throwable(dt)
-            self.update_position(1, dt)
-            self.update_position(0, dt)
-            self.on_ground = self.is_colliding_static(1, dt, 0.5)
+            self.update_position(Axis.VERTICAL, dt)
+            self.update_position(Axis.HORIZONTAL, dt)
+            self.on_ground = self.is_colliding_static(Axis.VERTICAL, dt, 0.5)
             if self.on_ground:
                 self.velocity[1] = 0
                 if (

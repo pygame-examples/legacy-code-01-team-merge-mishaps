@@ -31,7 +31,7 @@ class Door(PhysicsSprite):
         data.groups.extend(["physics", "render", "static-physics"])
         super().__init__(data, physics_data)
 
-        self.orientation = data.properties["orientation"]
+        self.orientation = data.properties["orientation"]  # TODO: axis is not direction
         if self.orientation == Axis.VERTICAL:
             scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
         else:
