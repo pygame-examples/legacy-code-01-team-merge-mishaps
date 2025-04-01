@@ -1,8 +1,8 @@
 import pygame
 
 from ..const import TILE_SIZE
-from ..interfaces import THROWABLE_TYPE_INTO_WEIGHT, PhysicsType
-from .physics import PhysicsSprite, SpriteInitData, SpritePhysicsData
+from ..interfaces import THROWABLE_TYPE_INTO_WEIGHT, PhysicsType, SpriteInitData, SpritePhysicsData
+from .physics import PhysicsSprite
 from .sprites_and_sounds import get_image
 
 
