@@ -82,6 +82,7 @@ class FinishButton(PhysicsSprite):
 
     def trigger(self, other: SpriteInterface | None):
         self.data.level.game.state_stack.pop()
+        play_sound("finish.ogg")
 
         from .level import Level
 
