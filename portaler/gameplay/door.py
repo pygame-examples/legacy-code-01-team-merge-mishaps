@@ -32,7 +32,7 @@ class Door(PhysicsSprite):
         super().__init__(data, physics_data)
 
         self.orientation = data.properties["orientation"]  # TODO: axis is not direction
-        if self.orientation == Axis.VERTICAL:
+        if self.orientation.axis == Axis.VERTICAL:
             scale_factor = data.rect[2] // 32  # 32 is the width of the sprite in the unscaled image
         else:
             scale_factor = data.rect[3] // 32
@@ -40,17 +40,17 @@ class Door(PhysicsSprite):
         self.state = "closing"  # possible states: "opening", "closing"
         # HACK: apparently -32 needs to be added to each height
         self.max_height = (
-            data.rect[3] if self.orientation == Axis.VERTICAL else data.rect[2]
+            data.rect[3] if self.orientation.axis == Axis.VERTICAL else data.rect[2]
         ) - 32  # how big can the door opening be?
         self.min_height = 0 - 32  # how small can the door opening be?
         self.current_height = self.max_height  # currently CLOSED
         self.image_size = (
-            self.rect.size if self.orientation == Axis.VERTICAL else (self.rect.h, self.rect.w)
+            self.rect.size if self.orientation.axis == Axis.VERTICAL else (self.rect.h, self.rect.w)
         )  # we sill draw the thing vertically, then rotate it
 
         self.draw_head = True  # whether to draw head of the door
 
-        if self.orientation == Axis.VERTICAL:
+        if self.orientation.axis == Axis.VERTICAL:
             head_rect = pygame.FRect(0, 0, self.rect.width, 16 * scale_factor)
             base_rect = pygame.FRect(
                 0, self.rect.height - 16 * scale_factor, self.rect.width, 16 * scale_factor
@@ -123,7 +123,7 @@ class Door(PhysicsSprite):
             # TODO: ANNOYING AHH SOUND, PLEASE MAKE A BETTER ONE
 
         # rotate the thing
-        if self.orientation == Axis.HORIZONTAL:
+        if self.orientation.axis == Axis.HORIZONTAL:
             door_surface = pygame.transform.rotate(door_surface, 90)
 
         # blit everything onto the screen
@@ -137,7 +137,7 @@ class Door(PhysicsSprite):
 
     @property
     def collision_rect(self):
-        if self.orientation == Axis.VERTICAL:
+        if self.orientation.axis == Axis.VERTICAL:
             rect = pygame.Rect(
                 self.rect.left + self.segments["middle"].width // 4,
                 self.rect.bottom - self.current_height - self.segments["tip"].height,

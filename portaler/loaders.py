@@ -138,7 +138,8 @@ class LevelLoader:
             for i, door in enumerate(data["doors"]):
                 pos = door["pos"]
                 length = door["length"]
-                orientation = Axis[door["orientation"]]
+                axis = Axis[door["orientation"]]  # TODO: implement actual directions, not just axes, for door
+                orientation = Direction.NORTH if axis == Axis.VERTICAL else Direction.WEST
                 trigger_lookup[f"doors[{i}]"] = target.spawn_door(
                     pos, length, orientation, draw_head=door.get("draw_head", True)
                 )
