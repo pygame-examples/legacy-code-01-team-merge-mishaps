@@ -4,7 +4,7 @@
     "tilemap_offset": [-1, -1],
     "sprites": {
         "player": {"pos": [8, 6]},
-        "throwables": [{"pos": [23, 3], "type": "GOLD"}],
+        "throwables": [{"pos": [23, 3], "type": "IRON"}],
         "portals": {
             "BEIGE": [{"pos": [21, 18], "orientation": "NORTH"}, {"pos": [1, 11], "orientation": "EAST"}],
             "RED": [{"pos": [27, 18], "orientation": "NORTH"}, {"pos": [1, 5], "orientation": "EAST"}],
