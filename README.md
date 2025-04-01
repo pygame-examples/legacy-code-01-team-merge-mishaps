@@ -15,9 +15,9 @@ Any commits after the tag are not part of the jam.
 ## Controls
 - To move use either WASD or arrow keys
 - To jump press SPACE
-- To slam down double press S or down key
+- To slam down press S or down key
 - To interact (pick up or throw) press E
-- Aim your throws by pressing the keys in the direction of which you want to throw
+- Aim your throws by holding movement keys in the direction you want to throw
   - note: some directions might not work on certain keyboards depending on key rollover ability
 - To toggle mute, press M
 
@@ -58,6 +58,7 @@ uvx pre-commit install
 - [ ] learn how to read TODOs inside code, because someone probably left something important there
 - [ ] menu
 - [ ] music
+- [ ] throwable sounds
 
 
 ### Guide to the source code

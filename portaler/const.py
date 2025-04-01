@@ -43,7 +43,6 @@ class Actions(Enum):  # ROB LITERALLY SAID NOT TO PUT ENUMS IN HERE LMAOO
     RIGHT = auto()
     UP = auto()
     DOWN = auto()
-    IMMEDIATE_DOWN = auto()
     JUMP = auto()
     INTERACT = auto()
     RESTART = auto()
@@ -57,8 +56,7 @@ DEFAULT_KEYBINDINGS = {
     ],  # just looking up to throw something up, but otherwise does nothing
     Actions.LEFT: [pygame.K_LEFT, pygame.K_a],
     Actions.RIGHT: [pygame.K_RIGHT, pygame.K_d],
-    Actions.DOWN: [pygame.K_SPACE],
-    Actions.IMMEDIATE_DOWN: [pygame.K_DOWN, pygame.K_s],
+    Actions.DOWN: [pygame.K_DOWN, pygame.K_s],
     Actions.JUMP: [pygame.K_SPACE],
     Actions.INTERACT: [pygame.K_e],
     Actions.RESTART: [pygame.K_r],
