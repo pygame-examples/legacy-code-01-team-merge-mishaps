@@ -1,7 +1,7 @@
 import pygame
 
 from ..interfaces import DIRECTION_TO_ANGLE, PhysicsType, SpriteInitData, SpritePhysicsData
-from .animation import ANIMATIONMYWAY
+from .animation import Animation
 from .physics import PhysicsSprite
 
 
@@ -26,7 +26,7 @@ class Portal(PhysicsSprite):
         super().__init__(data, physics_data)
 
         rotation = -DIRECTION_TO_ANGLE[self.orientation] - 90  # it works
-        self.animation = ANIMATIONMYWAY(
+        self.animation = Animation(
             f"portals/portal{data.properties['tunnel_id']}.png",
             12,
             frame_count=7,

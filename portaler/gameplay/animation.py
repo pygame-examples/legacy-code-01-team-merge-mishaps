@@ -3,7 +3,7 @@ import pygame
 from .sprites_and_sounds import get_image
 
 
-class ANIMATIONMYWAY:
+class Animation:
     def __init__(
         self,
         spritesheet_path: str,

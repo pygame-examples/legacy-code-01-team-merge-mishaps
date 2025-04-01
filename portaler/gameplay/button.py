@@ -2,6 +2,7 @@ import pygame
 
 from ..const import BUTTON_CHANNEL
 from ..interfaces import PhysicsType, SpriteInitData, SpriteInterface, SpritePhysicsData
+from .animation import Animation
 from .physics import PhysicsSprite
 from .sprites_and_sounds import get_image, play_sound
 
@@ -72,8 +73,12 @@ class FinishButton(PhysicsSprite):
         # sprite will be added to these groups later
         data.groups.extend(["physics", "render", "triggerable"])
         super().__init__(data, physics_data)
-        self.image = get_image("finish.png")
+        self.animation = Animation("finish.png", 10, frame_count=2, scale_factor=2)
         self.data = data
+
+    def draw(self, surface: pygame.Surface, offset: pygame.Vector2, dt_since_physics: float) -> None:
+        self.animation.update(dt_since_physics)
+        surface.blit(self.animation.get_frame(), self.rect.move(-offset))
 
     def trigger(self, other: SpriteInterface | None):
         self.data.level.game.state_stack.pop()

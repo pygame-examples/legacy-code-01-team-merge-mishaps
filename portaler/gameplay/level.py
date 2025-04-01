@@ -216,7 +216,8 @@ class Level(GameLevelInterface):
         return self.spawn(
             FinishButton,
             SpriteInitData(
-                rect=FRect(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, TILE_SIZE, TILE_SIZE), level=self
+                rect=FRect(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE - TILE_SIZE, TILE_SIZE, TILE_SIZE),
+                level=self,
             ),
         )
 
