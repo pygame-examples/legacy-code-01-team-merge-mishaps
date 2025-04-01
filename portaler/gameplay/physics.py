@@ -588,20 +588,20 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
         """
         collision_rect = self.clipped_collision_rect()
         collision_rect[axis] += offset
-
-        if self.engaged_portal is not None and (
-            # Don't collide on portal axis when moving into or out of the portal
-            get_axis_of_direction(self.engaged_portal.orientation) == axis
-            # Don't collide perpendicularly when within the sides of portal
-            or is_aligned_with_portal(
-                collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation
-            )
-        ):
-            return False
         for sprite in self.level.get_group("static-physics"):
             if not sprite.collision_rect.colliderect(collision_rect):
                 continue
             if not sprite.one_way:
+                if self.engaged_portal is not None and (
+                    # Don't collide on portal axis when moving into or out of the portal
+                    get_axis_of_direction(self.engaged_portal.orientation) == axis
+                    # Don't collide perpendicularly when within the sides of portal
+                    or is_aligned_with_portal(
+                        collision_rect, self.engaged_portal.rect, self.engaged_portal.orientation
+                    )
+                ):
+                    # Check does not apply to one way platforms
+                    continue
                 return True
             if axis == 0:
                 # Never collide horizontally with one way platforms
