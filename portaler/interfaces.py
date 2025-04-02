@@ -254,6 +254,7 @@ class SpritePhysicsData:
 
 class SpriteInterface(ABC):
     rect: pygame.FRect
+    name: str
 
     def __init__(self, data: SpriteInitData):
         pass

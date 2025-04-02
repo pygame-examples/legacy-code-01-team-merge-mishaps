@@ -4,6 +4,7 @@ from ..const import BUTTON_CHANNEL
 from ..interfaces import PhysicsType, SpriteInitData, SpriteInterface, SpritePhysicsData
 from .animation import Animation
 from .physics import PhysicsSprite
+from .player import Player  # used to separate normal object from player object
 from .sprites_and_sounds import get_image, play_sound
 
 
@@ -81,12 +82,14 @@ class FinishButton(PhysicsSprite):
         surface.blit(self.animation.get_frame(), self.rect.move(-offset))
 
     def trigger(self, other: SpriteInterface | None):
-        self.data.level.game.state_stack.pop()
-        play_sound("finish.ogg")
+        # only trigger if the player touched the finish flag
+        if isinstance(other, Player):
+            self.data.level.game.state_stack.pop()
+            play_sound("finish.ogg")
 
-        from .level import Level
+            from .level import Level
 
-        next_level = Level(self.data.level.game)
-        next_level.level_count = self.data.level.level_count + 1
-        self.data.level.game.state_stack.append(next_level)
-        next_level.init()
+            next_level = Level(self.data.level.game)
+            next_level.level_count = self.data.level.level_count + 1
+            self.data.level.game.state_stack.append(next_level)
+            next_level.init()

@@ -310,8 +310,10 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
     def interact(self, dt: float) -> None:
         """Interact with different objects"""
         if self.throw(dt):
+            play_sound("throw.ogg")
             return
         if self.pick_up():
+            play_sound("pickup.ogg")
             return
 
     def interpolated_pos(self, dt_since_physics: float) -> tuple[float, float]:
