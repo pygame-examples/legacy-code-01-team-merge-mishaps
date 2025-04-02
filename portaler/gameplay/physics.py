@@ -302,7 +302,7 @@ class PhysicsSprite(Sprite, PhysicsSpriteInterface):
     @protect
     def duck(self, dt: float) -> None:
         """If I am dynamic, try to duck until the next frame"""
-        if not self.on_ground:
+        if not self.on_ground and self.velocity.y < max(self.duck_speed, 1):
             self.velocity.y = max(self.duck_speed, self.velocity.y, 1)  # DO NOT USE dt HERE
             play_sound("slam.ogg")
 
