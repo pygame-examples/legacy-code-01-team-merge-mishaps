@@ -9,10 +9,10 @@
             {"pos": [8, 2], "type": "WOOD"}
         ],
         "portals": {
-            "YELLOW": [{"pos": [8, 0], "orientation": "NORTH"}, {"pos": [8, 2], "orientation": "SOUTH"}],
-            "GREEN": [{"pos": [2, 5], "orientation": "EAST"}, {"pos": [32, 5], "orientation": "WEST"}],
-            "RED": [{"pos": [14, 7], "orientation": "NORTH"}, {"pos": [7, 7], "orientation": "NORTH"}],
-            "CYAN": [{"pos": [19, 2], "orientation": "SOUTH"}, {"pos": [19, 7], "orientation": "NORTH"}]
+            "DARK_GREEN": [{"pos": [8, 0], "orientation": "NORTH"}, {"pos": [8, 2], "orientation": "SOUTH"}],
+            "OCEAN": [{"pos": [2, 5], "orientation": "EAST"}, {"pos": [32, 5], "orientation": "WEST"}],
+            "PALE_BLUE": [{"pos": [14, 7], "orientation": "NORTH"}, {"pos": [7, 7], "orientation": "NORTH"}],
+            "GRAY": [{"pos": [19, 2], "orientation": "SOUTH"}, {"pos": [19, 7], "orientation": "NORTH"}]
         },
         "one_way_blocks": [{"pos": [10, 5], "width": 4}],
         "doors": [{"pos": [26, 2], "length": 6, "orientation": "VERTICAL"}],

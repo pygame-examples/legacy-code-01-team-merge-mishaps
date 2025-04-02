@@ -68,6 +68,12 @@ class PortalColor(Enum):
     BLUE = auto()
     BEIGE = auto()
     CYAN = auto()
+    BROWN = auto()
+    MAGENTA = auto()
+    GRAY = auto()
+    DARK_GREEN = auto()
+    OCEAN = auto()
+    PALE_BLUE = auto()
 
 
 class Direction(Enum):
