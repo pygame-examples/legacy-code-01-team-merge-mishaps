@@ -10,6 +10,7 @@ from ..interfaces import (
     Direction,
     GameInterface,
     GameLevelInterface,
+    HeightChangeState,
     PortalColor,
     SpriteInitData,
     ThrowableType,
@@ -19,6 +20,7 @@ from .block import Block, OneWayBlock, ThrowableBlock
 from .button import Button, FinishButton
 from .camera import Camera
 from .door import Door
+from .lifter import Lifter
 from .player import Player
 from .portal import Portal
 
@@ -193,6 +195,33 @@ class Level(GameLevelInterface):
             ),
         )
         return block
+
+    def spawn_lifter(
+        self,
+        pos,
+        height: int,
+        segment_count: int,
+        starting_state: HeightChangeState,
+        is_right_sharp: bool = False,
+        is_left_sharp: bool = False,
+    ):
+        rect = FRect(pos[0] * TILE_SIZE, pos[1] * TILE_SIZE, segment_count * TILE_SIZE, height * TILE_SIZE)
+
+        lifter = self.spawn(
+            Lifter,
+            SpriteInitData(
+                rect=rect,
+                level=self,
+                properties={
+                    "segments": segment_count,
+                    "starting_state": starting_state,
+                    "is_right_sharp": is_right_sharp,
+                    "is_left_sharp": is_left_sharp,
+                },
+            ),
+        )
+
+        return lifter
 
     def spawn_door(self, pos, length: int, orientation: Direction, *, draw_head: bool = True):
         rect = FRect(

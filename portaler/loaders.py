@@ -143,6 +143,15 @@ class LevelLoader:
                 trigger_lookup[f"doors[{i}]"] = target.spawn_door(
                     pos, length, orientation, draw_head=door.get("draw_head", True)
                 )
+        if "lifters" in data:
+            for i, lifter in enumerate(data["lifters"]):
+                pos = lifter["pos"]
+                height = lifter["height"]
+                segment_count = lifter["segment_count"]
+                starting_state = lifter["starting_state"]
+                trigger_lookup[f"lifters[{i}]"] = target.spawn_lifter(
+                    pos, height, segment_count, starting_state
+                )
         if "buttons" in data:
             for i, button in enumerate(data["buttons"]):
                 pos = button["pos"]

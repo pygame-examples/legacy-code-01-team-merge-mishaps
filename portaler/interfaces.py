@@ -61,6 +61,11 @@ THROWABLE_TYPE_INTO_WEIGHT = {
 }
 
 
+class HeightChangeState(Enum):
+    LOWERING = auto()
+    HIGHTENING = auto()
+
+
 class PortalColor(Enum):
     GREEN = auto()
     YELLOW = auto()

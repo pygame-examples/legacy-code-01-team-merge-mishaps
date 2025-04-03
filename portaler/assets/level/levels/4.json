@@ -16,6 +16,22 @@
             "GREEN": [{"pos": [3, 9], "orientation": "NORTH"}, {"pos": [2, 4], "orientation": "EAST"}],
             "BEIGE": [{"pos": [8, 8], "orientation": "EAST"}, {"pos": [23, 4], "orientation": "WEST"}]
         },
+        "doors": [
+            {"pos": [3, 7], "length": 3, "orientation": "HORIZONTAL"},
+            {"pos": [19, 15], "length": 4, "orientation": "VERTICAL"},
+            {"pos": [22, 15], "length": 4, "orientation": "VERTICAL"},
+            {"pos": [20, 4], "length": 3, "orientation": "VERTICAL", "draw_head": false}
+        ],
+        "lifters": [
+            {"pos": [13, 14], "height": 5, "segment_count": 2, "starting_state": "HIGHTENING"}
+        ],
+        "buttons": [
+            {"pos": [6, 15], "linked_to": ["lifters[0]"]},
+            {"pos": [22, 10], "linked_to": ["doors[0]"]},
+            {"pos": [19, 13], "linked_to": ["doors[1]"]},
+            {"pos": [22, 13], "linked_to": ["doors[2]"]},
+            {"pos": [23, 3], "linked_to": ["doors[3]"]}
+        ],
         "one_way_blocks": [
             {"pos": [13, 14], "width": 2},
             {"pos": [12, 11], "width": 4},
@@ -26,20 +42,6 @@
             {"pos": [22, 4], "width": 3},
             {"pos": [2, 4], "width": 5},
             {"pos": [10, 4], "width": 4}
-        ],
-        "doors": [
-            {"pos": [13, 14], "length": 5, "orientation": "VERTICAL", "draw_head": false},
-            {"pos": [3, 7], "length": 3, "orientation": "HORIZONTAL"},
-            {"pos": [19, 15], "length": 4, "orientation": "VERTICAL"},
-            {"pos": [22, 15], "length": 4, "orientation": "VERTICAL"},
-            {"pos": [20, 4], "length": 3, "orientation": "VERTICAL", "draw_head": false}
-        ],
-        "buttons": [
-            {"pos": [6, 15], "linked_to": ["doors[0]"]},
-            {"pos": [22, 10], "linked_to": ["doors[1]"]},
-            {"pos": [19, 13], "linked_to": ["doors[2]"]},
-            {"pos": [22, 13], "linked_to": ["doors[3]"]},
-            {"pos": [23, 3], "linked_to": ["doors[4]"]}
         ],
         "finishes": [{"pos": [25, 18]}]
     }
